@@ -77,7 +77,9 @@ public class EvaluationContext
     internal IDictionary<object, ISet<long>> FireOnceRules { get; set; }
 
 
-    internal bool IsExhausted => (Results.TotalEvaluated > MaxEvaluations) || ((DateTime.Now - Results.Started).TotalMilliseconds > MaxDuration);
+    internal long StartedTick { get; set; } = Environment.TickCount64;
+
+    internal bool IsExhausted => (Results.TotalEvaluated > MaxEvaluations) || ((Environment.TickCount64 - StartedTick) > MaxDuration);
 
 
     public string Description { get; set; }
@@ -94,10 +96,7 @@ public class EvaluationContext
 
     public int MaxViolations { get; set; }
 
-    internal bool ViolationsExceeded
-    {
-        get { return Results.Events.Count( e => e.Category == EventDetail.EventCategory.Violation ) >= MaxViolations; }
-    }
+    internal bool ViolationsExceeded => Results.ViolationCount >= MaxViolations;
 
 
 
@@ -246,10 +245,12 @@ public class EvaluationContext
             Source      = source,
             Group       = group,
             RuleName    = CurrentRuleName,
-            Explanation = string.Format( template, parameters )
+            Explanation = parameters.Length == 0 ? template : string.Format( template, parameters )
         };
 
         Results.Events.Add( theEvent );
+        if (category == EventDetail.EventCategory.Violation)
+            Results.ViolationCount++;
 
     }
 

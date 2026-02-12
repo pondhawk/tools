@@ -43,7 +43,7 @@ internal static class Helpers
     {
         byte[] bytes = BitConverter.GetBytes( signature );
 
-        int len = 0;
+        int len = 4;
         for( int i = 0; i < 4; i++ )
             if( bytes[i] == 0 )
             {

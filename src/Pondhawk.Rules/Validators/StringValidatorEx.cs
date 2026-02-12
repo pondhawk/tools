@@ -100,7 +100,7 @@ public static class StringValidatorEx
 
         var propName = validator.PropertyName.Humanize(LetterCasing.Title);
         
-        v.Otherwise($"{propName} is to short");
+        v.Otherwise($"{propName} is too short");
 
         return v;        
         
@@ -114,7 +114,7 @@ public static class StringValidatorEx
         
         var propName = validator.PropertyName.Humanize(LetterCasing.Title);
         
-        v.Otherwise($"{propName} is to long");
+        v.Otherwise($"{propName} is too long");
 
         return v;        
         

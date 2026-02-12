@@ -111,12 +111,12 @@ namespace Pondhawk.Rules.Validators
         
         public static ICollectionValidator<TFact, TType> HasAtLeast<TFact, TType>(this ICollectionValidator<TFact, TType> validator, Func<TType, bool> predicate, int count) where TFact : class where TType : class
         {
-            validator.Is((f, v) => v.Where(predicate).Count() <= count);
+            validator.Is((f, v) => v.Where(predicate).Count() >= count);
             return validator;
         }
 
 
-        
+
         public static ICollectionValidator<TFact, TType> HasAtMost<TFact, TType>(this ICollectionValidator<TFact, TType> validator, Func<TType, bool> predicate, int count) where TFact : class where TType : class
         {
             validator.Is((f, v) => v.Where(predicate).Count() <= count);

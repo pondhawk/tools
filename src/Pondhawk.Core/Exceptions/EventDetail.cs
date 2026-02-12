@@ -56,8 +56,7 @@ public class EventDetail
 
         public int GetHashCode( EventDetail obj)
         {
-            var hs = (obj.RuleName + obj.Group + obj.Explanation).GetHashCode();
-            return hs;
+            return HashCode.Combine(obj.Category, obj.RuleName, obj.Group, obj.Explanation);
         }
 
     }

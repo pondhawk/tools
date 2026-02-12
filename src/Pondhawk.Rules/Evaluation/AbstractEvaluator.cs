@@ -64,6 +64,7 @@ namespace Pondhawk.Rules.Evaluation
             RuleThreadLocalStorage.CurrentContext = context;
 
             context.Results.Started = DateTime.Now;
+            context.StartedTick = Environment.TickCount64;
 
             context.Listener.BeginEvaluation();
 

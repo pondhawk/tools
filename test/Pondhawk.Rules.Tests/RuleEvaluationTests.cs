@@ -39,9 +39,8 @@ public class RuleEvaluationTests
         var result = EvaluateSafe(ruleSet, person);
 
         fired.ShouldBeTrue();
-        // TotalFired is double-counted (TupleEvaluator + AbstractRule.InternalFire)
-        result.TotalFired.ShouldBeGreaterThan(0);
-        result.TotalEvaluated.ShouldBeGreaterThan(0);
+        result.TotalFired.ShouldBe(1);
+        result.TotalEvaluated.ShouldBe(1);
     }
 
     [Fact]
@@ -446,8 +445,7 @@ public class RuleEvaluationTests
 
         var result = EvaluateSafe(ruleSet, new Person { Name = "Test", Age = 25 });
 
-        // TotalFired is double-counted (TupleEvaluator + AbstractRule.InternalFire)
-        result.TotalFired.ShouldBeGreaterThan(0);
+        result.TotalFired.ShouldBe(1);
     }
 
 
@@ -478,7 +476,7 @@ public class RuleEvaluationTests
 
         // Rule.Name is "{Namespace}.{ruleName}" = "runtime.tracked"
         result.FiredRules.ShouldContainKey("runtime.tracked");
-        result.FiredRules["runtime.tracked"].ShouldBeGreaterThan(0);
+        result.FiredRules["runtime.tracked"].ShouldBe(1);
     }
 
 
@@ -534,7 +532,7 @@ public class RuleEvaluationTests
         ruleSet.AddRule<Person>("test")
             .Fire(p => { });
 
-        EvaluateSafe(ruleSet, new Person { Name = "Before" }).TotalFired.ShouldBeGreaterThan(0);
+        EvaluateSafe(ruleSet, new Person { Name = "Before" }).TotalFired.ShouldBe(1);
 
         ruleSet.Clear();
 

@@ -70,7 +70,6 @@ internal class TupleEvaluator
 
             Context.Listener.FiringRule( rule );
 
-            RuleThreadLocalStorage.CurrentContext.Results.TotalFired++;
             rule.FireRule( tuple );
 
 
@@ -162,7 +161,6 @@ internal class TupleEvaluator
             }
         }
 
-        RuleThreadLocalStorage.CurrentContext.Results.TotalEvaluated++;
         var result = rule.EvaluateRule(facts);
 
         return result;

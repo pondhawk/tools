@@ -46,17 +46,17 @@ public class HelpersTests
     }
 
     [Fact]
-    public void EncodeSignature_FourIndices_CannotRoundtrip()
+    public void EncodeSignature_FourIndices_Roundtrips()
     {
-        // Known limitation: when all 4 bytes are non-zero (indices 0-3 encode as 1-4),
-        // DecodeSignature cannot find a zero terminator and returns empty.
-        // This affects Rule<T1,T2,T3,T4> signatures but is mitigated because
-        // the EvaluationPlan handles 4-type steps separately.
         byte[] input = [0, 1, 2, 3];
         var encoded = Helpers.EncodeSignature(input);
         var decoded = Helpers.DecodeSignature(encoded);
 
-        decoded.Length.ShouldBe(0);
+        decoded.Length.ShouldBe(4);
+        decoded[0].ShouldBe((byte)0);
+        decoded[1].ShouldBe((byte)1);
+        decoded[2].ShouldBe((byte)2);
+        decoded[3].ShouldBe((byte)3);
     }
 
     [Fact]

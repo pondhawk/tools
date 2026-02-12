@@ -298,6 +298,36 @@ public class ValidationTests
         result.HasViolations.ShouldBeTrue();
     }
 
+    [Fact]
+    public void StringValidator_IsMatch_RegexWithCurlyBraces_Passes()
+    {
+        var ruleSet = new RuleSet();
+
+        ruleSet.AddValidation<Person>("zip-pattern")
+            .Assert<string>(p => p.Status)
+            .IsMatch(@"^\d{5}$");
+
+        var person = new Person { Name = "Test", Status = "12345" };
+        var result = EvaluateSafe(ruleSet, person);
+
+        result.HasViolations.ShouldBeFalse();
+    }
+
+    [Fact]
+    public void StringValidator_IsMatch_RegexWithCurlyBraces_Fails()
+    {
+        var ruleSet = new RuleSet();
+
+        ruleSet.AddValidation<Person>("zip-pattern")
+            .Assert<string>(p => p.Status)
+            .IsMatch(@"^\d{5}$");
+
+        var person = new Person { Name = "Test", Status = "ABC" };
+        var result = EvaluateSafe(ruleSet, person);
+
+        result.HasViolations.ShouldBeTrue();
+    }
+
 
     // ========== Numeric validators ==========
 

@@ -58,10 +58,9 @@ namespace Pondhawk.Rules
 
         public ISet<EventDetail> Events { get;}
 
-        public bool HasViolations
-        {
-            get { return Events.Count( e => e.Category == EventDetail.EventCategory.Violation ) > 0; }
-        }
+        public int ViolationCount { get; set; }
+
+        public bool HasViolations => ViolationCount > 0;
 
         public DateTime Started { get; set; }
         public DateTime Completed { get; set; }

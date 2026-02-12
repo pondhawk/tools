@@ -144,6 +144,7 @@ public class EvaluationContextTests
             RuleName = "rule1",
             Source = "source"
         });
+        results.ViolationCount++;
 
         results.HasViolations.ShouldBeTrue();
     }

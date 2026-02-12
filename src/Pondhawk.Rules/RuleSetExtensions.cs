@@ -3,6 +3,7 @@
 // ReSharper disable UnusedMember.Global
 
 using Pondhawk.Exceptions;
+using Pondhawk.Logging;
 
 namespace Pondhawk.Rules;
 
@@ -16,7 +17,7 @@ public static class RuleSetExtensions
     public static EvaluationResults Evaluate( this IRuleSet rules, params object[] facts )
     {
 
-        using var logger = rules.GetLogger();
+        var logger = rules.GetLogger();
 
         var ec = rules.GetEvaluationContext();
         ec.ThrowNoRulesException = false;
@@ -36,7 +37,7 @@ public static class RuleSetExtensions
     public static EvaluationResults Evaluate( this IRuleSet rules, IEnumerable<object> fact )
     {
 
-        using var logger = rules.GetLogger();
+        var logger = rules.GetLogger();
 
         var ec = rules.GetEvaluationContext();
         ec.ThrowNoRulesException = false;
@@ -56,7 +57,7 @@ public static class RuleSetExtensions
     public static bool TryValidate(this IRuleSet rules, object subject, out List<EventDetail> violations)
     {
 
-        using var logger = rules.GetLogger();
+        var logger = rules.GetLogger();
 
 
         violations = EmptyDetails;
@@ -86,7 +87,7 @@ public static class RuleSetExtensions
     public static bool TryValidate(this IRuleSet rules, IEnumerable<object> subjects, out List<EventDetail> violations)
     {
 
-        using var logger = rules.GetLogger();
+        var logger = rules.GetLogger();
 
 
         violations = EmptyDetails;

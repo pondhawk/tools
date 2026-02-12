@@ -1,4 +1,6 @@
-﻿namespace Pondhawk.Rules.Validators
+﻿using Pondhawk.Exceptions;
+
+namespace Pondhawk.Rules.Validators
 {
     public interface ICollectionValidator<out TFact, out TType>
     {

@@ -1,16 +1,16 @@
-using System.Collections.Concurrent;
-using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using Pondhawk.Logging.Serializers;
-using Pondhawk.Logging.Utilities;
 using Serilog;
-using Serilog.Core;
 using Serilog.Events;
 
 namespace Pondhawk.Logging;
 
 public static class SerilogExtensions
 {
+    private static readonly LoggerSource FallbackInstance = new();
+
+    public static ILoggerSource? Default { get; set; }
+
     #region Method Tracing
 
     public static MethodLogger EnterMethod(
@@ -169,8 +169,7 @@ public static class SerilogExtensions
 
     public static ILogger GetLogger(this object source)
     {
-        var category = source.GetType().GetConciseFullName();
-        return Log.ForContext(Constants.SourceContextPropertyName, category);
+        return (Default ?? FallbackInstance).GetLogger(source);
     }
 
     public static MethodLogger EnterMethod(
@@ -178,7 +177,7 @@ public static class SerilogExtensions
         [CallerMemberName] string method = "",
         [CallerFilePath] string file = "")
     {
-        return source.GetLogger().EnterMethod(method, file);
+        return (Default ?? FallbackInstance).EnterMethod(source, method, file);
     }
 
     private static string GetCategory(ILogger logger)

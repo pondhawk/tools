@@ -36,10 +36,6 @@ public interface IRqlFilter
     bool Is<TTarget>();
 
 
-    bool HasProjection { get; }
-    IEnumerable<string> Projection { get; }
-
-
     bool HasCriteria { get; }
     IEnumerable<IRqlPredicate> Criteria { get; }
 

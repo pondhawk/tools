@@ -137,24 +137,24 @@ public static class SqlSerializerExtensions
 
 
 
-    public static (string sql, object[] parameters) ToSqlQuery<TEntity>( this RqlFilterBuilder<TEntity> builder, IEnumerable<string> projection=null ) where TEntity : class
+    public static (string sql, object[] parameters) ToSqlQuery<TEntity>( this RqlFilterBuilder<TEntity> builder ) where TEntity : class
     {
 
         var tableName = typeof(TEntity).Name;
 
-        var result = ToSqlQuery(builder, tableName, projection);
+        var result = ToSqlQuery(builder, tableName);
 
         return result;
 
     }
 
-    public static (string sql, object[] parameters) ToSqlQuery( this IRqlFilter builder, string tableName, IEnumerable<string> projection=null, bool indexed=true )
+    public static (string sql, object[] parameters) ToSqlQuery( this IRqlFilter builder, string tableName, bool indexed=true )
     {
-            
+
         ArgumentNullException.ThrowIfNull(tableName);
 
 
-        projection ??= builder.HasProjection ? builder.Projection : new[] {"*"};
+        var projection = new[] {"*"};
 
 
         var pair = builder.ToSqlWhere(indexed);

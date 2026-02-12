@@ -1,6 +1,7 @@
 ﻿using System.Linq.Expressions;
 using Pondhawk.Rules.Builder;
 using Pondhawk.Rules.Validators;
+using Pondhawk.Utilities.Types;
 
 // ReSharper disable UnusedMember.Global
 
@@ -91,7 +92,7 @@ public abstract class ValidationBuilder<TFact>: AbstractRuleBuilder, IBuilder
 
         try
         {
-            _currentMutex = Ulid.NewUlid();
+            _currentMutex = Ulid.NewUlid().ToString();
             builder();
         }
         finally

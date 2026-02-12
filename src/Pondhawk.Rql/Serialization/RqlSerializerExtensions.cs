@@ -171,15 +171,7 @@ namespace Pondhawk.Rql.Serialization
 
             var sb = new StringBuilder();
 
-            if( builder.HasProjection )
-            {
-                sb.Append('(');
-                sb.Append(string.Join(",", builder.Projection));
-                sb.Append(')');
-                sb.Append(' ');
-            }
-            else
-                sb.Append("(*) ");
+            sb.Append("(*) ");
 
             var parts = BuildRestrictionParts(builder.Criteria);
 

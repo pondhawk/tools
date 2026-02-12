@@ -30,34 +30,6 @@ using Fabrica.Persistence;
 
 namespace Pondhawk.Rql.Builder;
 
-public static class ProjectableTypes
-{
-
-    private static readonly ISet<Type> Types;
-
-    static ProjectableTypes()
-    {
-
-        Types = new HashSet<Type>
-        {
-            typeof(bool),
-            typeof(DateTime),
-            typeof(float),
-            typeof(double),
-            typeof(decimal),
-            typeof(short),
-            typeof(int),
-            typeof(long),
-            typeof(string)
-        };
-
-    }
-
-    public static bool IsProjectable(Type type) => Types.Contains(type);
-
-}    
-
-    
 public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder: AbstractFilterBuilder<TBuilder>
 {
 
@@ -73,8 +45,7 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
     protected AbstractFilterBuilder()
     {
 
-        ProjectedProperties = new HashSet<string>();
-        Predicates          = new List<IRqlPredicate>();
+        Predicates = new List<IRqlPredicate>();
 
     }
 
@@ -82,8 +53,7 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
     {
 
         CurrentName = "";
-        ProjectedProperties = new HashSet<string>(tree.Projection);
-        Predicates          = new List<IRqlPredicate>(tree.Criteria);
+        Predicates  = new List<IRqlPredicate>(tree.Criteria);
 
     }
 
@@ -99,27 +69,6 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
         return result;
 
     }
-
-
-    #region Projection related members
-
-        
-    public TBuilder Project( params string[] projection )
-    {
-
-        foreach (var p in projection)
-            ProjectedProperties.Add(p);
-
-        return (TBuilder)this;
-
-    }
-
-    protected ISet<string> ProjectedProperties { get; }
-    public bool HasProjection => ProjectedProperties.Count > 0;
-    public IEnumerable<string> Projection => ProjectedProperties;
-
-
-    #endregion
 
 
     #region Criteria related members

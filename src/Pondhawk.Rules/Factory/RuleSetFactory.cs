@@ -22,6 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+using Pondhawk.Logging;
 using Pondhawk.Rules.Builder;
 using Pondhawk.Rules.Evaluation;
 using Pondhawk.Rules.Listeners;
@@ -68,7 +69,7 @@ public class RuleSetFactory : IRequiresStart
     private bool Started { get; set; }
 
 
-    public Task Start()
+    public Task StartAsync()
     {
 
         using var logger = this.EnterMethod();

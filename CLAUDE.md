@@ -13,7 +13,6 @@ dotnet build src/Pondhawk.Core/Pondhawk.Core.csproj
 dotnet build src/Pondhawk.Watch/Pondhawk.Watch.csproj
 dotnet build src/Pondhawk.Rules/Pondhawk.Rules.csproj
 dotnet build src/Pondhawk.Rql/Pondhawk.Rql.csproj
-dotnet build src/Pondhawk.Rql.Parser/Pondhawk.Rql.Parser.csproj
 ```
 
 ## Project Setup
@@ -67,18 +66,15 @@ Evaluation flow: `RuleBuilder` → `RuleTree` (indexed by type) → `EvaluationP
 
 ### Pondhawk.Rql — Resource Query Language
 
-A filtering DSL with AST, fluent builder, and multiple serialization targets:
+A filtering DSL with AST, fluent builder, parser, and multiple serialization targets:
 
-- **AST**: `RqlTree` (root) contains `Projection` (field list) and `Criteria` (list of `IRqlPredicate`). `RqlOperator` enum: Equals, NotEquals, LesserThan, GreaterThan, Between, In, NotIn, StartsWith, Contains, etc.
+- **AST**: `RqlTree` (root) contains `Criteria` (list of `IRqlPredicate`). `RqlOperator` enum: Equals, NotEquals, LesserThan, GreaterThan, Between, In, NotIn, StartsWith, Contains, etc.
 - **Builder** (`Pondhawk.Rql.Builder`): `RqlFilterBuilder<TTarget>` provides fluent API: `.Where(expr).Equals(value).And(expr).GreaterThan(value)`. `Introspect()` builds filters from objects decorated with `[CriterionAttribute]`.
+- **Parser** (`Pondhawk.Rql.Parser`): Parses RQL criteria text back into `RqlTree` AST using the **Sprache** parser combinator library. `RqlLanguageParser.ToFilter(string)` and `ToCriteria(string)` both parse criteria. Value type prefixes: `@` for DateTime, `#` for decimal, `'...'` for strings.
 - **Serialization** (`Pondhawk.Rql.Serialization`): Three output formats:
-  - `ToRql()` — RQL text: `(field1,field2) (eq(Name,'John'),gt(Age,30))`
+  - `ToRql()` — RQL text: `(*) (eq(Name,'John'),gt(Age,30))`
   - `ToLambda<T>()` / `ToExpression<T>()` — compiled LINQ expressions
   - `ToSqlQuery()` / `ToSqlWhere()` — parameterized SQL
-
-### Pondhawk.Rql.Parser — RQL Text Parser
-
-Parses RQL text format back into `RqlTree` AST using the **Sprache** parser combinator library. `RqlLanguageParser.ToFilter(string)` parses full format (projections + restrictions); `ToCriteria(string)` parses restrictions only. Value type prefixes: `@` for DateTime, `#` for decimal, `'...'` for strings. Shares `Pondhawk.Rql` namespace (`RootNamespace` override in csproj).
 
 ### Dependency Graph
 
@@ -89,13 +85,11 @@ Pondhawk.Watch ──→ Pondhawk.Core
 
 Pondhawk.Rules ──→ Pondhawk.Core
 Pondhawk.Rql ────→ Pondhawk.Core
-Pondhawk.Rql.Parser → Pondhawk.Rql → Pondhawk.Core
 ```
 
 ## Conventions
 
-- Namespaces match project/folder structure: `Pondhawk.Rules`, `Pondhawk.Rules.Builder`, `Pondhawk.Rules.Evaluation`, `Pondhawk.Rql`, `Pondhawk.Rql.Builder`, `Pondhawk.Rql.Serialization`
-- Exception: `Pondhawk.Rql.Parser` project uses `RootNamespace=Pondhawk.Rql`
+- Namespaces match project/folder structure: `Pondhawk.Rules`, `Pondhawk.Rules.Builder`, `Pondhawk.Rules.Evaluation`, `Pondhawk.Rql`, `Pondhawk.Rql.Builder`, `Pondhawk.Rql.Parser`, `Pondhawk.Rql.Serialization`
 - Exception: `Pondhawk.Core` project uses `RootNamespace=Pondhawk`; logging files use the `Pondhawk.Logging` namespace
 - Autofac is used for DI registration (`AutofacExtensions`)
-- `LangVersion` varies: `default` in Rules and Rql.Parser, `latestmajor` in Rql
+- `LangVersion` varies: `default` in Rules, `latestmajor` in Rql

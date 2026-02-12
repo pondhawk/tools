@@ -41,6 +41,8 @@ public static class WatchSinkExtensions
             return serilogLevel >= sw.Level;
         };
 
+        SerilogExtensions.Default = new LoggerSource();
+
         switchSource.StartAsync().GetAwaiter().GetResult();
         sink.StartAsync().GetAwaiter().GetResult();
 

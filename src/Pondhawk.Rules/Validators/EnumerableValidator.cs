@@ -22,6 +22,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+using Pondhawk.Exceptions;
+
 namespace Pondhawk.Rules.Validators;
 
 public interface IEnumerableValidator<out TFact, out TType>

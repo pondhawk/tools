@@ -22,8 +22,13 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+using Pondhawk.Exceptions;
+using Pondhawk.Logging;
 using Pondhawk.Rules.Builder;
 using Pondhawk.Rules.Evaluation;
+using Serilog;
+using Serilog.Core;
+using Serilog.Events;
 
 namespace Pondhawk.Rules.Listeners
 {
@@ -39,7 +44,7 @@ namespace Pondhawk.Rules.Listeners
 
         public WatchEvaluationListener(  string category )
         {
-            Logger = WatchFactoryLocator.Factory.GetLogger( category );
+            Logger =  Log.ForContext(Constants.SourceContextPropertyName, category);
         }
 
 
@@ -49,12 +54,13 @@ namespace Pondhawk.Rules.Listeners
         public void BeginEvaluation()
         {
 
-            if( !(Logger.IsDebugEnabled) )
+            
+            if( !Logger.IsEnabled( LogEventLevel.Debug ) )
                 return;
 
             var context = RuleThreadLocalStorage.CurrentContext;            
 
-            Logger.EnterScope( $"Begin Evaluation - ({context.Description})" );
+            Logger.Debug( "Begin Evaluation - ({ContextDescription})", context.Description );
 
             Logger.LogObject( "Context", context );
 
@@ -63,10 +69,10 @@ namespace Pondhawk.Rules.Listeners
         public void BeginTupleEvaluation( object[] facts )
         {
 
-            if (!(Logger.IsDebugEnabled))
+            if (!Logger.IsEnabled(LogEventLevel.Debug))
                 return;
 
-            Logger.EnterScope( "Begin Tuple Evaluation" );
+            Logger.Debug( "Begin Tuple Evaluation" );
 
             for (int i = 0; i < facts.Length; i++)
                 Logger.LogObject($"{facts[i].GetType().FullName}[{i}]", facts[i]);
@@ -77,7 +83,7 @@ namespace Pondhawk.Rules.Listeners
         public void FiringRule( IRule rule )
         {
 
-            if (!(Logger.IsDebugEnabled))
+            if (!(Logger.IsEnabled(LogEventLevel.Debug)))
                 return;
 
             Logger.LogObject($"Rule Firing ({rule.Name})", rule );
@@ -87,41 +93,41 @@ namespace Pondhawk.Rules.Listeners
         public void FiredRule( IRule rule, bool modified )
         {
 
-            if (!(Logger.IsDebugEnabled))
+            if (!(Logger.IsEnabled(LogEventLevel.Debug)))
                 return;
 
-            Logger.DebugFormat( "Rule Fired ({0}). Modified fact? {1}", rule.Name, modified );
+            Logger.Debug( "Rule Fired ({0}). Modified fact? {1}", rule.Name, modified );
 
         }
 
         public void EndTupleEvaluation( object[] facts )
         {
 
-            if (!(Logger.IsDebugEnabled))
+            if (!(Logger.IsEnabled(LogEventLevel.Debug)))
                 return;
 
-            Logger.LeaveScope( "End Tuple Evaluation" );
+            Logger.Debug( "End Tuple Evaluation" );
 
         }
 
         public void EndEvaluation()
         {
 
-            if (!(Logger.IsDebugEnabled))
+            if (!(Logger.IsEnabled(LogEventLevel.Debug)))
                 return;
 
             var context = RuleThreadLocalStorage.CurrentContext;                                    
 
             Logger.LogObject( "Results", context.Results );
 
-            Logger.LeaveScope( $"End Evaluation - ({context.Description})" );
+            Logger.Debug( "End Evaluation - ({context.Description})", context.Description );
 
         }
 
         public void EventCreated( EventDetail evalEvent )
         {
 
-            if (!(Logger.IsDebugEnabled))
+            if (!(Logger.IsEnabled(LogEventLevel.Debug)))
                 return;
 
             Logger.LogObject( "Evaluation Event Created", evalEvent );
@@ -131,20 +137,20 @@ namespace Pondhawk.Rules.Listeners
         public void Debug( string template, params object[] markers )
         {
 
-            if (!(Logger.IsDebugEnabled))
+            if (!(Logger.IsEnabled(LogEventLevel.Debug)))
                 return;
 
-            Logger.DebugFormat( template, markers );
+            Logger.Debug( template, markers );
 
         }
 
         public void Warning( string template, params object[] markers )
         {
 
-            if (!(Logger.IsWarningEnabled))
+            if (!(Logger.IsEnabled(LogEventLevel.Warning)))
                 return;
             
-            Logger.WarningFormat( template, markers );
+            Logger.Warning( template, markers );
 
         }
 

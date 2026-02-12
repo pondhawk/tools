@@ -26,6 +26,9 @@ SOFTWARE.
 
 // ReSharper disable UnusedMember.Global
 
+using Serilog;
+using Serilog.Core;
+
 namespace Pondhawk.Rules.Listeners
 {
 
@@ -38,7 +41,7 @@ namespace Pondhawk.Rules.Listeners
         
         public IEvaluationListener CreateListener()
         {
-            var logger = WatchFactoryLocator.Factory.GetLogger( Category );
+            var logger = Log.ForContext(Constants.SourceContextPropertyName, Category );
             return new WatchEvaluationListener( logger );
         }
 

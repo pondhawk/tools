@@ -26,6 +26,7 @@ using System.Linq.Expressions;
 using Pondhawk.Rules.Builder;
 using Pondhawk.Rules.Evaluation;
 using Pondhawk.Rules.Validators;
+using Pondhawk.Utilities.Types;
 
 namespace Pondhawk.Rules;
 

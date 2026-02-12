@@ -62,21 +62,6 @@ namespace Pondhawk.Rql.Builder
         }
 
 
-        public RqlFilterBuilder<TTarget> AutoProject()
-        {
-
-            ProjectedProperties.Clear();
-            foreach (var prop in typeof(TTarget).GetProperties() )
-            {
-                if( ProjectableTypes.IsProjectable(prop.PropertyType) )
-                    ProjectedProperties.Add(prop.Name);
-            }
-
-            return this;
-
-        }
-
-
         public RqlFilterBuilder<TTarget> And<TValue>( Expression<Func<TTarget, TValue>> prop )
         {
 

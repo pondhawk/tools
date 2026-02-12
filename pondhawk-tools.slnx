@@ -1,10 +1,12 @@
 <Solution>
   <Folder Name="/src/">
     <Project Path="src/Pondhawk.Core/Pondhawk.Core.csproj" />
-    <Project Path="src/Pondhawk.Rql.Parser/Pondhawk.Rql.Parser.csproj" />
     <Project Path="src/Pondhawk.Rql/Pondhawk.Rql.csproj" />
     <Project Path="src/Pondhawk.Rules/Pondhawk.Rules.csproj" />
     <Project Path="src/Pondhawk.Watch.Framework/Pondhawk.Watch.Framework.csproj" />
     <Project Path="src/Pondhawk.Watch/Pondhawk.Watch.csproj" />
+  </Folder>
+  <Folder Name="/test/">
+    <Project Path="test/Pondhawk.Rql.Tests/Pondhawk.Rql.Tests.csproj" />
   </Folder>
 </Solution>

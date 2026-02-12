@@ -13,77 +13,23 @@ public static class SerilogExtensions
 {
     #region Method Tracing
 
-    private static readonly ConcurrentQueue<MethodScope> ScopePool = new();
-    private const int MaxPoolSize = 256;
-
-    public static IDisposable EnterMethod(
+    public static MethodLogger EnterMethod(
         this ILogger logger,
         [CallerMemberName] string method = "",
         [CallerFilePath] string file = "")
     {
-        var category = GetCategory(logger);
-        if (!WatchSwitchConfig.IsEnabled(category, LogEventLevel.Verbose))
-            return NullScope.Instance;
-
         var className = Path.GetFileNameWithoutExtension(file);
+        var category = GetCategory(logger);
+        var tracing = WatchSwitchConfig.IsEnabled(category, LogEventLevel.Verbose);
 
-        logger
-            .ForContext(WatchPropertyNames.Nesting, 1)
-            .Verbose("Entering {ClassName}.{Method}", className, method);
-
-        if (!ScopePool.TryDequeue(out var scope))
-            scope = new MethodScope();
-
-        scope.Initialize(logger, className, method);
-        return scope;
-    }
-
-    private sealed class MethodScope : IDisposable
-    {
-        private ILogger _logger = null!;
-        private string _className = null!;
-        private string _method = null!;
-        private long _startTimestamp;
-        private bool _disposed;
-
-        public void Initialize(ILogger logger, string className, string method)
+        if (tracing)
         {
-            _logger = logger;
-            _className = className;
-            _method = method;
-            _startTimestamp = Stopwatch.GetTimestamp();
-            _disposed = false;
+            logger
+                .ForContext(WatchPropertyNames.Nesting, 1)
+                .Verbose("Entering {ClassName}.{Method}", className, method);
         }
 
-        public void Dispose()
-        {
-            if (_disposed)
-                return;
-
-            _disposed = true;
-            var elapsed = Stopwatch.GetElapsedTime(_startTimestamp);
-
-            var category = GetCategory(_logger);
-            if (WatchSwitchConfig.IsEnabled(category, LogEventLevel.Verbose))
-            {
-                _logger
-                    .ForContext(WatchPropertyNames.Nesting, -1)
-                    .Verbose("Exiting {ClassName}.{Method} ({Elapsed:F2}ms)", _className, _method, elapsed.TotalMilliseconds);
-            }
-
-            _logger = null!;
-            _className = null!;
-            _method = null!;
-
-            if (ScopePool.Count < MaxPoolSize)
-                ScopePool.Enqueue(this);
-        }
-    }
-
-    private sealed class NullScope : IDisposable
-    {
-        public static readonly NullScope Instance = new();
-        public void Dispose() { }
+        return new MethodLogger(logger, className, method, tracing);
     }
 
     #endregion
@@ -227,7 +173,7 @@ public static class SerilogExtensions
         return Log.ForContext(Constants.SourceContextPropertyName, category);
     }
 
-    public static IDisposable EnterMethod(
+    public static MethodLogger EnterMethod(
         this object source,
         [CallerMemberName] string method = "",
         [CallerFilePath] string file = "")

@@ -24,7 +24,7 @@ SOFTWARE.
 
 using System.Runtime.CompilerServices;
 
-[assembly: InternalsVisibleTo( "NanoRulesTests" )]
+[assembly: InternalsVisibleTo( "Pondhawk.Rules.Tests" )]
 
 namespace Pondhawk.Rules.Evaluation
 {

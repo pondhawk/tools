@@ -8,5 +8,6 @@
   </Folder>
   <Folder Name="/test/">
     <Project Path="test/Pondhawk.Rql.Tests/Pondhawk.Rql.Tests.csproj" />
+    <Project Path="test/Pondhawk.Rules.Tests/Pondhawk.Rules.Tests.csproj" />
   </Folder>
 </Solution>

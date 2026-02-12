@@ -9,63 +9,86 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 dotnet build pondhawk-tools.slnx
 
 # Build a specific project
-dotnet build src/Fabrica.Rules/Fabrica.Rules.csproj
-dotnet build src/Fabrica.Rql/Fabrica.Rql.csproj
-dotnet build src/Fabrica.Rql.Parser/Fabrica.Rql.Parser.csproj
+dotnet build src/Pondhawk.Core/Pondhawk.Core.csproj
+dotnet build src/Pondhawk.Watch/Pondhawk.Watch.csproj
+dotnet build src/Pondhawk.Rules/Pondhawk.Rules.csproj
+dotnet build src/Pondhawk.Rql/Pondhawk.Rql.csproj
+dotnet build src/Pondhawk.Rql.Parser/Pondhawk.Rql.Parser.csproj
 ```
-
-**Note:** The solution file (`pondhawk-tools.slnx`) is currently empty (`<Solution />`). Projects may need to be added to it with `dotnet sln add`. No test projects exist yet.
 
 ## Project Setup
 
 - **.NET 10** targeting `net10.0` (SDK 10.0.103)
-- **Central package management** is enabled in csproj files (`ManagePackageVersionsCentrally=true`) but `Directory.Packages.props` does not exist yet and will need to be created for builds to succeed
-- **Nullable reference types** are disabled across all projects
-- **External dependency**: All three projects reference `Fabrica.Core` (via `ProjectReference`) which is not present in this repository
+- **Central package management** via `Directory.Packages.props`
+- **Nullable reference types** enabled in Core and Watch projects
+- Autofac is used for DI registration (`AutofacExtensions`)
 
 ## Architecture
 
-This repository contains three class libraries under `src/` that form the **Fabrica** toolkit by Pond Hawk Technologies:
+This repository contains class libraries under `src/` that form the **Pondhawk** toolkit by Pond Hawk Technologies:
 
-### Fabrica.Rules — Rule Engine
+### Pondhawk.Core — Shared Foundation
+
+Core utilities, logging API, and pipeline infrastructure shared by all Pondhawk projects. Key subsystems:
+
+- **Logging** (`Pondhawk.Logging` namespace): `SerilogExtensions` is the primary Watch logging API (`EnterMethod`, `LogObject`, `LogJson`, `LogSql`, etc. on `Serilog.ILogger`), `WatchSwitchConfig` (switch-based level filtering), `WatchPropertyNames` (Serilog property constants), serializers (`JsonObjectSerializer`, `TextExceptionSerializer`), enums (`Level`, `PayloadType`), `[Sensitive]` attribute, `CorrelationManager`, and `LoggingScopeManager`.
+- **Utilities**: Container helpers (`IRequiresStart`), pipeline infrastructure, process utilities, type extensions.
+- **Exceptions**: Common exception types.
+
+### Pondhawk.Watch — Serilog Sink + Watch Infrastructure
+
+A Serilog `ILogEventSink` with Channel-based batching for the Watch structured logging pipeline. Depends on `Pondhawk.Core` for the logging API types.
+
+- **WatchSink**: `ILogEventSink` implementation with unbounded Channel batching. Converts Serilog events to Watch `LogEvent` instances with switch-based filtering.
+- **WatchSinkExtensions**: Serilog `LoggerConfiguration` extension method for configuring the Watch sink.
+- **Switching**: Dynamic log level control via `ISwitch`/`ISwitchSource` with pattern matching.
+- **Sink**: Console, Monitor, and HTTP event sinks with circuit breaker.
+- **LogEvent/LogEventBatch**: MemoryPack-serializable event model.
+
+### Pondhawk.Rules — Rule Engine
 
 A forward-chaining rule engine with type-based fact matching. Key subsystems:
 
-- **Builder** (`Fabrica.Rules.Builder`): Fluent API for defining rules. `RuleBuilder<TFact1..TFact4>` creates `Rule<T>` instances via `If().And().Then()` chains. Supports up to 4 fact types per rule. Rules have salience (priority), mutex (mutual exclusion), fire-once, inception/expiration.
-- **Evaluation** (`Fabrica.Rules.Evaluation`): `EvaluationPlan` generates all fact-type combinations using variations-with-repetition. `TupleEvaluator` executes rules in salience order against fact tuples. `FactSpace` stores facts with int selectors for memory efficiency.
-- **Tree** (`Fabrica.Rules.Tree`): `RuleTree` indexes rules by fact types for fast lookup with polymorphic type matching.
-- **Validation** (`Fabrica.Rules.Validators`): `ValidationBuilder<TFact>` with `Assert<T>(expr).Is().IsNot().Otherwise()` chains. Runs at very high salience.
-- **Factory** (`Fabrica.Rules.Factory`): `RuleSet` for runtime rule creation without predefined builder classes.
-- **Listeners** (`Fabrica.Rules.Listeners`): Observer pattern (`IEvaluationListener`) for tracing rule evaluation.
+- **Builder** (`Pondhawk.Rules.Builder`): Fluent API for defining rules. `RuleBuilder<TFact1..TFact4>` creates `Rule<T>` instances via `If().And().Then()` chains. Supports up to 4 fact types per rule. Rules have salience (priority), mutex (mutual exclusion), fire-once, inception/expiration.
+- **Evaluation** (`Pondhawk.Rules.Evaluation`): `EvaluationPlan` generates all fact-type combinations using variations-with-repetition. `TupleEvaluator` executes rules in salience order against fact tuples. `FactSpace` stores facts with int selectors for memory efficiency.
+- **Tree** (`Pondhawk.Rules.Tree`): `RuleTree` indexes rules by fact types for fast lookup with polymorphic type matching.
+- **Validation** (`Pondhawk.Rules.Validators`): `ValidationBuilder<TFact>` with `Assert<T>(expr).Is().IsNot().Otherwise()` chains. Runs at very high salience.
+- **Factory** (`Pondhawk.Rules.Factory`): `RuleSet` for runtime rule creation without predefined builder classes.
+- **Listeners** (`Pondhawk.Rules.Listeners`): Observer pattern (`IEvaluationListener`) for tracing rule evaluation.
 
 Evaluation flow: `RuleBuilder` → `RuleTree` (indexed by type) → `EvaluationPlan` (generates steps) → `TupleEvaluator` (executes) → `EvaluationResults` (aggregates scores/events/violations). Forward chaining via `InsertFact`/`ModifyFact`/`RetractFact` triggers re-evaluation.
 
-### Fabrica.Rql — Resource Query Language
+### Pondhawk.Rql — Resource Query Language
 
 A filtering DSL with AST, fluent builder, and multiple serialization targets:
 
 - **AST**: `RqlTree` (root) contains `Projection` (field list) and `Criteria` (list of `IRqlPredicate`). `RqlOperator` enum: Equals, NotEquals, LesserThan, GreaterThan, Between, In, NotIn, StartsWith, Contains, etc.
-- **Builder** (`Fabrica.Rql.Builder`): `RqlFilterBuilder<TTarget>` provides fluent API: `.Where(expr).Equals(value).And(expr).GreaterThan(value)`. `Introspect()` builds filters from objects decorated with `[CriterionAttribute]`.
-- **Serialization** (`Fabrica.Rql.Serialization`): Three output formats:
+- **Builder** (`Pondhawk.Rql.Builder`): `RqlFilterBuilder<TTarget>` provides fluent API: `.Where(expr).Equals(value).And(expr).GreaterThan(value)`. `Introspect()` builds filters from objects decorated with `[CriterionAttribute]`.
+- **Serialization** (`Pondhawk.Rql.Serialization`): Three output formats:
   - `ToRql()` — RQL text: `(field1,field2) (eq(Name,'John'),gt(Age,30))`
   - `ToLambda<T>()` / `ToExpression<T>()` — compiled LINQ expressions
   - `ToSqlQuery()` / `ToSqlWhere()` — parameterized SQL
 
-### Fabrica.Rql.Parser — RQL Text Parser
+### Pondhawk.Rql.Parser — RQL Text Parser
 
-Parses RQL text format back into `RqlTree` AST using the **Sprache** parser combinator library. `RqlLanguageParser.ToFilter(string)` parses full format (projections + restrictions); `ToCriteria(string)` parses restrictions only. Value type prefixes: `@` for DateTime, `#` for decimal, `'...'` for strings. Shares `Fabrica.Rql` namespace (`RootNamespace` override in csproj).
+Parses RQL text format back into `RqlTree` AST using the **Sprache** parser combinator library. `RqlLanguageParser.ToFilter(string)` parses full format (projections + restrictions); `ToCriteria(string)` parses restrictions only. Value type prefixes: `@` for DateTime, `#` for decimal, `'...'` for strings. Shares `Pondhawk.Rql` namespace (`RootNamespace` override in csproj).
 
 ### Dependency Graph
 
 ```
-Fabrica.Rules ──→ Fabrica.Core (external)
-Fabrica.Rql ────→ Fabrica.Core (external)
-Fabrica.Rql.Parser → Fabrica.Rql → Fabrica.Core (external)
+Pondhawk.Core (foundation — logging API, Serilog extensions, utilities)
+  ↑
+Pondhawk.Watch ──→ Pondhawk.Core
+
+Pondhawk.Rules ──→ Pondhawk.Core
+Pondhawk.Rql ────→ Pondhawk.Core
+Pondhawk.Rql.Parser → Pondhawk.Rql → Pondhawk.Core
 ```
 
 ## Conventions
 
-- Namespaces match project/folder structure: `Fabrica.Rules`, `Fabrica.Rules.Builder`, `Fabrica.Rules.Evaluation`, `Fabrica.Rql`, `Fabrica.Rql.Builder`, `Fabrica.Rql.Serialization`
-- Exception: `Fabrica.Rql.Parser` project uses `RootNamespace=Fabrica.Rql`
+- Namespaces match project/folder structure: `Pondhawk.Rules`, `Pondhawk.Rules.Builder`, `Pondhawk.Rules.Evaluation`, `Pondhawk.Rql`, `Pondhawk.Rql.Builder`, `Pondhawk.Rql.Serialization`
+- Exception: `Pondhawk.Rql.Parser` project uses `RootNamespace=Pondhawk.Rql`
+- Exception: `Pondhawk.Core` project uses `RootNamespace=Pondhawk`; logging files use the `Pondhawk.Logging` namespace
 - Autofac is used for DI registration (`AutofacExtensions`)
 - `LangVersion` varies: `default` in Rules and Rql.Parser, `latestmajor` in Rql

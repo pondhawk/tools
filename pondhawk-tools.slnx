@@ -1,7 +1,10 @@
 <Solution>
   <Folder Name="/src/">
-    <Project Path="src/Fabrica.Rql.Parser/Fabrica.Rql.Parser.csproj" />
-    <Project Path="src/Fabrica.Rql/Fabrica.Rql.csproj" />
-    <Project Path="src/Fabrica.Rules/Fabrica.Rules.csproj" />
+    <Project Path="src/Pondhawk.Core/Pondhawk.Core.csproj" />
+    <Project Path="src/Pondhawk.Rql.Parser/Pondhawk.Rql.Parser.csproj" />
+    <Project Path="src/Pondhawk.Rql/Pondhawk.Rql.csproj" />
+    <Project Path="src/Pondhawk.Rules/Pondhawk.Rules.csproj" />
+    <Project Path="src/Pondhawk.Watch.Framework/Pondhawk.Watch.Framework.csproj" />
+    <Project Path="src/Pondhawk.Watch/Pondhawk.Watch.csproj" />
   </Folder>
 </Solution>

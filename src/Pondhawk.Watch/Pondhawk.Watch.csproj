@@ -1,0 +1,44 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <Title>Pondhawk Watch</Title>
+    <Description>Serilog sink for structured logging with rich UI visualization via Watch Server</Description>
+    <Authors>Pond Hawk Technologies Inc.</Authors>
+    <Company>Pond Hawk Technologies Inc.</Company>
+    <Copyright>Pond Hawk Technologies Inc. (c) 2026</Copyright>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <RepositoryUrl>https://github.com/kampilan/fabrica-watch-v5</RepositoryUrl>
+    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Pondhawk.Watch.Tests" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <PackageIcon>smithy.png</PackageIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="smithy.png" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="JetBrains.Annotations" />
+    <PackageReference Include="MemoryPack" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Http" />
+    <PackageReference Include="Microsoft.Extensions.Http.Resilience" />
+    <PackageReference Include="Microsoft.Extensions.Logging" />
+    <PackageReference Include="Microsoft.IO.RecyclableMemoryStream" />
+    <PackageReference Include="Serilog" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Pondhawk.Core\Pondhawk.Core.csproj" />
+  </ItemGroup>
+
+</Project>

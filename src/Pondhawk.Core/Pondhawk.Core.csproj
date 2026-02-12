@@ -1,0 +1,49 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>Pondhawk</RootNamespace>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Title>Pondhawk.Core</Title>
+    <Authors>Pond Hawk Technologies Inc.</Authors>
+    <Company>Pond Hawk Technologies Inc.</Company>
+    <Description>Utilites for building Pondhawk Applications</Description>
+    <Copyright>Pond Hawk Technologies Inc. (c) 2025</Copyright>
+    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+  </PropertyGroup>
+
+	<PropertyGroup>
+		<PackageIcon>smithy.png</PackageIcon>
+	</PropertyGroup>
+
+
+	<ItemGroup>
+		<None Include="smithy.png" Pack="true" PackagePath="\" />
+	</ItemGroup>
+
+
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Pondhawk.Watch" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Autofac" />
+    <PackageReference Include="Autofac.Extensions.DependencyInjection" />
+    <PackageReference Include="CommunityToolkit.Diagnostics" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" />
+    <PackageReference Include="Microsoft.Extensions.Http" />
+    <PackageReference Include="Microsoft.Extensions.Logging" />
+    <PackageReference Include="Serilog" />
+    <PackageReference Include="Ulid" />
+    <PackageReference Include="YamlDotNet" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Persistence\" />
+  </ItemGroup>
+
+</Project>

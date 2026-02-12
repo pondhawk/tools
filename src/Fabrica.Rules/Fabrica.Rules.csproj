@@ -1,0 +1,36 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <Title>Fabrica.Rules</Title>
+    <Authors>Pond Hawk Technologies Inc.</Authors>
+    <Company>Pond Hawk Technologies Inc.</Company>
+    <Description>Rules engine with support for validation and general reasoning.</Description>
+    <Copyright>Pond Hawk Technologies Inc. (c) 2025</Copyright>
+    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+	<ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>	
+	<LangVersion>default</LangVersion>	
+  </PropertyGroup>
+
+	<PropertyGroup>
+		<PackageIcon>smithy.png</PackageIcon>
+	</PropertyGroup>
+
+
+	<ItemGroup>
+		<None Include="smithy.png" Pack="true" PackagePath="\" />
+	</ItemGroup>
+
+	<ItemGroup>
+    <PackageReference Include="Autofac" />
+    <PackageReference Include="Humanizer.Core" />
+    <PackageReference Include="JetBrains.Annotations" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Fabrica.Core\Fabrica.Core.csproj" />
+  </ItemGroup>
+
+</Project>

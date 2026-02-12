@@ -31,7 +31,14 @@ This repository contains class libraries under `src/` that form the **Pondhawk**
 
 Core utilities, logging API, and pipeline infrastructure shared by all Pondhawk projects. Key subsystems:
 
-- **Logging** (`Pondhawk.Logging` namespace): `SerilogExtensions` is the primary Watch logging API (`EnterMethod`, `LogObject`, `LogJson`, `LogSql`, etc. on `Serilog.ILogger`), `WatchSwitchConfig` (switch-based level filtering), `WatchPropertyNames` (Serilog property constants), serializers (`JsonObjectSerializer`, `TextExceptionSerializer`), enums (`Level`, `PayloadType`), `[Sensitive]` attribute, `CorrelationManager`, and `LoggingScopeManager`.
+- **Logging** (`Pondhawk.Logging` namespace): `SerilogExtensions` is the primary Watch logging API with extensions on both `Serilog.ILogger` and `object`:
+  - **`object.GetLogger()`** — returns a `Serilog.ILogger` with `SourceContext` set to the concise full name of the object's type (e.g. `MyApp.Services.Repository<Order>`)
+  - **`object.EnterMethod()`** — shorthand that calls `GetLogger().EnterMethod()` for method tracing scopes
+  - **`ILogger.EnterMethod()`** — creates a disposable method tracing scope with automatic entry/exit logging and elapsed time
+  - **`ILogger.Inspect(name, value)`** — logs a name/value pair as `"{Name} = {Value}"` at Debug level
+  - **`ILogger.LogObject(value)`** — serializes an object to JSON payload
+  - **`ILogger.LogJson/LogSql/LogXml/LogYaml/LogText(title, content)`** — typed payload logging with syntax highlighting hints
+  - Also: `WatchSwitchConfig` (switch-based level filtering), `WatchPropertyNames` (Serilog property constants), serializers (`JsonObjectSerializer`), `PayloadType` enum, `[Sensitive]` attribute, `CorrelationManager`.
 - **Utilities**: Container helpers (`IRequiresStart`), pipeline infrastructure, process utilities, type extensions.
 - **Exceptions**: Common exception types.
 

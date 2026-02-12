@@ -31,9 +31,7 @@ namespace Pondhawk.Rql.Builder
 
         public static bool operator ==( Target target, string candidate )
         {
-            ArgumentNullException.ThrowIfNull(candidate);
-
-            if ((string.IsNullOrWhiteSpace(target.Name)) || string.IsNullOrWhiteSpace(candidate))
+            if (target is null || string.IsNullOrWhiteSpace(target.Name) || string.IsNullOrWhiteSpace(candidate))
                 return false;
 
             return string.Compare(target.Name, candidate, StringComparison.InvariantCultureIgnoreCase) == 0;
@@ -43,7 +41,7 @@ namespace Pondhawk.Rql.Builder
         public static bool operator !=( Target target, string candidate)
         {
 
-            if ((string.IsNullOrWhiteSpace(target.Name)) || string.IsNullOrWhiteSpace(candidate))
+            if (target is null || string.IsNullOrWhiteSpace(target.Name) || string.IsNullOrWhiteSpace(candidate))
                 return true;
 
             return string.Compare(target.Name, candidate, StringComparison.InvariantCultureIgnoreCase) != 0;

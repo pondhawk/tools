@@ -9,6 +9,12 @@ namespace Pondhawk.Rql.Serialization
     public static class LambdaSerializerExtensions
     {
 
+        private static readonly MethodInfo StartsWithMethod = typeof(string).GetMethod("StartsWith", [typeof(string)])!;
+        private static readonly MethodInfo StartsWithCiMethod = typeof(string).GetMethod("StartsWith", [typeof(string), typeof(StringComparison)])!;
+        private static readonly MethodInfo ContainsMethod = typeof(string).GetMethod("Contains", [typeof(string)])!;
+        private static readonly MethodInfo ContainsCiMethod = typeof(string).GetMethod("Contains", [typeof(string), typeof(StringComparison)])!;
+        private static readonly MethodInfo ListContainsMethod = typeof(List<object>).GetMethod("Contains", [typeof(object)])!;
+
 
         public static Func<TEntity, bool> ToLambda<TEntity>(  this IRqlFilter<TEntity> filter, bool insensitive = false) where TEntity : class
         {
@@ -232,11 +238,7 @@ namespace Pondhawk.Rql.Serialization
 
             var (left, right) = BuildOperands( entity, predicate.Target.Name, typeof(string), predicate.Values[0].ToString() );
 
-            var method = typeof(string).GetMethod("StartsWith", new[] { typeof(string) });
-            if (method is null)
-                throw new Exception("String does not have a StartsWith method");
-
-            var exp = Expression.Call(left, method, right);
+            var exp = Expression.Call(left, StartsWithMethod, right);
 
             if (running is null)
                 return exp;
@@ -250,11 +252,7 @@ namespace Pondhawk.Rql.Serialization
 
             var (left, right) = BuildOperandsInsensitive(entity, predicate.Target.Name, predicate.Values[0].ToString());
 
-            var method = typeof(string).GetMethod("StartsWith", new[] { typeof(string), typeof(StringComparison) });
-            if (method is null)
-                throw new Exception("String does not have a StartsWith method");
-
-            var exp = Expression.Call(left, method, right);
+            var exp = Expression.Call(left, StartsWithCiMethod, right);
 
             if (running is null)
                 return exp;
@@ -268,11 +266,7 @@ namespace Pondhawk.Rql.Serialization
 
             var (left, right) = BuildOperands(entity, predicate.Target.Name, typeof(string),predicate.Values[0].ToString());
 
-            var method = typeof(string).GetMethod("Contains", new[] { typeof(string) });
-            if( method == null )
-                throw new Exception("String does not have a Contains method");
-
-            var exp = Expression.Call( left, method, right );
+            var exp = Expression.Call( left, ContainsMethod, right );
 
             if (running is null)
                 return exp;
@@ -286,11 +280,7 @@ namespace Pondhawk.Rql.Serialization
 
             var (left, right) = BuildOperandsInsensitive(entity, predicate.Target.Name, predicate.Values[0].ToString());
 
-            var method = typeof(string).GetMethod("Contains", new[] { typeof(string), typeof(StringComparison) });
-            if (method is null)
-                throw new Exception("String does not have a Contains method");
-
-            var exp = Expression.Call(left, method, right);
+            var exp = Expression.Call(left, ContainsCiMethod, right);
 
             if (running is null)
                 return exp;
@@ -302,16 +292,11 @@ namespace Pondhawk.Rql.Serialization
         private static Expression BuildIn( Expression running, Expression entity, IRqlPredicate predicate )
         {
 
-            var method = typeof(List<object>).GetMethod("Contains", new[] { typeof(object) });
-            if (method is null)
-                throw new Exception("List does not have a Contains method.");
-
-            var left  = Expression.Constant(predicate.Values, typeof(List<object>));
+            var left  = Expression.Constant(new List<object>(predicate.Values), typeof(List<object>));
             var cand  = Expression.Property(entity, predicate.Target.Name);
             var right = Expression.Convert(cand, typeof(object));
 
-
-            var exp = Expression.Call(left, method, right);
+            var exp = Expression.Call(left, ListContainsMethod, right);
 
             if (running is null)
                 return exp;
@@ -323,15 +308,11 @@ namespace Pondhawk.Rql.Serialization
         private static Expression BuildNotIn(Expression running, Expression entity, IRqlPredicate predicate)
         {
 
-            var method = typeof(List<object>).GetMethod("Contains", new[] { typeof(object) });
-            if (method is null)
-                throw new Exception("List does not have a Contains method");
-
-            var left  = Expression.Constant(predicate.Values, typeof(List<object>));
+            var left  = Expression.Constant(new List<object>(predicate.Values), typeof(List<object>));
             var cand  = Expression.Property(entity, predicate.Target.Name);
             var right = Expression.Convert(cand, typeof(object));
 
-            var found = Expression.Call(left, method, right);
+            var found = Expression.Call(left, ListContainsMethod, right);
             var exp = Expression.Not(found);
 
             if (running is null)

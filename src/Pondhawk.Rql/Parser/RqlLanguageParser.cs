@@ -154,7 +154,7 @@ public class RqlLanguageParser
 
 
         if( !OperatorMap.TryGetValue(op, out var opr) )
-            throw new Exception($"Invalid RQL operator: ({op})");
+            throw new RqlException($"Invalid RQL operator: ({op})");
 
         var predicate = new RqlPredicate( opr, name, dataType, typed );
 

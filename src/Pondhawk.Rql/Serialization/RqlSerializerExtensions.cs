@@ -121,11 +121,11 @@ namespace Pondhawk.Rql.Serialization
             {
 
                 if (!(KindMap.TryGetValue(op.Operator, out var kindSpec)))
-                    throw new Exception($"{op.Operator} is not a supported operation");
+                    throw new RqlException($"{op.Operator} is not a supported operation");
 
 
                 if (!(TypeMap.TryGetValue(op.DataType, out var typeSpec)))
-                    throw new Exception($"{op.DataType.Name} is not a supported data type");
+                    throw new RqlException($"{op.DataType.Name} is not a supported data type");
 
 
                 if (!(kindSpec.MultiValue))

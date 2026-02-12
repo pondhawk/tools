@@ -80,7 +80,7 @@ public class SqlSerializerTests
         var (sql, parameters) = builder.ToSqlWhere();
 
         sql.ShouldBeEmpty();
-        parameters.ShouldBeNull();
+        parameters.ShouldBeEmpty();
     }
 
     [Fact]

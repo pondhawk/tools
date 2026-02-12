@@ -1,4 +1,6 @@
-﻿namespace Pondhawk.Rql.Builder
+﻿using CommunityToolkit.Diagnostics;
+
+namespace Pondhawk.Rql.Builder
 {
 
 
@@ -24,11 +26,13 @@
     public class RqlPredicate<TType>: IRqlPredicate
     {
 
+        private IReadOnlyList<object> _cachedValues;
+
         public RqlPredicate(RqlOperator op,  string name,  TType value )
         {
 
-            ArgumentNullException.ThrowIfNull(value);
-            if (string.IsNullOrWhiteSpace(name)) throw new ArgumentException("Value cannot be null or whitespace.", nameof(name));
+            Guard.IsNotNull(value);
+            Guard.IsNotNullOrWhiteSpace(name);
 
             Operator = op;
             Target   = new Target(name);
@@ -44,13 +48,11 @@
         public RqlPredicate( RqlOperator op,  string name,  IEnumerable<TType> values )
         {
 
-            ArgumentNullException.ThrowIfNull(values);
-            if (string.IsNullOrWhiteSpace(name)) throw new ArgumentException("Value cannot be null or whitespace.", nameof(name));
+            Guard.IsNotNull(values);
+            Guard.IsNotNullOrWhiteSpace(name);
 
             Operator = op;
             Target   = new Target(name);
-
-            Values = new List<TType>();
 
             DataType = typeof(TType);
             Values   = new List<TType>(values);
@@ -66,7 +68,7 @@
 
         public IList<TType> Values { get; }
 
-        IReadOnlyList<object> IRqlPredicate.Values => Values.Cast<object>().ToList();
+        IReadOnlyList<object> IRqlPredicate.Values => _cachedValues ??= Values.Cast<object>().ToList();
 
         public TType Value
         {
@@ -74,6 +76,7 @@
 
             set
             {
+                _cachedValues = null;
                 Values.Clear();
                 Values.Add(value);
             }

@@ -11,9 +11,9 @@ public class RqlLanguageParserTests
     // ========== Basic operator parsing ==========
 
     [Fact]
-    public void ToFilter_ParsesEquals_String()
+    public void ToCriteria_ParsesEquals_String()
     {
-        var tree = RqlLanguageParser.ToFilter("(eq(Name,'John'))");
+        var tree = RqlLanguageParser.ToCriteria("(eq(Name,'John'))");
 
         tree.HasCriteria.ShouldBeTrue();
         tree.Criteria.Count.ShouldBe(1);
@@ -26,9 +26,9 @@ public class RqlLanguageParserTests
     }
 
     [Fact]
-    public void ToFilter_ParsesEquals_Int()
+    public void ToCriteria_ParsesEquals_Int()
     {
-        var tree = RqlLanguageParser.ToFilter("(eq(Quantity,42))");
+        var tree = RqlLanguageParser.ToCriteria("(eq(Quantity,42))");
 
         var pred = tree.Criteria[0];
         pred.Operator.ShouldBe(RqlOperator.Equals);
@@ -38,9 +38,9 @@ public class RqlLanguageParserTests
     }
 
     [Fact]
-    public void ToFilter_ParsesEquals_Long()
+    public void ToCriteria_ParsesEquals_Long()
     {
-        var tree = RqlLanguageParser.ToFilter("(eq(Sku,9876543210))");
+        var tree = RqlLanguageParser.ToCriteria("(eq(Sku,9876543210))");
 
         var pred = tree.Criteria[0];
         pred.Operator.ShouldBe(RqlOperator.Equals);
@@ -49,9 +49,9 @@ public class RqlLanguageParserTests
     }
 
     [Fact]
-    public void ToFilter_ParsesEquals_Decimal()
+    public void ToCriteria_ParsesEquals_Decimal()
     {
-        var tree = RqlLanguageParser.ToFilter("(eq(Price,#19.99))");
+        var tree = RqlLanguageParser.ToCriteria("(eq(Price,#19.99))");
 
         var pred = tree.Criteria[0];
         pred.Operator.ShouldBe(RqlOperator.Equals);
@@ -60,9 +60,9 @@ public class RqlLanguageParserTests
     }
 
     [Fact]
-    public void ToFilter_ParsesEquals_DateTime()
+    public void ToCriteria_ParsesEquals_DateTime()
     {
-        var tree = RqlLanguageParser.ToFilter("(eq(Created,@2024-01-15T00:00:00Z))");
+        var tree = RqlLanguageParser.ToCriteria("(eq(Created,@2024-01-15T00:00:00Z))");
 
         var pred = tree.Criteria[0];
         pred.Operator.ShouldBe(RqlOperator.Equals);
@@ -75,9 +75,9 @@ public class RqlLanguageParserTests
     }
 
     [Fact]
-    public void ToFilter_ParsesEquals_Bool()
+    public void ToCriteria_ParsesEquals_Bool()
     {
-        var tree = RqlLanguageParser.ToFilter("(eq(IsActive,true))");
+        var tree = RqlLanguageParser.ToCriteria("(eq(IsActive,true))");
 
         var pred = tree.Criteria[0];
         pred.Operator.ShouldBe(RqlOperator.Equals);
@@ -89,58 +89,58 @@ public class RqlLanguageParserTests
     // ========== All operator codes ==========
 
     [Fact]
-    public void ToFilter_ParsesNotEquals()
+    public void ToCriteria_ParsesNotEquals()
     {
-        var tree = RqlLanguageParser.ToFilter("(ne(Name,'John'))");
+        var tree = RqlLanguageParser.ToCriteria("(ne(Name,'John'))");
 
         tree.Criteria[0].Operator.ShouldBe(RqlOperator.NotEquals);
     }
 
     [Fact]
-    public void ToFilter_ParsesLesserThan()
+    public void ToCriteria_ParsesLesserThan()
     {
-        var tree = RqlLanguageParser.ToFilter("(lt(Quantity,10))");
+        var tree = RqlLanguageParser.ToCriteria("(lt(Quantity,10))");
 
         tree.Criteria[0].Operator.ShouldBe(RqlOperator.LesserThan);
     }
 
     [Fact]
-    public void ToFilter_ParsesGreaterThan()
+    public void ToCriteria_ParsesGreaterThan()
     {
-        var tree = RqlLanguageParser.ToFilter("(gt(Quantity,10))");
+        var tree = RqlLanguageParser.ToCriteria("(gt(Quantity,10))");
 
         tree.Criteria[0].Operator.ShouldBe(RqlOperator.GreaterThan);
     }
 
     [Fact]
-    public void ToFilter_ParsesLesserThanOrEqual()
+    public void ToCriteria_ParsesLesserThanOrEqual()
     {
-        var tree = RqlLanguageParser.ToFilter("(le(Quantity,10))");
+        var tree = RqlLanguageParser.ToCriteria("(le(Quantity,10))");
 
         tree.Criteria[0].Operator.ShouldBe(RqlOperator.LesserThanOrEqual);
     }
 
     [Fact]
-    public void ToFilter_ParsesGreaterThanOrEqual()
+    public void ToCriteria_ParsesGreaterThanOrEqual()
     {
-        var tree = RqlLanguageParser.ToFilter("(ge(Quantity,10))");
+        var tree = RqlLanguageParser.ToCriteria("(ge(Quantity,10))");
 
         tree.Criteria[0].Operator.ShouldBe(RqlOperator.GreaterThanOrEqual);
     }
 
     [Fact]
-    public void ToFilter_ParsesStartsWith()
+    public void ToCriteria_ParsesStartsWith()
     {
-        var tree = RqlLanguageParser.ToFilter("(sw(Name,'Wid'))");
+        var tree = RqlLanguageParser.ToCriteria("(sw(Name,'Wid'))");
 
         tree.Criteria[0].Operator.ShouldBe(RqlOperator.StartsWith);
         tree.Criteria[0].Values[0].ShouldBe("Wid");
     }
 
     [Fact]
-    public void ToFilter_ParsesContains()
+    public void ToCriteria_ParsesContains()
     {
-        var tree = RqlLanguageParser.ToFilter("(cn(Name,'idg'))");
+        var tree = RqlLanguageParser.ToCriteria("(cn(Name,'idg'))");
 
         tree.Criteria[0].Operator.ShouldBe(RqlOperator.Contains);
         tree.Criteria[0].Values[0].ShouldBe("idg");
@@ -150,9 +150,9 @@ public class RqlLanguageParserTests
     // ========== Multi-value operations ==========
 
     [Fact]
-    public void ToFilter_ParsesBetween_Decimal()
+    public void ToCriteria_ParsesBetween_Decimal()
     {
-        var tree = RqlLanguageParser.ToFilter("(bt(Price,#10.00,#50.00))");
+        var tree = RqlLanguageParser.ToCriteria("(bt(Price,#10.00,#50.00))");
 
         var pred = tree.Criteria[0];
         pred.Operator.ShouldBe(RqlOperator.Between);
@@ -163,9 +163,9 @@ public class RqlLanguageParserTests
     }
 
     [Fact]
-    public void ToFilter_ParsesIn_Strings()
+    public void ToCriteria_ParsesIn_Strings()
     {
-        var tree = RqlLanguageParser.ToFilter("(in(Status,'Active','Pending'))");
+        var tree = RqlLanguageParser.ToCriteria("(in(Status,'Active','Pending'))");
 
         var pred = tree.Criteria[0];
         pred.Operator.ShouldBe(RqlOperator.In);
@@ -176,9 +176,9 @@ public class RqlLanguageParserTests
     }
 
     [Fact]
-    public void ToFilter_ParsesNotIn_Ints()
+    public void ToCriteria_ParsesNotIn_Ints()
     {
-        var tree = RqlLanguageParser.ToFilter("(ni(Quantity,1,2,3))");
+        var tree = RqlLanguageParser.ToCriteria("(ni(Quantity,1,2,3))");
 
         var pred = tree.Criteria[0];
         pred.Operator.ShouldBe(RqlOperator.NotIn);
@@ -190,9 +190,9 @@ public class RqlLanguageParserTests
     // ========== Multiple predicates ==========
 
     [Fact]
-    public void ToFilter_ParsesMultiplePredicates()
+    public void ToCriteria_ParsesMultiplePredicates()
     {
-        var tree = RqlLanguageParser.ToFilter("(eq(Name,'Widget'),gt(Quantity,10))");
+        var tree = RqlLanguageParser.ToCriteria("(eq(Name,'Widget'),gt(Quantity,10))");
 
         tree.Criteria.Count.ShouldBe(2);
         tree.Criteria[0].Operator.ShouldBe(RqlOperator.Equals);
@@ -205,30 +205,30 @@ public class RqlLanguageParserTests
     // ========== Edge cases ==========
 
     [Fact]
-    public void ToFilter_EmptyCriteria_ReturnsEmptyTree()
+    public void ToCriteria_EmptyCriteria_ReturnsEmptyTree()
     {
-        var tree = RqlLanguageParser.ToFilter("()");
+        var tree = RqlLanguageParser.ToCriteria("()");
 
         tree.HasCriteria.ShouldBeFalse();
         tree.Criteria.Count.ShouldBe(0);
     }
 
     [Fact]
-    public void ToFilter_InvalidInput_ThrowsRqlException()
+    public void ToCriteria_InvalidInput_ThrowsRqlException()
     {
-        Should.Throw<RqlException>(() => RqlLanguageParser.ToFilter("invalid"));
+        Should.Throw<RqlException>(() => RqlLanguageParser.ToCriteria("invalid"));
     }
 
     [Fact]
-    public void ToCriteria_ParsesSameAsToFilter()
+    public void ToCriteria_ParsesMultiplePredicates_Consistently()
     {
-        var fromFilter = RqlLanguageParser.ToFilter("(eq(Name,'John'),gt(Quantity,10))");
-        var fromCriteria = RqlLanguageParser.ToCriteria("(eq(Name,'John'),gt(Quantity,10))");
+        var result1 = RqlLanguageParser.ToCriteria("(eq(Name,'John'),gt(Quantity,10))");
+        var result2 = RqlLanguageParser.ToCriteria("(eq(Name,'John'),gt(Quantity,10))");
 
-        fromFilter.Criteria.Count.ShouldBe(fromCriteria.Criteria.Count);
-        fromFilter.Criteria[0].Operator.ShouldBe(fromCriteria.Criteria[0].Operator);
-        fromFilter.Criteria[0].Target.Name.ShouldBe(fromCriteria.Criteria[0].Target.Name);
-        fromFilter.Criteria[1].Operator.ShouldBe(fromCriteria.Criteria[1].Operator);
+        result1.Criteria.Count.ShouldBe(result2.Criteria.Count);
+        result1.Criteria[0].Operator.ShouldBe(result2.Criteria[0].Operator);
+        result1.Criteria[0].Target.Name.ShouldBe(result2.Criteria[0].Target.Name);
+        result1.Criteria[1].Operator.ShouldBe(result2.Criteria[1].Operator);
     }
 
 }

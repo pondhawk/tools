@@ -26,7 +26,8 @@ SOFTWARE.
 // ReSharper disable UnusedMember.Global
 
 using System.Reflection;
-using Fabrica.Persistence;
+using CommunityToolkit.Diagnostics;
+using Pondhawk.Rql.Criteria;
 
 namespace Pondhawk.Rql.Builder;
 
@@ -34,7 +35,7 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
 {
 
 
-    
+
     public static implicit operator List<IRqlPredicate>(  AbstractFilterBuilder<TBuilder> builder )
     {
         var list = new List<IRqlPredicate>();
@@ -76,7 +77,7 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
     public TBuilder Introspect(  ICriteria source, IDictionary<string,string> map=null )
     {
 
-        ArgumentNullException.ThrowIfNull(source);
+        Guard.IsNotNull(source);
 
 
         var parts = new Dictionary<string, RqlPredicate>();
@@ -193,7 +194,7 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
                     break;
 
                 default:
-                    throw new Exception($"Invalid usage. Property: {prop.Name} Operation: {attr.Operation} DataType: {prop.PropertyType.Name} Operand: {attr.Operand} - Target: {target} Value: {value}");
+                    throw new RqlException($"Invalid usage. Property: {prop.Name} Operation: {attr.Operation} DataType: {prop.PropertyType.Name} Operand: {attr.Operand} - Target: {target} Value: {value}");
 
             }
 
@@ -218,7 +219,7 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
     public bool AtLeastOne( Func<IRqlPredicate, bool> predicate )
     {
 
-        ArgumentNullException.ThrowIfNull(predicate);
+        Guard.IsNotNull(predicate);
 
         var count = Criteria.Count(predicate);
 
@@ -229,7 +230,7 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
     public bool OnlyOne( Func<IRqlPredicate, bool> predicate )
     {
 
-        ArgumentNullException.ThrowIfNull(predicate);
+        Guard.IsNotNull(predicate);
 
         var count = Criteria.Count(predicate);
 
@@ -240,7 +241,7 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
     public bool None( Func<IRqlPredicate, bool> predicate)
     {
 
-        ArgumentNullException.ThrowIfNull(predicate);
+        Guard.IsNotNull(predicate);
 
         var count = Criteria.Count(predicate);
 
@@ -252,7 +253,7 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
     public void Add( IRqlPredicate predicate )
     {
 
-        ArgumentNullException.ThrowIfNull(predicate);
+        Guard.IsNotNull(predicate);
 
         Predicates.Add( predicate );
 
@@ -260,7 +261,7 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
 
     public void Clear()
     {
-        Predicates.Clear();    
+        Predicates.Clear();
     }
 
     #endregion
@@ -271,16 +272,14 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
 
 
     #region Equals
-    
-    
+
+
 
     public TBuilder Equals( string value )
     {
 
-        ArgumentNullException.ThrowIfNull(value);
-
-        if (string.IsNullOrWhiteSpace(CurrentName))
-            throw new Exception("Must use the For method to set the current name before setting filter");
+        Guard.IsNotNullOrWhiteSpace(value);
+        Guard.IsNotNullOrWhiteSpace(CurrentName);
 
         Predicates.Add( new RqlPredicate<string>(RqlOperator.Equals, CurrentName, value) );
 
@@ -293,8 +292,7 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
     public TBuilder Equals(int value)
     {
 
-        if( string.IsNullOrWhiteSpace(CurrentName) )
-            throw new Exception("Must use the for method to set the current name before setting filter");
+        Guard.IsNotNullOrWhiteSpace(CurrentName);
 
         Predicates.Add( new RqlPredicate<int>(RqlOperator.Equals, CurrentName, value ) );
 
@@ -306,8 +304,7 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
     public TBuilder Equals(long value)
     {
 
-        if( string.IsNullOrWhiteSpace(CurrentName) )
-            throw new Exception("Must use the for method to set the current name before setting filter");
+        Guard.IsNotNullOrWhiteSpace(CurrentName);
 
         Predicates.Add(new RqlPredicate<long>(RqlOperator.Equals, CurrentName, value));
 
@@ -320,8 +317,7 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
     public TBuilder Equals(DateTime value)
     {
 
-        if (string.IsNullOrWhiteSpace(CurrentName))
-            throw new Exception("Must use the for method to set the current name before setting filter");
+        Guard.IsNotNullOrWhiteSpace(CurrentName);
 
         Predicates.Add(new RqlPredicate<DateTime>(RqlOperator.Equals, CurrentName, value));
 
@@ -332,8 +328,7 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
     public TBuilder Equals(decimal value)
     {
 
-        if( string.IsNullOrWhiteSpace(CurrentName) )
-            throw new Exception("Must use the for method to set the current name before setting filter");
+        Guard.IsNotNullOrWhiteSpace(CurrentName);
 
         Predicates.Add( new RqlPredicate<decimal>(RqlOperator.Equals, CurrentName, value) );
 
@@ -345,8 +340,7 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
     public TBuilder Equals(bool value)
     {
 
-        if( string.IsNullOrWhiteSpace(CurrentName) )
-            throw new Exception("Must use the for method to set the current name before setting filter");
+        Guard.IsNotNullOrWhiteSpace(CurrentName);
 
         Predicates.Add(new RqlPredicate<bool>(RqlOperator.Equals, CurrentName, value));
 
@@ -362,10 +356,8 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
     public TBuilder NotEquals( string value )
     {
 
-        ArgumentNullException.ThrowIfNull(value);
-
-        if (string.IsNullOrWhiteSpace(CurrentName))
-            throw new Exception("Must use the For method to set the current name before setting filter");
+        Guard.IsNotNullOrWhiteSpace(value);
+        Guard.IsNotNullOrWhiteSpace(CurrentName);
 
         Predicates.Add( new RqlPredicate<string>(RqlOperator.NotEquals, CurrentName, value) );
 
@@ -377,8 +369,7 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
     public TBuilder NotEquals(int value)
     {
 
-        if (string.IsNullOrWhiteSpace(CurrentName))
-            throw new Exception("Must use the for method to set the current name before setting filter");
+        Guard.IsNotNullOrWhiteSpace(CurrentName);
 
         Predicates.Add(new RqlPredicate<int>(RqlOperator.NotEquals, CurrentName, value));
 
@@ -390,9 +381,7 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
     public TBuilder NotEquals(long value)
     {
 
-        if (string.IsNullOrWhiteSpace(CurrentName))
-            throw new Exception("Must use the for method to set the current name before setting filter");
-
+        Guard.IsNotNullOrWhiteSpace(CurrentName);
 
         Predicates.Add(new RqlPredicate<long>(RqlOperator.NotEquals, CurrentName, value));
 
@@ -404,8 +393,7 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
     public TBuilder NotEquals(DateTime value)
     {
 
-        if (string.IsNullOrWhiteSpace(CurrentName))
-            throw new Exception("Must use the for method to set the current name before setting filter");
+        Guard.IsNotNullOrWhiteSpace(CurrentName);
 
         Predicates.Add(new RqlPredicate<DateTime>(RqlOperator.NotEquals, CurrentName, value));
 
@@ -417,8 +405,7 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
     public TBuilder NotEquals(decimal value)
     {
 
-        if (string.IsNullOrWhiteSpace(CurrentName))
-            throw new Exception("Must use the for method to set the current name before setting filter");
+        Guard.IsNotNullOrWhiteSpace(CurrentName);
 
         Predicates.Add(new RqlPredicate<decimal>(RqlOperator.NotEquals, CurrentName, value));
 
@@ -434,10 +421,8 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
     public TBuilder LesserThan( string value )
     {
 
-        ArgumentNullException.ThrowIfNull(value);
-
-        if (string.IsNullOrWhiteSpace(CurrentName))
-            throw new Exception("Must use the For method to set the current name before setting filter");
+        Guard.IsNotNullOrWhiteSpace(value);
+        Guard.IsNotNullOrWhiteSpace(CurrentName);
 
         Predicates.Add(new RqlPredicate<string>(RqlOperator.LesserThan, CurrentName, value));
 
@@ -449,8 +434,7 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
     public TBuilder LesserThan(int value)
     {
 
-        if (string.IsNullOrWhiteSpace(CurrentName))
-            throw new Exception("Must use the for method to set the current name before setting filter");
+        Guard.IsNotNullOrWhiteSpace(CurrentName);
 
         Predicates.Add(new RqlPredicate<int>(RqlOperator.LesserThan, CurrentName, value));
 
@@ -462,8 +446,7 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
     public TBuilder LesserThan(long value)
     {
 
-        if (string.IsNullOrWhiteSpace(CurrentName))
-            throw new Exception("Must use the for method to set the current name before setting filter");
+        Guard.IsNotNullOrWhiteSpace(CurrentName);
 
         Predicates.Add(new RqlPredicate<long>(RqlOperator.LesserThan, CurrentName, value));
 
@@ -475,8 +458,7 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
     public TBuilder LesserThan(DateTime value)
     {
 
-        if (string.IsNullOrWhiteSpace(CurrentName))
-            throw new Exception("Must use the for method to set the current name before setting filter");
+        Guard.IsNotNullOrWhiteSpace(CurrentName);
 
         Predicates.Add(new RqlPredicate<DateTime>(RqlOperator.LesserThan, CurrentName, value));
 
@@ -488,8 +470,7 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
     public TBuilder LesserThan( decimal value )
     {
 
-        if (String.IsNullOrWhiteSpace(CurrentName))
-            throw new Exception("Must use the for method to set the current name before setting filter");
+        Guard.IsNotNullOrWhiteSpace(CurrentName);
 
         Predicates.Add(new RqlPredicate<decimal>(RqlOperator.LesserThan, CurrentName, value));
 
@@ -506,10 +487,8 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
     public TBuilder LesserThanOrEqual( string value )
     {
 
-        ArgumentNullException.ThrowIfNull(value);
-
-        if( string.IsNullOrWhiteSpace(CurrentName) )
-            throw new Exception("Must use the For method to set the current name before setting filter");
+        Guard.IsNotNullOrWhiteSpace(value);
+        Guard.IsNotNullOrWhiteSpace(CurrentName);
 
         Predicates.Add(new RqlPredicate<string>(RqlOperator.LesserThanOrEqual, CurrentName, value));
 
@@ -521,8 +500,7 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
     public TBuilder LesserThanOrEqual(int value)
     {
 
-        if( string.IsNullOrWhiteSpace(CurrentName) )
-            throw new Exception("Must use the for method to set the current name before setting filter");
+        Guard.IsNotNullOrWhiteSpace(CurrentName);
 
         Predicates.Add(new RqlPredicate<int>(RqlOperator.LesserThanOrEqual, CurrentName, value));
 
@@ -534,8 +512,7 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
     public TBuilder LesserThanOrEqual(long value)
     {
 
-        if (String.IsNullOrWhiteSpace(CurrentName))
-            throw new Exception("Must use the for method to set the current name before setting filter");
+        Guard.IsNotNullOrWhiteSpace(CurrentName);
 
         Predicates.Add( new RqlPredicate<long>(RqlOperator.LesserThanOrEqual, CurrentName, value) );
 
@@ -547,8 +524,7 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
     public TBuilder LesserThanOrEqual(DateTime value)
     {
 
-        if (string.IsNullOrWhiteSpace(CurrentName))
-            throw new Exception("Must use the for method to set the current name before setting filter");
+        Guard.IsNotNullOrWhiteSpace(CurrentName);
 
         Predicates.Add(new RqlPredicate<DateTime>(RqlOperator.LesserThanOrEqual, CurrentName, value));
 
@@ -561,8 +537,7 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
     public TBuilder LesserThanOrEqual(decimal value)
     {
 
-        if( string.IsNullOrWhiteSpace(CurrentName) )
-            throw new Exception("Must use the for method to set the current name before setting filter");
+        Guard.IsNotNullOrWhiteSpace(CurrentName);
 
         Predicates.Add(new RqlPredicate<decimal>(RqlOperator.LesserThanOrEqual, CurrentName, value));
 
@@ -579,10 +554,8 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
     public TBuilder GreaterThan( string value )
     {
 
-        ArgumentNullException.ThrowIfNull(value);
-
-        if( string.IsNullOrWhiteSpace(CurrentName) )
-            throw new Exception("Must use the For method to set the current name before setting filter");
+        Guard.IsNotNullOrWhiteSpace(value);
+        Guard.IsNotNullOrWhiteSpace(CurrentName);
 
         Predicates.Add(new RqlPredicate<string>(RqlOperator.GreaterThan, CurrentName, value));
 
@@ -594,8 +567,7 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
     public TBuilder GreaterThan(int value)
     {
 
-        if( string.IsNullOrWhiteSpace(CurrentName) )
-            throw new Exception("Must use the for method to set the current name before setting filter");
+        Guard.IsNotNullOrWhiteSpace(CurrentName);
 
         Predicates.Add(new RqlPredicate<int>(RqlOperator.GreaterThan, CurrentName, value));
 
@@ -607,8 +579,7 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
     public TBuilder GreaterThan(long value)
     {
 
-        if( string.IsNullOrWhiteSpace(CurrentName) )
-            throw new Exception("Must use the for method to set the current name before setting filter");
+        Guard.IsNotNullOrWhiteSpace(CurrentName);
 
         Predicates.Add(new RqlPredicate<long>(RqlOperator.GreaterThan, CurrentName, value));
 
@@ -620,8 +591,7 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
     public TBuilder GreaterThan(DateTime value)
     {
 
-        if( string.IsNullOrWhiteSpace(CurrentName) )
-            throw new Exception("Must use the for method to set the current name before setting filter");
+        Guard.IsNotNullOrWhiteSpace(CurrentName);
 
         Predicates.Add(new RqlPredicate<DateTime>(RqlOperator.GreaterThan, CurrentName, value));
 
@@ -633,8 +603,7 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
     public TBuilder GreaterThan( decimal value )
     {
 
-        if( string.IsNullOrWhiteSpace(CurrentName) )
-            throw new Exception("Must use the for method to set the current name before setting filter");
+        Guard.IsNotNullOrWhiteSpace(CurrentName);
 
         Predicates.Add( new RqlPredicate<decimal>(RqlOperator.GreaterThan, CurrentName, value) );
 
@@ -651,10 +620,8 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
     public TBuilder GreaterThanOrEqual(  string value )
     {
 
-        ArgumentNullException.ThrowIfNull(value);
-
-        if( string.IsNullOrWhiteSpace(CurrentName) )
-            throw new Exception("Must use the For method to set the current name before setting filter");
+        Guard.IsNotNullOrWhiteSpace(value);
+        Guard.IsNotNullOrWhiteSpace(CurrentName);
 
         Predicates.Add(new RqlPredicate<string>(RqlOperator.GreaterThanOrEqual, CurrentName, value));
 
@@ -666,8 +633,7 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
     public TBuilder GreaterThanOrEqual(int value)
     {
 
-        if( string.IsNullOrWhiteSpace(CurrentName) )
-            throw new Exception("Must use the for method to set the current name before setting filter");
+        Guard.IsNotNullOrWhiteSpace(CurrentName);
 
         Predicates.Add(new RqlPredicate<int>(RqlOperator.GreaterThanOrEqual, CurrentName, value));
 
@@ -679,8 +645,7 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
     public TBuilder GreaterThanOrEqual(long value)
     {
 
-        if( string.IsNullOrWhiteSpace(CurrentName) )
-            throw new Exception("Must use the for method to set the current name before setting filter");
+        Guard.IsNotNullOrWhiteSpace(CurrentName);
 
         Predicates.Add(new RqlPredicate<long>(RqlOperator.GreaterThanOrEqual, CurrentName, value));
 
@@ -692,8 +657,7 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
     public TBuilder GreaterThanOrEqual(DateTime value)
     {
 
-        if( string.IsNullOrWhiteSpace(CurrentName) )
-            throw new Exception("Must use the for method to set the current name before setting filter");
+        Guard.IsNotNullOrWhiteSpace(CurrentName);
 
         Predicates.Add(new RqlPredicate<DateTime>(RqlOperator.GreaterThanOrEqual, CurrentName, value));
 
@@ -705,8 +669,7 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
     public TBuilder GreaterThanOrEqual(decimal value)
     {
 
-        if( string.IsNullOrWhiteSpace(CurrentName) )
-            throw new Exception("Must use the for method to set the current name before setting filter");
+        Guard.IsNotNullOrWhiteSpace(CurrentName);
 
         Predicates.Add(new RqlPredicate<decimal>(RqlOperator.GreaterThanOrEqual, CurrentName, value));
 
@@ -723,14 +686,8 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
     public TBuilder StartsWith( string value )
     {
 
-        ArgumentNullException.ThrowIfNull(value);
-
-
-        if( string.IsNullOrWhiteSpace(CurrentName) )
-            throw new Exception("Must use the for method to set the current name before setting filter");
-
-        if( string.IsNullOrWhiteSpace(value) )
-            throw new Exception("Value can not be null of blank");
+        Guard.IsNotNullOrWhiteSpace(value);
+        Guard.IsNotNullOrWhiteSpace(CurrentName);
 
         Predicates.Add(new RqlPredicate<string>(RqlOperator.StartsWith, CurrentName, value));
 
@@ -741,11 +698,8 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
     public TBuilder Contains( string value )
     {
 
-        if( string.IsNullOrWhiteSpace(value) )
-            throw new Exception("Value can not be null of blank");
-
-        if( string.IsNullOrWhiteSpace(CurrentName) )
-            throw new Exception("Must use the for method to set the current name before setting filter");
+        Guard.IsNotNullOrWhiteSpace(value);
+        Guard.IsNotNullOrWhiteSpace(CurrentName);
 
         Predicates.Add(new RqlPredicate<string>(RqlOperator.Contains, CurrentName, value));
 
@@ -761,13 +715,10 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
     public TBuilder Between(int from, int to)
     {
 
-
-        if( string.IsNullOrWhiteSpace(CurrentName) )
-            throw new Exception("Must use the for method to set the current name before setting filter");
-
+        Guard.IsNotNullOrWhiteSpace(CurrentName);
 
         Predicates.Add(new RqlPredicate<int>( RqlOperator.Between, CurrentName, new []{from,to}) );
-           
+
 
         return (TBuilder)this;
 
@@ -777,9 +728,7 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
     public TBuilder Between(long from, long to)
     {
 
-
-        if( string.IsNullOrWhiteSpace(CurrentName) )
-            throw new Exception("Must use the for method to set the current name before setting filter");
+        Guard.IsNotNullOrWhiteSpace(CurrentName);
 
         Predicates.Add(new RqlPredicate<long>(RqlOperator.Between, CurrentName, new[] { from, to }));
 
@@ -791,8 +740,7 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
     public TBuilder Between(DateTime from, DateTime to)
     {
 
-        if( string.IsNullOrWhiteSpace(CurrentName) )
-            throw new Exception("Must use the for method to set the current name before setting filter");
+        Guard.IsNotNullOrWhiteSpace(CurrentName);
 
         Predicates.Add(new RqlPredicate<DateTime>(RqlOperator.Between, CurrentName, new[] { from, to }));
 
@@ -803,8 +751,7 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
     public TBuilder Between(decimal from, decimal to)
     {
 
-        if( string.IsNullOrWhiteSpace(CurrentName) )
-            throw new Exception("Must use the for method to set the current name before setting filter");
+        Guard.IsNotNullOrWhiteSpace(CurrentName);
 
         Predicates.Add(new RqlPredicate<decimal>(RqlOperator.Between, CurrentName, new[] { from, to }));
 
@@ -816,11 +763,9 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
     public TBuilder Between(  string from,  string to )
     {
 
-        ArgumentNullException.ThrowIfNull(from);
-        ArgumentNullException.ThrowIfNull(to);
-
-        if( string.IsNullOrWhiteSpace(CurrentName) )
-            throw new Exception("Must use the for method to set the current name before setting filter");
+        Guard.IsNotNull(from);
+        Guard.IsNotNull(to);
+        Guard.IsNotNullOrWhiteSpace(CurrentName);
 
         Predicates.Add(new RqlPredicate<string>(RqlOperator.Between, CurrentName, new[] { from, to }));
 
@@ -836,10 +781,8 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
     public TBuilder In( params string[] values )
     {
 
-        ArgumentNullException.ThrowIfNull(values);
-
-        if( string.IsNullOrWhiteSpace(CurrentName) )
-            throw new Exception("Must use the for method to set the current name before setting filter");
+        Guard.IsNotNull(values);
+        Guard.IsNotNullOrWhiteSpace(CurrentName);
 
         Predicates.Add(new RqlPredicate<string>(RqlOperator.In, CurrentName, values));
 
@@ -851,10 +794,8 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
     public TBuilder In( IEnumerable<string> values )
     {
 
-        ArgumentNullException.ThrowIfNull(values);
-
-        if( string.IsNullOrWhiteSpace(CurrentName) )
-            throw new Exception("Must use the for method to set the current name before setting filter");
+        Guard.IsNotNull(values);
+        Guard.IsNotNullOrWhiteSpace(CurrentName);
 
         Predicates.Add(new RqlPredicate<string>(RqlOperator.In, CurrentName, values));
 
@@ -866,10 +807,8 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
     public TBuilder In( params int[] values )
     {
 
-        ArgumentNullException.ThrowIfNull(values);
-
-        if( string.IsNullOrWhiteSpace(CurrentName) )
-            throw new Exception("Must use the for method to set the current name before setting filter");
+        Guard.IsNotNull(values);
+        Guard.IsNotNullOrWhiteSpace(CurrentName);
 
         Predicates.Add(new RqlPredicate<int>(RqlOperator.In, CurrentName, values));
 
@@ -880,10 +819,8 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
     public TBuilder In( IEnumerable<int> values )
     {
 
-        ArgumentNullException.ThrowIfNull(values);
-
-        if (string.IsNullOrWhiteSpace(CurrentName))
-            throw new Exception("Must use the for method to set the current name before setting filter");
+        Guard.IsNotNull(values);
+        Guard.IsNotNullOrWhiteSpace(CurrentName);
 
         Predicates.Add(new RqlPredicate<int>(RqlOperator.In, CurrentName, values));
 
@@ -895,10 +832,8 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
     public TBuilder In( params long[] values )
     {
 
-        ArgumentNullException.ThrowIfNull(values);
-
-        if( string.IsNullOrWhiteSpace(CurrentName) )
-            throw new Exception("Must use the for method to set the current name before setting filter");
+        Guard.IsNotNull(values);
+        Guard.IsNotNullOrWhiteSpace(CurrentName);
 
         Predicates.Add(new RqlPredicate<long>(RqlOperator.In, CurrentName, values));
 
@@ -906,14 +841,12 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
 
     }
 
-    
+
     public TBuilder In( IEnumerable<long> values )
     {
 
-        ArgumentNullException.ThrowIfNull(values);
-
-        if( string.IsNullOrWhiteSpace(CurrentName) )
-            throw new Exception("Must use the for method to set the current name before setting filter");
+        Guard.IsNotNull(values);
+        Guard.IsNotNullOrWhiteSpace(CurrentName);
 
         Predicates.Add(new RqlPredicate<long>(RqlOperator.In, CurrentName, values));
 
@@ -922,14 +855,12 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
     }
 
 
-    
+
     public TBuilder In( params decimal[] values )
     {
 
-        ArgumentNullException.ThrowIfNull(values);
-
-        if (string.IsNullOrWhiteSpace(CurrentName))
-            throw new Exception("Must use the for method to set the current name before setting filter");
+        Guard.IsNotNull(values);
+        Guard.IsNotNullOrWhiteSpace(CurrentName);
 
         Predicates.Add(new RqlPredicate<decimal>(RqlOperator.In, CurrentName, values));
 
@@ -937,14 +868,12 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
 
     }
 
-    
+
     public TBuilder In( IEnumerable<decimal> values )
     {
 
-        ArgumentNullException.ThrowIfNull(values);
-
-        if (string.IsNullOrWhiteSpace(CurrentName))
-            throw new Exception("Must use the for method to set the current name before setting filter");
+        Guard.IsNotNull(values);
+        Guard.IsNotNullOrWhiteSpace(CurrentName);
 
         Predicates.Add(new RqlPredicate<decimal>(RqlOperator.In, CurrentName, values));
 
@@ -952,14 +881,12 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
 
     }
 
-    
+
     public TBuilder In(  params DateTime[] values )
     {
 
-        ArgumentNullException.ThrowIfNull(values);
-
-        if (String.IsNullOrWhiteSpace(CurrentName))
-            throw new Exception("Must use the for method to set the current name before setting filter");
+        Guard.IsNotNull(values);
+        Guard.IsNotNullOrWhiteSpace(CurrentName);
 
         Predicates.Add(new RqlPredicate<DateTime>(RqlOperator.In, CurrentName, values));
 
@@ -967,14 +894,12 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
 
     }
 
-    
+
     public TBuilder In(  IEnumerable<DateTime> values )
     {
 
-        ArgumentNullException.ThrowIfNull(values);
-
-        if (String.IsNullOrWhiteSpace(CurrentName))
-            throw new Exception("Must use the for method to set the current name before setting filter");
+        Guard.IsNotNull(values);
+        Guard.IsNotNullOrWhiteSpace(CurrentName);
 
         Predicates.Add(new RqlPredicate<DateTime>(RqlOperator.In, CurrentName, values));
 
@@ -987,14 +912,12 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
 
     #region NotIn
 
-    
+
     public TBuilder NotIn( params string[] values)
     {
 
-        ArgumentNullException.ThrowIfNull(values);
-
-        if (string.IsNullOrWhiteSpace(CurrentName))
-            throw new Exception("Must use the for method to set the current name before setting filter");
+        Guard.IsNotNull(values);
+        Guard.IsNotNullOrWhiteSpace(CurrentName);
 
         Predicates.Add(new RqlPredicate<string>(RqlOperator.NotIn, CurrentName, values));
 
@@ -1002,14 +925,12 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
 
     }
 
-    
+
     public TBuilder NotIn( IEnumerable<string> values)
     {
 
-        ArgumentNullException.ThrowIfNull(values);
-
-        if (string.IsNullOrWhiteSpace(CurrentName))
-            throw new Exception("Must use the for method to set the current name before setting filter");
+        Guard.IsNotNull(values);
+        Guard.IsNotNullOrWhiteSpace(CurrentName);
 
         Predicates.Add(new RqlPredicate<string>(RqlOperator.NotIn, CurrentName, values));
 
@@ -1017,14 +938,12 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
 
     }
 
-    
+
     public TBuilder NotIn( params int[] values )
     {
 
-        ArgumentNullException.ThrowIfNull(values);
-
-        if (string.IsNullOrWhiteSpace(CurrentName))
-            throw new Exception("Must use the for method to set the current name before setting filter");
+        Guard.IsNotNull(values);
+        Guard.IsNotNullOrWhiteSpace(CurrentName);
 
         Predicates.Add(new RqlPredicate<int>(RqlOperator.NotIn, CurrentName, values));
 
@@ -1032,14 +951,12 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
 
     }
 
-    
+
     public TBuilder NotIn( IEnumerable<int> values)
     {
 
-        ArgumentNullException.ThrowIfNull(values);
-
-        if( string.IsNullOrWhiteSpace(CurrentName) )
-            throw new Exception("Must use the for method to set the current name before setting filter");
+        Guard.IsNotNull(values);
+        Guard.IsNotNullOrWhiteSpace(CurrentName);
 
         Predicates.Add(new RqlPredicate<int>(RqlOperator.NotIn, CurrentName, values));
 
@@ -1048,14 +965,12 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
     }
 
 
-    
+
     public TBuilder NotIn( params long[] values )
     {
 
-        ArgumentNullException.ThrowIfNull(values);
-
-        if (string.IsNullOrWhiteSpace(CurrentName))
-            throw new Exception("Must use the for method to set the current name before setting filter");
+        Guard.IsNotNull(values);
+        Guard.IsNotNullOrWhiteSpace(CurrentName);
 
         Predicates.Add(new RqlPredicate<long>(RqlOperator.NotIn, CurrentName, values));
 
@@ -1064,14 +979,12 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
     }
 
 
-    
+
     public TBuilder NotIn( IEnumerable<long> values )
     {
 
-        ArgumentNullException.ThrowIfNull(values);
-
-        if (string.IsNullOrWhiteSpace(CurrentName))
-            throw new Exception("Must use the for method to set the current name before setting filter");
+        Guard.IsNotNull(values);
+        Guard.IsNotNullOrWhiteSpace(CurrentName);
 
         Predicates.Add(new RqlPredicate<long>(RqlOperator.NotIn, CurrentName, values));
 
@@ -1080,14 +993,12 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
     }
 
 
-    
+
     public TBuilder NotIn( params decimal[] values )
     {
 
-        ArgumentNullException.ThrowIfNull(values);
-
-        if (string.IsNullOrWhiteSpace(CurrentName))
-            throw new Exception("Must use the for method to set the current name before setting filter");
+        Guard.IsNotNull(values);
+        Guard.IsNotNullOrWhiteSpace(CurrentName);
 
         Predicates.Add(new RqlPredicate<decimal>(RqlOperator.NotIn, CurrentName, values));
 
@@ -1096,14 +1007,12 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
     }
 
 
-    
+
     public TBuilder NotIn( IEnumerable<decimal> values )
     {
 
-        ArgumentNullException.ThrowIfNull(values);
-
-        if (string.IsNullOrWhiteSpace(CurrentName))
-            throw new Exception("Must use the for method to set the current name before setting filter");
+        Guard.IsNotNull(values);
+        Guard.IsNotNullOrWhiteSpace(CurrentName);
 
         Predicates.Add(new RqlPredicate<decimal>(RqlOperator.NotIn, CurrentName, values));
 
@@ -1111,14 +1020,12 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
 
     }
 
-    
+
     public TBuilder NotIn( params DateTime[] values)
     {
 
-        ArgumentNullException.ThrowIfNull(values);
-
-        if (string.IsNullOrWhiteSpace(CurrentName))
-            throw new Exception("Must use the for method to set the current name before setting filter");
+        Guard.IsNotNull(values);
+        Guard.IsNotNullOrWhiteSpace(CurrentName);
 
         Predicates.Add(new RqlPredicate<DateTime>(RqlOperator.NotIn, CurrentName, values));
 
@@ -1126,14 +1033,12 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
 
     }
 
-    
+
     public TBuilder NotIn( IEnumerable<DateTime> values)
     {
 
-        ArgumentNullException.ThrowIfNull(values);
-
-        if (string.IsNullOrWhiteSpace(CurrentName))
-            throw new Exception("Must use the for method to set the current name before setting filter");
+        Guard.IsNotNull(values);
+        Guard.IsNotNullOrWhiteSpace(CurrentName);
 
         Predicates.Add(new RqlPredicate<DateTime>(RqlOperator.NotIn, CurrentName, values));
 

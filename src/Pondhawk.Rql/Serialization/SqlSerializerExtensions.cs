@@ -153,37 +153,20 @@ public static class SqlSerializerExtensions
 
         ArgumentNullException.ThrowIfNull(tableName);
 
-
-        var projection = new[] {"*"};
-
-
         var pair = builder.ToSqlWhere(indexed);
 
-        if( string.IsNullOrWhiteSpace(pair.sql) && builder.RowLimit > 0 )
-        {
-            var query = $"select {string.Join(",",projection)} from {tableName} limit {builder.RowLimit}";
-            return (query, []);
-        }
+        var hasWhere = !string.IsNullOrWhiteSpace(pair.sql);
+        var hasLimit = builder.RowLimit > 0;
 
-        if( string.IsNullOrWhiteSpace(pair.sql) )
-        {
-            var query = $"select {string.Join(",", projection)} from {tableName}";
-            return (query, []);
-        }
-            
-        if( builder.RowLimit > 0)
-        {
-            var query = $"select {string.Join(",", projection)} from {tableName} where {pair.sql} limit {builder.RowLimit}";
-            return (query, pair.parameters);
-        }
-        else
-        {
-            var query = $"select {string.Join(",", projection)} from {tableName} where {pair.sql}";
-            return (query, pair.parameters);
-        }
+        var query = $"select * from {tableName}";
 
+        if (hasWhere)
+            query += $" where {pair.sql}";
 
+        if (hasLimit)
+            query += $" limit {builder.RowLimit}";
 
+        return (query, hasWhere ? pair.parameters : []);
 
     }
 
@@ -265,7 +248,7 @@ public static class SqlSerializerExtensions
 
 
         if (parts.Count == 0)
-            return ("",null);
+            return ("", Array.Empty<object>());
 
 
         var join = string.Join(" and ", parts);

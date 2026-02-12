@@ -165,27 +165,8 @@ namespace Pondhawk.Rql.Serialization
         #endregion
 
 
-        
+
         public static string ToRql( this IRqlFilter builder )
-        {
-
-            var sb = new StringBuilder();
-
-            sb.Append("(*) ");
-
-            var parts = BuildRestrictionParts(builder.Criteria);
-
-            sb.Append('(');
-            sb.Append(string.Join(",", parts));
-            sb.Append(')');
-
-            return sb.ToString();
-
-        }
-
-
-        
-        public static string ToRqlCriteria( this IRqlFilter builder )
         {
 
             var parts = BuildRestrictionParts(builder.Criteria);

@@ -115,6 +115,7 @@ public class RqlPredicateTests
 
         (target != "Other").ShouldBeTrue();
         (target != "Name").ShouldBeFalse();
+        (target != "").ShouldBeTrue();
     }
 
     [Fact]

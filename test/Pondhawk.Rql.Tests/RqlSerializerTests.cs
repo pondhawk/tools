@@ -9,7 +9,7 @@ namespace Pondhawk.Rql.Tests;
 public class RqlSerializerTests
 {
 
-    // ========== ToRql / ToRqlCriteria format ==========
+    // ========== ToRql format ==========
 
     [Fact]
     public void ToRql_ProducesCorrectFormat()
@@ -19,18 +19,7 @@ public class RqlSerializerTests
 
         var rql = builder.ToRql();
 
-        rql.ShouldBe("(*) (eq(Name,'Widget'))");
-    }
-
-    [Fact]
-    public void ToRqlCriteria_ProducesCorrectFormat()
-    {
-        var builder = RqlFilterBuilder<TestProduct>
-            .Where(p => p.Name).Equals("Widget");
-
-        var criteria = builder.ToRqlCriteria();
-
-        criteria.ShouldBe("(eq(Name,'Widget'))");
+        rql.ShouldBe("(eq(Name,'Widget'))");
     }
 
     [Fact]
@@ -40,7 +29,7 @@ public class RqlSerializerTests
 
         var rql = builder.ToRql();
 
-        rql.ShouldBe("(*) ()");
+        rql.ShouldBe("()");
     }
 
 
@@ -52,7 +41,7 @@ public class RqlSerializerTests
         var builder = RqlFilterBuilder<TestProduct>
             .Where(p => p.Name).Equals("John");
 
-        builder.ToRqlCriteria().ShouldBe("(eq(Name,'John'))");
+        builder.ToRql().ShouldBe("(eq(Name,'John'))");
     }
 
     [Fact]
@@ -61,7 +50,7 @@ public class RqlSerializerTests
         var builder = RqlFilterBuilder<TestProduct>
             .Where(p => p.Name).NotEquals("John");
 
-        builder.ToRqlCriteria().ShouldBe("(ne(Name,'John'))");
+        builder.ToRql().ShouldBe("(ne(Name,'John'))");
     }
 
     [Fact]
@@ -70,7 +59,7 @@ public class RqlSerializerTests
         var builder = RqlFilterBuilder<TestProduct>
             .Where(p => p.Quantity).LesserThan(10);
 
-        builder.ToRqlCriteria().ShouldBe("(lt(Quantity,10))");
+        builder.ToRql().ShouldBe("(lt(Quantity,10))");
     }
 
     [Fact]
@@ -79,7 +68,7 @@ public class RqlSerializerTests
         var builder = RqlFilterBuilder<TestProduct>
             .Where(p => p.Quantity).GreaterThan(10);
 
-        builder.ToRqlCriteria().ShouldBe("(gt(Quantity,10))");
+        builder.ToRql().ShouldBe("(gt(Quantity,10))");
     }
 
     [Fact]
@@ -88,7 +77,7 @@ public class RqlSerializerTests
         var builder = RqlFilterBuilder<TestProduct>
             .Where(p => p.Quantity).LesserThanOrEqual(10);
 
-        builder.ToRqlCriteria().ShouldBe("(le(Quantity,10))");
+        builder.ToRql().ShouldBe("(le(Quantity,10))");
     }
 
     [Fact]
@@ -97,7 +86,7 @@ public class RqlSerializerTests
         var builder = RqlFilterBuilder<TestProduct>
             .Where(p => p.Quantity).GreaterThanOrEqual(10);
 
-        builder.ToRqlCriteria().ShouldBe("(ge(Quantity,10))");
+        builder.ToRql().ShouldBe("(ge(Quantity,10))");
     }
 
     [Fact]
@@ -106,7 +95,7 @@ public class RqlSerializerTests
         var builder = RqlFilterBuilder<TestProduct>
             .Where(p => p.Name).StartsWith("Wid");
 
-        builder.ToRqlCriteria().ShouldBe("(sw(Name,'Wid'))");
+        builder.ToRql().ShouldBe("(sw(Name,'Wid'))");
     }
 
     [Fact]
@@ -115,7 +104,7 @@ public class RqlSerializerTests
         var builder = RqlFilterBuilder<TestProduct>
             .Where(p => p.Name).Contains("idg");
 
-        builder.ToRqlCriteria().ShouldBe("(cn(Name,'idg'))");
+        builder.ToRql().ShouldBe("(cn(Name,'idg'))");
     }
 
 
@@ -127,7 +116,7 @@ public class RqlSerializerTests
         var builder = RqlFilterBuilder<TestProduct>
             .Where(p => p.Quantity).Equals(42);
 
-        builder.ToRqlCriteria().ShouldBe("(eq(Quantity,42))");
+        builder.ToRql().ShouldBe("(eq(Quantity,42))");
     }
 
     [Fact]
@@ -136,7 +125,7 @@ public class RqlSerializerTests
         var builder = RqlFilterBuilder<TestProduct>
             .Where(p => p.Sku).Equals(9876543210L);
 
-        builder.ToRqlCriteria().ShouldBe("(eq(Sku,9876543210))");
+        builder.ToRql().ShouldBe("(eq(Sku,9876543210))");
     }
 
     [Fact]
@@ -145,7 +134,7 @@ public class RqlSerializerTests
         var builder = RqlFilterBuilder<TestProduct>
             .Where(p => p.Price).Equals(19.99m);
 
-        builder.ToRqlCriteria().ShouldBe("(eq(Price,#19.99))");
+        builder.ToRql().ShouldBe("(eq(Price,#19.99))");
     }
 
     [Fact]
@@ -155,7 +144,7 @@ public class RqlSerializerTests
         var builder = RqlFilterBuilder<TestProduct>
             .Where(p => p.Created).Equals(dt);
 
-        builder.ToRqlCriteria().ShouldBe("(eq(Created,@2024-01-15T00:00:00Z))");
+        builder.ToRql().ShouldBe("(eq(Created,@2024-01-15T00:00:00Z))");
     }
 
     [Fact]
@@ -164,7 +153,7 @@ public class RqlSerializerTests
         var builder = RqlFilterBuilder<TestProduct>
             .Where(p => p.IsActive).Equals(true);
 
-        builder.ToRqlCriteria().ShouldBe("(eq(IsActive,true))");
+        builder.ToRql().ShouldBe("(eq(IsActive,true))");
     }
 
 
@@ -176,7 +165,7 @@ public class RqlSerializerTests
         var builder = RqlFilterBuilder<TestProduct>
             .Where(p => p.Quantity).Between(10, 50);
 
-        builder.ToRqlCriteria().ShouldBe("(bt(Quantity,10,50))");
+        builder.ToRql().ShouldBe("(bt(Quantity,10,50))");
     }
 
     [Fact]
@@ -185,7 +174,7 @@ public class RqlSerializerTests
         var builder = RqlFilterBuilder<TestProduct>
             .Where(p => p.Price).Between(10.00m, 50.00m);
 
-        builder.ToRqlCriteria().ShouldBe("(bt(Price,#10.00,#50.00))");
+        builder.ToRql().ShouldBe("(bt(Price,#10.00,#50.00))");
     }
 
     [Fact]
@@ -194,7 +183,7 @@ public class RqlSerializerTests
         var builder = RqlFilterBuilder<TestProduct>
             .Where(p => p.Status).In("Active", "Pending");
 
-        builder.ToRqlCriteria().ShouldBe("(in(Status,'Active','Pending'))");
+        builder.ToRql().ShouldBe("(in(Status,'Active','Pending'))");
     }
 
     [Fact]
@@ -203,7 +192,7 @@ public class RqlSerializerTests
         var builder = RqlFilterBuilder<TestProduct>
             .Where(p => p.Quantity).NotIn(1, 2, 3);
 
-        builder.ToRqlCriteria().ShouldBe("(ni(Quantity,1,2,3))");
+        builder.ToRql().ShouldBe("(ni(Quantity,1,2,3))");
     }
 
 
@@ -216,7 +205,7 @@ public class RqlSerializerTests
             .Where(p => p.Name).Equals("Widget")
             .And(p => p.Quantity).GreaterThan(10);
 
-        builder.ToRqlCriteria().ShouldBe("(eq(Name,'Widget'),gt(Quantity,10))");
+        builder.ToRql().ShouldBe("(eq(Name,'Widget'),gt(Quantity,10))");
     }
 
 
@@ -231,11 +220,11 @@ public class RqlSerializerTests
             .And(p => p.Price).Between(5.00m, 100.00m)
             .And(p => p.Status).In("Active", "Pending");
 
-        var criteria1 = builder.ToRqlCriteria();
+        var criteria1 = builder.ToRql();
 
-        var tree = RqlLanguageParser.ToFilter(criteria1);
+        var tree = RqlLanguageParser.ToCriteria(criteria1);
         var rebuilt = new RqlFilterBuilder<TestProduct>(tree);
-        var criteria2 = rebuilt.ToRqlCriteria();
+        var criteria2 = rebuilt.ToRql();
 
         criteria2.ShouldBe(criteria1);
     }

@@ -25,6 +25,7 @@
 
 
 	<ItemGroup>
+	  <PackageReference Include="CommunityToolkit.Diagnostics" />
 	  <PackageReference Include="Sprache" />
 	</ItemGroup>
 

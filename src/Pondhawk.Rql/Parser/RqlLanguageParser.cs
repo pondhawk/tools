@@ -93,9 +93,9 @@ public class RqlLanguageParser
 
 
         if (string.IsNullOrWhiteSpace(op))
-            return null;
+            throw new RqlException($"Empty or whitespace-only operator encountered for target '{name}'");
 
-        var dataType = typeof(string);
+        Type dataType = null;
 
         var raw   = new List<string>(values);
         var typed = new List<object>();
@@ -106,49 +106,51 @@ public class RqlLanguageParser
             var indicator = v[0];
             if( indicator == '@' && DateTime.TryParse(v.Substring(1), CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out var date) )
             {
-                dataType = typeof(DateTime);
+                dataType ??= typeof(DateTime);
                 typed.Add(date);
             }
             else if (indicator == '#' && decimal.TryParse(v.Substring(1), NumberStyles.AllowLeadingSign | NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out var decm) )
             {
-                dataType = typeof(decimal);
+                dataType ??= typeof(decimal);
                 typed.Add(decm);
             }
             else if (indicator == '\''  )
             {
-                dataType = typeof(string);
+                dataType ??= typeof(string);
                 var len = v.Length - 2;
                 var s = v.Substring(1, len);
                 typed.Add(s);
             }
             else if( int.TryParse(v, out var iv) )
             {
-                dataType = typeof(int);
+                dataType ??= typeof(int);
                 typed.Add(iv);
             }
             else if( long.TryParse(v, out var lv) )
             {
-                dataType = typeof(long);
+                dataType ??= typeof(long);
                 typed.Add(lv);
             }
             else if( decimal.TryParse(v, out var dv) )
             {
-                dataType = typeof(decimal);
+                dataType ??= typeof(decimal);
                 typed.Add(dv);
             }
             else if( bool.TryParse(v, out var bv) )
             {
-                dataType = typeof(bool);
+                dataType ??= typeof(bool);
                 typed.Add(bv);
             }
             else
             {
-                dataType = typeof(string);
+                dataType ??= typeof(string);
                 typed.Add(v);
             }
 
 
         }
+
+        dataType ??= typeof(string);
 
 
         if( !OperatorMap.TryGetValue(op, out var opr) )
@@ -161,28 +163,6 @@ public class RqlLanguageParser
 
     }
 
-
-
-    public static RqlTree ToFilter( string input )
-    {
-
-        try
-        {
-
-            var ops = Restriction.Parse(input);
-
-            var expr = new RqlTree();
-            expr.Criteria.AddRange(ops);
-
-            return expr;
-
-        }
-        catch (ParseException cause)
-        {
-            throw new RqlException( $"Could not parse supplied RQL '{input}'. {cause.Message}", cause );
-        }
-
-    }
 
 
     public static RqlTree ToCriteria( string input )

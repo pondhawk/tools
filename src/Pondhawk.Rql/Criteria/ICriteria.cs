@@ -1,4 +1,4 @@
-﻿namespace Fabrica.Persistence
+﻿namespace Pondhawk.Rql.Criteria
 {
 
     public interface ICriteria

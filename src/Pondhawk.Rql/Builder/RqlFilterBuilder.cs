@@ -23,6 +23,7 @@ SOFTWARE.
 */
 
 using System.Linq.Expressions;
+using CommunityToolkit.Diagnostics;
 
 namespace Pondhawk.Rql.Builder
 {
@@ -53,25 +54,23 @@ namespace Pondhawk.Rql.Builder
 
         protected RqlFilterBuilder()
         {
-            
+
         }
 
         public RqlFilterBuilder( RqlTree tree ) : base( tree )
         {
-            
+
         }
 
 
         public RqlFilterBuilder<TTarget> And<TValue>( Expression<Func<TTarget, TValue>> prop )
         {
 
-            ArgumentNullException.ThrowIfNull(prop);
-            ArgumentNullException.ThrowIfNull(prop.Body);
+            Guard.IsNotNull(prop);
+            Guard.IsNotNull(prop.Body);
 
-            if (!(prop.Body is MemberExpression))
+            if (prop.Body is not MemberExpression propExpr)
                 throw new ArgumentException("Targets of a builder must be a field or a property on the output model");
-
-            var propExpr = (MemberExpression)prop.Body;
 
             CurrentName = propExpr.Member.Name;
 
@@ -109,8 +108,7 @@ namespace Pondhawk.Rql.Builder
         public static RqlFilterBuilder Where( string prop )
         {
 
-            if (string.IsNullOrWhiteSpace(prop))
-                throw new ArgumentException("Value cannot be null or whitespace.", nameof(prop));
+            Guard.IsNotNullOrWhiteSpace(prop);
 
             var builder = new RqlFilterBuilder().And(prop);
             return builder;
@@ -136,7 +134,7 @@ namespace Pondhawk.Rql.Builder
         public RqlFilterBuilder And( string prop )
         {
 
-            ArgumentException.ThrowIfNullOrWhiteSpace(prop);
+            Guard.IsNotNullOrWhiteSpace(prop);
 
             CurrentName = prop;
 

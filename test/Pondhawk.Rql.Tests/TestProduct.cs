@@ -1,4 +1,4 @@
-using Fabrica.Persistence;
+using Pondhawk.Rql.Criteria;
 using Pondhawk.Rql.Builder;
 
 namespace Pondhawk.Rql.Tests;

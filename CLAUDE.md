@@ -70,9 +70,9 @@ A filtering DSL with AST, fluent builder, parser, and multiple serialization tar
 
 - **AST**: `RqlTree` (root) contains `Criteria` (list of `IRqlPredicate`). `RqlOperator` enum: Equals, NotEquals, LesserThan, GreaterThan, Between, In, NotIn, StartsWith, Contains, etc.
 - **Builder** (`Pondhawk.Rql.Builder`): `RqlFilterBuilder<TTarget>` provides fluent API: `.Where(expr).Equals(value).And(expr).GreaterThan(value)`. `Introspect()` builds filters from objects decorated with `[CriterionAttribute]`.
-- **Parser** (`Pondhawk.Rql.Parser`): Parses RQL criteria text back into `RqlTree` AST using the **Sprache** parser combinator library. `RqlLanguageParser.ToFilter(string)` and `ToCriteria(string)` both parse criteria. Value type prefixes: `@` for DateTime, `#` for decimal, `'...'` for strings.
+- **Parser** (`Pondhawk.Rql.Parser`): Parses RQL criteria text back into `RqlTree` AST using the **Sprache** parser combinator library. `RqlLanguageParser.ToCriteria(string)` parses criteria. Value type prefixes: `@` for DateTime, `#` for decimal, `'...'` for strings.
 - **Serialization** (`Pondhawk.Rql.Serialization`): Three output formats:
-  - `ToRql()` — RQL text: `(*) (eq(Name,'John'),gt(Age,30))`
+  - `ToRql()` — RQL text: `(eq(Name,'John'),gt(Age,30))`
   - `ToLambda<T>()` / `ToExpression<T>()` — compiled LINQ expressions
   - `ToSqlQuery()` / `ToSqlWhere()` — parameterized SQL
 

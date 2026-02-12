@@ -3,7 +3,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace Fabrica.Persistence;
+namespace Pondhawk.Rql.Criteria;
 
 public class BaseCriteria : ICriteria
 {

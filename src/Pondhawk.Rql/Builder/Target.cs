@@ -44,7 +44,7 @@ namespace Pondhawk.Rql.Builder
         {
 
             if ((string.IsNullOrWhiteSpace(target.Name)) || string.IsNullOrWhiteSpace(candidate))
-                return false;
+                return true;
 
             return string.Compare(target.Name, candidate, StringComparison.InvariantCultureIgnoreCase) != 0;
 

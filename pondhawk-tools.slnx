@@ -1,1 +1,7 @@
-<Solution />
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Fabrica.Rql.Parser/Fabrica.Rql.Parser.csproj" />
+    <Project Path="src/Fabrica.Rql/Fabrica.Rql.csproj" />
+    <Project Path="src/Fabrica.Rules/Fabrica.Rules.csproj" />
+  </Folder>
+</Solution>

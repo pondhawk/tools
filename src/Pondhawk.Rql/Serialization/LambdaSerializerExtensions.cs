@@ -1,5 +1,6 @@
 ﻿using System.Linq.Expressions;
 using System.Reflection;
+using CommunityToolkit.Diagnostics;
 using Pondhawk.Rql.Builder;
 
 namespace Pondhawk.Rql.Serialization
@@ -19,7 +20,7 @@ namespace Pondhawk.Rql.Serialization
         public static Func<TEntity, bool> ToLambda<TEntity>(  this IRqlFilter<TEntity> filter, bool insensitive = false) where TEntity : class
         {
 
-            ArgumentNullException.ThrowIfNull(filter);
+            Guard.IsNotNull(filter);
 
             var expression = filter.ToExpression(insensitive);
             var lambda = expression.Compile();
@@ -31,7 +32,7 @@ namespace Pondhawk.Rql.Serialization
         public static Expression<Func<TEntity, bool>> ToExpression<TEntity>(  this IRqlFilter<TEntity> filter, bool insensitive=false ) where TEntity : class
         {
 
-            ArgumentNullException.ThrowIfNull(filter);
+            Guard.IsNotNull(filter);
 
             var entity = Expression.Parameter(typeof(TEntity), "e");
 
@@ -44,22 +45,22 @@ namespace Pondhawk.Rql.Serialization
                 {
 
                     case RqlOperator.Equals:
-                        running = BuildEqual( running, entity, predicate );
+                        running = BuildComparison( running, entity, predicate, Expression.Equal );
                         break;
                     case RqlOperator.NotEquals:
-                        running = BuildNotEqual( running, entity, predicate );
+                        running = BuildComparison( running, entity, predicate, Expression.NotEqual );
                         break;
                     case RqlOperator.LesserThan:
-                        running = BuildLesserThan( running, entity, predicate );
+                        running = BuildComparison( running, entity, predicate, Expression.LessThan );
                         break;
                     case RqlOperator.GreaterThan:
-                        running = BuildGreaterThan( running, entity, predicate );
+                        running = BuildComparison( running, entity, predicate, Expression.GreaterThan );
                         break;
                     case RqlOperator.LesserThanOrEqual:
-                        running = BuildLesserThanOrEqual( running, entity, predicate );
+                        running = BuildComparison( running, entity, predicate, Expression.LessThanOrEqual );
                         break;
                     case RqlOperator.GreaterThanOrEqual:
-                        running = BuildGreaterThanOrEqual( running, entity, predicate );
+                        running = BuildComparison( running, entity, predicate, Expression.GreaterThanOrEqual );
                         break;
                     case RqlOperator.StartsWith when predicate.DataType == typeof(string) && insensitive:
                         running = BuildStartsWithCi(running, entity, predicate);
@@ -129,82 +130,12 @@ namespace Pondhawk.Rql.Serialization
 
         }
 
-        private static Expression BuildEqual(Expression running, Expression entity, IRqlPredicate predicate )
+        private static Expression BuildComparison(Expression running, Expression entity, IRqlPredicate predicate, Func<Expression, Expression, BinaryExpression> factory)
         {
 
             var (left, right) = BuildOperands(entity, predicate.Target.Name, predicate.DataType, predicate.Values[0]);
 
-            var exp = Expression.Equal(left, right);
-
-            if (running is null)
-                return exp;
-
-            return Expression.AndAlso(running, exp);
-
-        }
-
-        private static Expression BuildNotEqual( Expression running, Expression entity, IRqlPredicate predicate )
-        {
-
-            var (left, right) = BuildOperands(entity, predicate.Target.Name, predicate.DataType, predicate.Values[0]);
-
-            var exp = Expression.NotEqual(left, right);
-
-            if (running is null)
-                return exp;
-
-            return Expression.AndAlso(running, exp);
-
-        }
-
-        private static Expression BuildLesserThan( Expression running, Expression entity, IRqlPredicate predicate )
-        {
-
-            var (left, right) = BuildOperands(entity, predicate.Target.Name, predicate.DataType, predicate.Values[0]);
-
-            var exp = Expression.LessThan(left, right);
-
-            if (running is null)
-                return exp;
-
-            return Expression.AndAlso(running, exp);
-
-        }
-
-        private static Expression BuildLesserThanOrEqual( Expression running, Expression entity, IRqlPredicate predicate )
-        {
-
-            var (left, right) = BuildOperands(entity, predicate.Target.Name, predicate.DataType, predicate.Values[0]);
-
-            var exp = Expression.LessThanOrEqual(left, right);
-
-            if (running is null)
-                return exp;
-
-            return Expression.AndAlso(running, exp);
-
-        }
-
-        private static Expression BuildGreaterThan( Expression running, Expression entity, IRqlPredicate predicate )
-        {
-
-            var (left, right) = BuildOperands(entity, predicate.Target.Name, predicate.DataType, predicate.Values[0]);
-
-            var exp = Expression.GreaterThan(left, right);
-
-            if (running is null)
-                return exp;
-
-            return Expression.AndAlso(running, exp);
-
-        }
-
-        private static Expression BuildGreaterThanOrEqual( Expression running, Expression entity, IRqlPredicate predicate )
-        {
-
-            var (left, right) = BuildOperands(entity, predicate.Target.Name, predicate.DataType, predicate.Values[0]);
-
-            var exp = Expression.GreaterThanOrEqual(left, right);
+            var exp = factory(left, right);
 
             if (running is null)
                 return exp;

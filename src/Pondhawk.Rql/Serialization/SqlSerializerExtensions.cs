@@ -27,6 +27,7 @@ SOFTWARE.
 
 
 using System.Globalization;
+using CommunityToolkit.Diagnostics;
 using Pondhawk.Rql.Builder;
 
 namespace Pondhawk.Rql.Serialization;
@@ -39,40 +40,37 @@ public static class SqlSerializerExtensions
     {
 
         // ***************************************************************************
-        var operatorMap = new Dictionary<RqlOperator, KindSpec>();
-
         object DefaultKindFormatter(object o) => o;
 
-        operatorMap[RqlOperator.Equals] = new KindSpec { Operation = "{0} = {1}", Style = ValueStyle.Single, Formatter = DefaultKindFormatter };
-        operatorMap[RqlOperator.NotEquals] = new KindSpec { Operation = "{0} <> {1}", Style = ValueStyle.Single, Formatter = DefaultKindFormatter };
-        operatorMap[RqlOperator.Contains] = new KindSpec { Operation = "{0} like {1}", Style = ValueStyle.Single, Formatter = _containsFormatter };
-        operatorMap[RqlOperator.StartsWith] = new KindSpec { Operation = "{0} like {1}", Style = ValueStyle.Single, Formatter = _startsWithFormatter };
-        operatorMap[RqlOperator.LesserThan] = new KindSpec { Operation = "{0} < {1}", Style = ValueStyle.Single, Formatter = DefaultKindFormatter };
-        operatorMap[RqlOperator.GreaterThan] = new KindSpec { Operation = "{0} > {1}", Style = ValueStyle.Single, Formatter = DefaultKindFormatter };
-        operatorMap[RqlOperator.LesserThanOrEqual] = new KindSpec { Operation = "{0} <= {1}", Style = ValueStyle.Single, Formatter = DefaultKindFormatter };
-        operatorMap[RqlOperator.GreaterThanOrEqual] = new KindSpec { Operation = "{0} >= {1}", Style = ValueStyle.Single, Formatter = DefaultKindFormatter };
-        operatorMap[RqlOperator.Between] = new KindSpec { Operation = "{0} between {1} and {2}", Style = ValueStyle.Pair, Formatter = DefaultKindFormatter };
-        operatorMap[RqlOperator.In] = new KindSpec { Operation = "{0} in ({1})", Style = ValueStyle.Enumeration, Formatter = DefaultKindFormatter };
-        operatorMap[RqlOperator.NotIn] = new KindSpec { Operation = "{0} not in ({1})", Style = ValueStyle.Enumeration, Formatter = DefaultKindFormatter };
-
-        OperatorMap = operatorMap;
-
+        OperatorMap = new Dictionary<RqlOperator, KindSpec>
+        {
+            [RqlOperator.Equals]             = new() { Operation = "{0} = {1}",               Style = ValueStyle.Single,      Formatter = DefaultKindFormatter },
+            [RqlOperator.NotEquals]          = new() { Operation = "{0} <> {1}",              Style = ValueStyle.Single,      Formatter = DefaultKindFormatter },
+            [RqlOperator.Contains]           = new() { Operation = "{0} like {1}",            Style = ValueStyle.Single,      Formatter = _containsFormatter },
+            [RqlOperator.StartsWith]         = new() { Operation = "{0} like {1}",            Style = ValueStyle.Single,      Formatter = _startsWithFormatter },
+            [RqlOperator.LesserThan]         = new() { Operation = "{0} < {1}",               Style = ValueStyle.Single,      Formatter = DefaultKindFormatter },
+            [RqlOperator.GreaterThan]        = new() { Operation = "{0} > {1}",               Style = ValueStyle.Single,      Formatter = DefaultKindFormatter },
+            [RqlOperator.LesserThanOrEqual]  = new() { Operation = "{0} <= {1}",              Style = ValueStyle.Single,      Formatter = DefaultKindFormatter },
+            [RqlOperator.GreaterThanOrEqual] = new() { Operation = "{0} >= {1}",              Style = ValueStyle.Single,      Formatter = DefaultKindFormatter },
+            [RqlOperator.Between]            = new() { Operation = "{0} between {1} and {2}", Style = ValueStyle.Pair,         Formatter = DefaultKindFormatter },
+            [RqlOperator.In]                 = new() { Operation = "{0} in ({1})",            Style = ValueStyle.Enumeration,  Formatter = DefaultKindFormatter },
+            [RqlOperator.NotIn]              = new() { Operation = "{0} not in ({1})",        Style = ValueStyle.Enumeration,  Formatter = DefaultKindFormatter }
+        };
 
 
         // ***************************************************************************
-        var typeMap = new Dictionary<Type, TypeSpec>();
-
         string DefaultFormatter(object o) => o.ToString()??"";
 
-        typeMap[typeof(string)]    = new TypeSpec { NeedsQuotes = true, Formatter = DefaultFormatter };
-        typeMap[typeof(bool)]      = new TypeSpec { NeedsQuotes = false, Formatter = DefaultFormatter };
-        typeMap[typeof(DateTime)]  = new TypeSpec { NeedsQuotes = true, Formatter = _dateTimeFormatter };
-        typeMap[typeof(decimal)]   = new TypeSpec { NeedsQuotes = false, Formatter = DefaultFormatter };
-        typeMap[typeof(short)]     = new TypeSpec { NeedsQuotes = false, Formatter = DefaultFormatter };
-        typeMap[typeof(int)]       = new TypeSpec { NeedsQuotes = false, Formatter = DefaultFormatter };
-        typeMap[typeof(long)]      = new TypeSpec { NeedsQuotes = false, Formatter = DefaultFormatter };
-
-        TypeMap = typeMap;
+        TypeMap = new Dictionary<Type, TypeSpec>
+        {
+            [typeof(string)]   = new() { NeedsQuotes = true,  Formatter = DefaultFormatter },
+            [typeof(bool)]     = new() { NeedsQuotes = false, Formatter = DefaultFormatter },
+            [typeof(DateTime)] = new() { NeedsQuotes = true,  Formatter = _dateTimeFormatter },
+            [typeof(decimal)]  = new() { NeedsQuotes = false, Formatter = DefaultFormatter },
+            [typeof(short)]    = new() { NeedsQuotes = false, Formatter = DefaultFormatter },
+            [typeof(int)]      = new() { NeedsQuotes = false, Formatter = DefaultFormatter },
+            [typeof(long)]     = new() { NeedsQuotes = false, Formatter = DefaultFormatter }
+        };
 
 
     }
@@ -80,7 +78,7 @@ public static class SqlSerializerExtensions
     private static string _dateTimeFormatter( object source)
     {
 
-        ArgumentNullException.ThrowIfNull(source);
+        Guard.IsNotNull(source);
 
         if (source is not DateTime time )
             throw new InvalidOperationException($"Object of type: {source.GetType().FullName} can not be cast to a DateTime");
@@ -94,7 +92,7 @@ public static class SqlSerializerExtensions
     private static object _containsFormatter( object value )
     {
 
-        ArgumentNullException.ThrowIfNull(value);
+        Guard.IsNotNull(value);
 
         return $"%{value}%";
 
@@ -103,7 +101,7 @@ public static class SqlSerializerExtensions
     private static object _startsWithFormatter( object value )
     {
 
-        ArgumentNullException.ThrowIfNull(value);
+        Guard.IsNotNull(value);
 
         return $"{value}%";
 
@@ -151,7 +149,7 @@ public static class SqlSerializerExtensions
     public static (string sql, object[] parameters) ToSqlQuery( this IRqlFilter builder, string tableName, bool indexed=true )
     {
 
-        ArgumentNullException.ThrowIfNull(tableName);
+        Guard.IsNotNull(tableName);
 
         var pair = builder.ToSqlWhere(indexed);
 
@@ -186,11 +184,11 @@ public static class SqlSerializerExtensions
         {
 
             if (!OperatorMap.TryGetValue(op.Operator, out var kindSpec))
-                throw new Exception($"{op.Operator} is not a supported operation");
+                throw new RqlException($"{op.Operator} is not a supported operation");
 
 
             if (!TypeMap.TryGetValue(op.DataType, out var typeSpec))
-                throw new Exception($"{op.DataType.Name} is not a supported data type");
+                throw new RqlException($"{op.DataType.Name} is not a supported data type");
 
 
             if (kindSpec.Style == ValueStyle.Single)

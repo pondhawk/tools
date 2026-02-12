@@ -51,7 +51,10 @@ namespace Pondhawk.Rql.Serialization
                 [RqlOperator.GreaterThanOrEqual] = new() { Operation = "ge", MultiValue = false },
                 [RqlOperator.Between]            = new() { Operation = "bt", MultiValue = true },
                 [RqlOperator.In]                 = new() { Operation = "in", MultiValue = true },
-                [RqlOperator.NotIn]              = new() { Operation = "ni", MultiValue = true }
+                [RqlOperator.NotIn]              = new() { Operation = "ni", MultiValue = true },
+                [RqlOperator.EndsWith]           = new() { Operation = "ew", MultiValue = false },
+                [RqlOperator.IsNull]             = new() { Operation = "nu", MultiValue = false, NoValue = true },
+                [RqlOperator.IsNotNull]          = new() { Operation = "nn", MultiValue = false, NoValue = true }
             };
 
 
@@ -101,6 +104,7 @@ namespace Pondhawk.Rql.Serialization
         {
             public string Operation;
             public bool MultiValue;
+            public bool NoValue;
         }
 
 
@@ -123,6 +127,11 @@ namespace Pondhawk.Rql.Serialization
                 if (!(KindMap.TryGetValue(op.Operator, out var kindSpec)))
                     throw new RqlException($"{op.Operator} is not a supported operation");
 
+                if (kindSpec.NoValue)
+                {
+                    parts.Add($"{kindSpec.Operation}({op.Target.Name})");
+                    continue;
+                }
 
                 if (!(TypeMap.TryGetValue(op.DataType, out var typeSpec)))
                     throw new RqlException($"{op.DataType.Name} is not a supported data type");

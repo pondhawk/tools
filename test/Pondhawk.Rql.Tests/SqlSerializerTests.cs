@@ -252,6 +252,43 @@ public class SqlSerializerTests
     }
 
 
+    [Fact]
+    public void ToSqlWhere_EndsWith_LikePattern()
+    {
+        var builder = RqlFilterBuilder<TestProduct>
+            .Where(p => p.Name).EndsWith("get");
+
+        var (sql, parameters) = builder.ToSqlWhere();
+
+        sql.ShouldBe("Name like {0}");
+        parameters[0].ShouldBe("%get");
+    }
+
+    [Fact]
+    public void ToSqlWhere_IsNull()
+    {
+        var builder = RqlFilterBuilder<TestProduct>
+            .Where(p => p.Description).IsNull();
+
+        var (sql, parameters) = builder.ToSqlWhere();
+
+        sql.ShouldBe("Description is null");
+        parameters.ShouldBeEmpty();
+    }
+
+    [Fact]
+    public void ToSqlWhere_IsNotNull()
+    {
+        var builder = RqlFilterBuilder<TestProduct>
+            .Where(p => p.Description).IsNotNull();
+
+        var (sql, parameters) = builder.ToSqlWhere();
+
+        sql.ShouldBe("Description is not null");
+        parameters.ShouldBeEmpty();
+    }
+
+
     // ========== Multiple predicates ==========
 
     [Fact]

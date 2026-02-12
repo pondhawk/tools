@@ -108,6 +108,34 @@ public class RqlSerializerTests
     }
 
 
+    [Fact]
+    public void Serialize_EndsWith()
+    {
+        var builder = RqlFilterBuilder<TestProduct>
+            .Where(p => p.Name).EndsWith("get");
+
+        builder.ToRql().ShouldBe("(ew(Name,'get'))");
+    }
+
+    [Fact]
+    public void Serialize_IsNull()
+    {
+        var builder = RqlFilterBuilder<TestProduct>
+            .Where(p => p.Description).IsNull();
+
+        builder.ToRql().ShouldBe("(nu(Description))");
+    }
+
+    [Fact]
+    public void Serialize_IsNotNull()
+    {
+        var builder = RqlFilterBuilder<TestProduct>
+            .Where(p => p.Description).IsNotNull();
+
+        builder.ToRql().ShouldBe("(nn(Description))");
+    }
+
+
     // ========== All types ==========
 
     [Fact]
@@ -210,6 +238,48 @@ public class RqlSerializerTests
 
 
     // ========== Roundtrip ==========
+
+    [Fact]
+    public void Roundtrip_EndsWith_SerializeParseReserialize()
+    {
+        var builder = RqlFilterBuilder<TestProduct>
+            .Where(p => p.Name).EndsWith("get");
+
+        var criteria1 = builder.ToRql();
+        var tree = RqlLanguageParser.ToCriteria(criteria1);
+        var rebuilt = new RqlFilterBuilder<TestProduct>(tree);
+        var criteria2 = rebuilt.ToRql();
+
+        criteria2.ShouldBe(criteria1);
+    }
+
+    [Fact]
+    public void Roundtrip_IsNull_SerializeParseReserialize()
+    {
+        var builder = RqlFilterBuilder<TestProduct>
+            .Where(p => p.Description).IsNull();
+
+        var criteria1 = builder.ToRql();
+        var tree = RqlLanguageParser.ToCriteria(criteria1);
+        var rebuilt = new RqlFilterBuilder<TestProduct>(tree);
+        var criteria2 = rebuilt.ToRql();
+
+        criteria2.ShouldBe(criteria1);
+    }
+
+    [Fact]
+    public void Roundtrip_IsNotNull_SerializeParseReserialize()
+    {
+        var builder = RqlFilterBuilder<TestProduct>
+            .Where(p => p.Description).IsNotNull();
+
+        var criteria1 = builder.ToRql();
+        var tree = RqlLanguageParser.ToCriteria(criteria1);
+        var rebuilt = new RqlFilterBuilder<TestProduct>(tree);
+        var criteria2 = rebuilt.ToRql();
+
+        criteria2.ShouldBe(criteria1);
+    }
 
     [Fact]
     public void Roundtrip_SerializeParseReserialize_ProducesSameOutput()

@@ -886,6 +886,62 @@ public class RqlFilterBuilderTests
     }
 
 
+    // ========== NotEquals(bool) ==========
+
+    [Fact]
+    public void Where_NotEquals_Bool()
+    {
+        var pred = RqlFilterBuilder<TestProduct>.Where(p => p.IsActive).NotEquals(true).Criteria.First();
+        pred.Operator.ShouldBe(RqlOperator.NotEquals);
+        pred.DataType.ShouldBe(typeof(bool));
+        pred.Values[0].ShouldBe(true);
+    }
+
+
+    // ========== EndsWith ==========
+
+    [Fact]
+    public void Where_EndsWith_ProducesCorrectPredicate()
+    {
+        var builder = RqlFilterBuilder<TestProduct>
+            .Where(p => p.Name).EndsWith("get");
+
+        var pred = builder.Criteria.First();
+        pred.Operator.ShouldBe(RqlOperator.EndsWith);
+        pred.DataType.ShouldBe(typeof(string));
+        pred.Values[0].ShouldBe("get");
+    }
+
+
+    // ========== IsNull / IsNotNull ==========
+
+    [Fact]
+    public void Where_IsNull_ProducesCorrectPredicate()
+    {
+        var builder = RqlFilterBuilder<TestProduct>
+            .Where(p => p.Description).IsNull();
+
+        var pred = builder.Criteria.First();
+        pred.Operator.ShouldBe(RqlOperator.IsNull);
+        pred.Target.Name.ShouldBe("Description");
+        pred.DataType.ShouldBe(typeof(object));
+        pred.Values.Count.ShouldBe(0);
+    }
+
+    [Fact]
+    public void Where_IsNotNull_ProducesCorrectPredicate()
+    {
+        var builder = RqlFilterBuilder<TestProduct>
+            .Where(p => p.Description).IsNotNull();
+
+        var pred = builder.Criteria.First();
+        pred.Operator.ShouldBe(RqlOperator.IsNotNull);
+        pred.Target.Name.ShouldBe("Description");
+        pred.DataType.ShouldBe(typeof(object));
+        pred.Values.Count.ShouldBe(0);
+    }
+
+
     // ========== Introspect ==========
 
     [Fact]

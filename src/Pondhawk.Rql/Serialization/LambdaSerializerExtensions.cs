@@ -14,6 +14,8 @@ namespace Pondhawk.Rql.Serialization
         private static readonly MethodInfo StartsWithCiMethod = typeof(string).GetMethod("StartsWith", [typeof(string), typeof(StringComparison)])!;
         private static readonly MethodInfo ContainsMethod = typeof(string).GetMethod("Contains", [typeof(string)])!;
         private static readonly MethodInfo ContainsCiMethod = typeof(string).GetMethod("Contains", [typeof(string), typeof(StringComparison)])!;
+        private static readonly MethodInfo EndsWithMethod = typeof(string).GetMethod("EndsWith", [typeof(string)])!;
+        private static readonly MethodInfo EndsWithCiMethod = typeof(string).GetMethod("EndsWith", [typeof(string), typeof(StringComparison)])!;
         private static readonly MethodInfo ListContainsMethod = typeof(List<object>).GetMethod("Contains", [typeof(object)])!;
 
 
@@ -73,6 +75,18 @@ namespace Pondhawk.Rql.Serialization
                         break;
                     case RqlOperator.Contains when predicate.DataType == typeof(string) && !insensitive:
                         running = BuildContains(running, entity, predicate);
+                        break;
+                    case RqlOperator.EndsWith when predicate.DataType == typeof(string) && insensitive:
+                        running = BuildEndsWithCi(running, entity, predicate);
+                        break;
+                    case RqlOperator.EndsWith when predicate.DataType == typeof(string) && !insensitive:
+                        running = BuildEndsWith(running, entity, predicate);
+                        break;
+                    case RqlOperator.IsNull:
+                        running = BuildIsNull(running, entity, predicate);
+                        break;
+                    case RqlOperator.IsNotNull:
+                        running = BuildIsNotNull(running, entity, predicate);
                         break;
                     case RqlOperator.Between:
                         running = BuildBetween( running, entity, predicate );
@@ -212,6 +226,70 @@ namespace Pondhawk.Rql.Serialization
             var (left, right) = BuildOperandsInsensitive(entity, predicate.Target.Name, predicate.Values[0].ToString());
 
             var exp = Expression.Call(left, ContainsCiMethod, right);
+
+            if (running is null)
+                return exp;
+
+            return Expression.AndAlso(running, exp);
+
+        }
+
+        private static Expression BuildEndsWith( Expression running, Expression entity, IRqlPredicate predicate )
+        {
+
+            var (left, right) = BuildOperands( entity, predicate.Target.Name, typeof(string), predicate.Values[0].ToString() );
+
+            var exp = Expression.Call(left, EndsWithMethod, right);
+
+            if (running is null)
+                return exp;
+
+            return Expression.AndAlso(running, exp);
+
+        }
+
+        private static Expression BuildEndsWithCi(Expression running, Expression entity, IRqlPredicate predicate)
+        {
+
+            var (left, right) = BuildOperandsInsensitive(entity, predicate.Target.Name, predicate.Values[0].ToString());
+
+            var exp = Expression.Call(left, EndsWithCiMethod, right);
+
+            if (running is null)
+                return exp;
+
+            return Expression.AndAlso(running, exp);
+
+        }
+
+        private static Expression BuildIsNull(Expression running, Expression entity, IRqlPredicate predicate)
+        {
+
+            var prop = Expression.Property(entity, predicate.Target.Name);
+
+            Expression exp;
+            if (prop.Type.IsValueType && Nullable.GetUnderlyingType(prop.Type) == null)
+                exp = Expression.Constant(false);
+            else
+                exp = Expression.Equal(prop, Expression.Constant(null, prop.Type));
+
+            if (running is null)
+                return exp;
+
+            return Expression.AndAlso(running, exp);
+
+        }
+
+        private static Expression BuildIsNotNull(Expression running, Expression entity, IRqlPredicate predicate)
+        {
+
+            var prop = Expression.Property(entity, predicate.Target.Name);
+
+            Expression exp;
+            if (prop.Type.IsValueType && Nullable.GetUnderlyingType(prop.Type) == null)
+                exp = Expression.Constant(true);
+            else
+                exp = Expression.NotEqual(prop, Expression.Constant(null, prop.Type));
 
             if (running is null)
                 return exp;

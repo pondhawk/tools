@@ -413,6 +413,17 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
 
     }
 
+    public TBuilder NotEquals(bool value)
+    {
+
+        Guard.IsNotNullOrWhiteSpace(CurrentName);
+
+        Predicates.Add(new RqlPredicate<bool>(RqlOperator.NotEquals, CurrentName, value));
+
+        return (TBuilder)this;
+
+    }
+
     #endregion
 
 
@@ -702,6 +713,40 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
         Guard.IsNotNullOrWhiteSpace(CurrentName);
 
         Predicates.Add(new RqlPredicate<string>(RqlOperator.Contains, CurrentName, value));
+
+        return (TBuilder)this;
+
+    }
+
+    public TBuilder EndsWith( string value )
+    {
+
+        Guard.IsNotNullOrWhiteSpace(value);
+        Guard.IsNotNullOrWhiteSpace(CurrentName);
+
+        Predicates.Add(new RqlPredicate<string>(RqlOperator.EndsWith, CurrentName, value));
+
+        return (TBuilder)this;
+
+    }
+
+    public TBuilder IsNull()
+    {
+
+        Guard.IsNotNullOrWhiteSpace(CurrentName);
+
+        Predicates.Add(new RqlPredicate(RqlOperator.IsNull, CurrentName, typeof(object), Array.Empty<object>()));
+
+        return (TBuilder)this;
+
+    }
+
+    public TBuilder IsNotNull()
+    {
+
+        Guard.IsNotNullOrWhiteSpace(CurrentName);
+
+        Predicates.Add(new RqlPredicate(RqlOperator.IsNotNull, CurrentName, typeof(object), Array.Empty<object>()));
 
         return (TBuilder)this;
 

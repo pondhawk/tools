@@ -54,7 +54,10 @@ public static class SqlSerializerExtensions
             [RqlOperator.GreaterThanOrEqual] = new() { Operation = "{0} >= {1}",              Style = ValueStyle.Single,      Formatter = DefaultKindFormatter },
             [RqlOperator.Between]            = new() { Operation = "{0} between {1} and {2}", Style = ValueStyle.Pair,         Formatter = DefaultKindFormatter },
             [RqlOperator.In]                 = new() { Operation = "{0} in ({1})",            Style = ValueStyle.Enumeration,  Formatter = DefaultKindFormatter },
-            [RqlOperator.NotIn]              = new() { Operation = "{0} not in ({1})",        Style = ValueStyle.Enumeration,  Formatter = DefaultKindFormatter }
+            [RqlOperator.NotIn]              = new() { Operation = "{0} not in ({1})",        Style = ValueStyle.Enumeration,  Formatter = DefaultKindFormatter },
+            [RqlOperator.EndsWith]           = new() { Operation = "{0} like {1}",            Style = ValueStyle.Single,       Formatter = _endsWithFormatter },
+            [RqlOperator.IsNull]             = new() { Operation = "{0} is null",             Style = ValueStyle.NoValue,      Formatter = DefaultKindFormatter },
+            [RqlOperator.IsNotNull]          = new() { Operation = "{0} is not null",         Style = ValueStyle.NoValue,      Formatter = DefaultKindFormatter }
         };
 
 
@@ -107,6 +110,15 @@ public static class SqlSerializerExtensions
 
     }
 
+    private static object _endsWithFormatter( object value )
+    {
+
+        Guard.IsNotNull(value);
+
+        return $"%{value}";
+
+    }
+
 
     private static IReadOnlyDictionary<RqlOperator, KindSpec> OperatorMap { get; }
     private static IReadOnlyDictionary<Type, TypeSpec> TypeMap { get; }
@@ -116,7 +128,8 @@ public static class SqlSerializerExtensions
     {
         Single,
         Pair,
-        Enumeration
+        Enumeration,
+        NoValue
     };
 
     private struct KindSpec
@@ -186,6 +199,12 @@ public static class SqlSerializerExtensions
             if (!OperatorMap.TryGetValue(op.Operator, out var kindSpec))
                 throw new RqlException($"{op.Operator} is not a supported operation");
 
+
+            if (kindSpec.Style == ValueStyle.NoValue)
+            {
+                parts.Add(string.Format(kindSpec.Operation, op.Target));
+                continue;
+            }
 
             if (!TypeMap.TryGetValue(op.DataType, out var typeSpec))
                 throw new RqlException($"{op.DataType.Name} is not a supported data type");

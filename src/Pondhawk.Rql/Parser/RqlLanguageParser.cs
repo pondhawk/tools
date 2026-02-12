@@ -23,7 +23,10 @@ public class RqlLanguageParser
             ["cn"] = RqlOperator.Contains,
             ["bt"] = RqlOperator.Between,
             ["in"] = RqlOperator.In,
-            ["ni"] = RqlOperator.NotIn
+            ["ni"] = RqlOperator.NotIn,
+            ["ew"] = RqlOperator.EndsWith,
+            ["nu"] = RqlOperator.IsNull,
+            ["nn"] = RqlOperator.IsNotNull
         };
 
 
@@ -150,11 +153,13 @@ public class RqlLanguageParser
 
         }
 
-        dataType ??= typeof(string);
-
-
         if( !OperatorMap.TryGetValue(op, out var opr) )
             throw new RqlException($"Invalid RQL operator: ({op})");
+
+        if (opr is RqlOperator.IsNull or RqlOperator.IsNotNull)
+            dataType = typeof(object);
+        else
+            dataType ??= typeof(string);
 
         var predicate = new RqlPredicate( opr, name, dataType, typed );
 

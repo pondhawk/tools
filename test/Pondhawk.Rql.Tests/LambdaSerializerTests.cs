@@ -183,6 +183,111 @@ public class LambdaSerializerTests
     }
 
 
+    // ========== EndsWith ==========
+
+    [Fact]
+    public void ToLambda_EndsWith_CaseSensitive()
+    {
+        var filter = RqlFilterBuilder<TestProduct>
+            .Where(p => p.Name).EndsWith("get");
+
+        var lambda = filter.ToLambda();
+
+        lambda(MakeProduct(name: "Widget")).ShouldBeTrue();
+        lambda(MakeProduct(name: "Gadget")).ShouldBeTrue();
+        lambda(MakeProduct(name: "WIDGET")).ShouldBeFalse();
+        lambda(MakeProduct(name: "Gizmo")).ShouldBeFalse();
+    }
+
+    [Fact]
+    public void ToLambda_EndsWith_CaseInsensitive()
+    {
+        var filter = RqlFilterBuilder<TestProduct>
+            .Where(p => p.Name).EndsWith("get");
+
+        var lambda = filter.ToLambda(insensitive: true);
+
+        lambda(MakeProduct(name: "Widget")).ShouldBeTrue();
+        lambda(MakeProduct(name: "WIDGET")).ShouldBeTrue();
+        lambda(MakeProduct(name: "Gizmo")).ShouldBeFalse();
+    }
+
+
+    // ========== IsNull / IsNotNull ==========
+
+    [Fact]
+    public void ToLambda_IsNull_NullValue_ReturnsTrue()
+    {
+        var filter = RqlFilterBuilder<TestProduct>
+            .Where(p => p.Description).IsNull();
+
+        var lambda = filter.ToLambda();
+
+        lambda(MakeProduct()).ShouldBeTrue();
+    }
+
+    [Fact]
+    public void ToLambda_IsNull_NonNullValue_ReturnsFalse()
+    {
+        var filter = RqlFilterBuilder<TestProduct>
+            .Where(p => p.Description).IsNull();
+
+        var lambda = filter.ToLambda();
+
+        var product = MakeProduct();
+        product.Description = "A fine widget";
+        lambda(product).ShouldBeFalse();
+    }
+
+    [Fact]
+    public void ToLambda_IsNotNull_NullValue_ReturnsFalse()
+    {
+        var filter = RqlFilterBuilder<TestProduct>
+            .Where(p => p.Description).IsNotNull();
+
+        var lambda = filter.ToLambda();
+
+        lambda(MakeProduct()).ShouldBeFalse();
+    }
+
+    [Fact]
+    public void ToLambda_IsNotNull_NonNullValue_ReturnsTrue()
+    {
+        var filter = RqlFilterBuilder<TestProduct>
+            .Where(p => p.Description).IsNotNull();
+
+        var lambda = filter.ToLambda();
+
+        var product = MakeProduct();
+        product.Description = "A fine widget";
+        lambda(product).ShouldBeTrue();
+    }
+
+    [Fact]
+    public void ToLambda_IsNull_ValueType_AlwaysFalse()
+    {
+        var filter = RqlFilterBuilder<TestProduct>
+            .Where(p => p.Quantity).IsNull();
+
+        var lambda = filter.ToLambda();
+
+        lambda(MakeProduct(quantity: 0)).ShouldBeFalse();
+        lambda(MakeProduct(quantity: 42)).ShouldBeFalse();
+    }
+
+    [Fact]
+    public void ToLambda_IsNotNull_ValueType_AlwaysTrue()
+    {
+        var filter = RqlFilterBuilder<TestProduct>
+            .Where(p => p.Quantity).IsNotNull();
+
+        var lambda = filter.ToLambda();
+
+        lambda(MakeProduct(quantity: 0)).ShouldBeTrue();
+        lambda(MakeProduct(quantity: 42)).ShouldBeTrue();
+    }
+
+
     // ========== Between ==========
 
     [Fact]

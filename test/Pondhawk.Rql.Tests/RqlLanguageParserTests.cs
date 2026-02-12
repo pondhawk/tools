@@ -147,6 +147,42 @@ public class RqlLanguageParserTests
     }
 
 
+    [Fact]
+    public void ToCriteria_ParsesEndsWith()
+    {
+        var tree = RqlLanguageParser.ToCriteria("(ew(Name,'son'))");
+
+        tree.Criteria[0].Operator.ShouldBe(RqlOperator.EndsWith);
+        tree.Criteria[0].Values[0].ShouldBe("son");
+    }
+
+    [Fact]
+    public void ToCriteria_ParsesIsNull()
+    {
+        var tree = RqlLanguageParser.ToCriteria("(nu(Name))");
+
+        tree.Criteria.Count.ShouldBe(1);
+        var pred = tree.Criteria[0];
+        pred.Operator.ShouldBe(RqlOperator.IsNull);
+        pred.Target.Name.ShouldBe("Name");
+        pred.DataType.ShouldBe(typeof(object));
+        pred.Values.Count.ShouldBe(0);
+    }
+
+    [Fact]
+    public void ToCriteria_ParsesIsNotNull()
+    {
+        var tree = RqlLanguageParser.ToCriteria("(nn(Name))");
+
+        tree.Criteria.Count.ShouldBe(1);
+        var pred = tree.Criteria[0];
+        pred.Operator.ShouldBe(RqlOperator.IsNotNull);
+        pred.Target.Name.ShouldBe("Name");
+        pred.DataType.ShouldBe(typeof(object));
+        pred.Values.Count.ShouldBe(0);
+    }
+
+
     // ========== Multi-value operations ==========
 
     [Fact]

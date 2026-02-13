@@ -26,7 +26,6 @@ using CommunityToolkit.Diagnostics;
 using Pondhawk.Exceptions;
 using Pondhawk.Rules.Evaluation;
 using Pondhawk.Rules.Listeners;
-using Pondhawk.Rules.Util;
 
 namespace Pondhawk.Rules;
 
@@ -69,6 +68,11 @@ public sealed class EvaluationContext
     internal long CurrentIdentity { get; set; }
     internal long CurrentSelector { get; set; }
     internal object[] CurrentTuple { get; set; }
+
+    internal readonly int[] SelectorBuffer = new int[4];
+    internal readonly int[] IdentityBuffer = new int[4];
+    internal readonly object[][] TupleBuffers = [new object[1], new object[2], new object[3], new object[4]];
+    internal int CurrentArity { get; set; }
 
 
     internal bool ModificationsOccurred { get; private set; }
@@ -197,13 +201,9 @@ public sealed class EvaluationContext
 
     private int _SelectorFromFact( object fact )
     {
-        var selectorIndices = Helpers.DecodeSelector( CurrentSelector );
-
-        var len = selectorIndices.Length;
-
-        for( var i = 0; i < len; i++ )
+        for( var i = 0; i < CurrentArity; i++ )
             if( fact == CurrentTuple[i] )
-                return selectorIndices[i];
+                return SelectorBuffer[i];
 
         return 0;
     }

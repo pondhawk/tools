@@ -81,4 +81,24 @@ internal static class Helpers
 
         return selectorIndices;
     }
+
+
+    internal static int DecodeSelector( long selector, int[] buffer )
+    {
+        buffer[0] = (int)(selector & 0xFFFF);
+        buffer[1] = (int)((selector >> 16) & 0xFFFF);
+        buffer[2] = (int)((selector >> 32) & 0xFFFF);
+        buffer[3] = (int)((selector >> 48) & 0xFFFF);
+
+        return buffer[0] == 0 ? 0 : buffer[1] == 0 ? 1 : buffer[2] == 0 ? 2 : buffer[3] == 0 ? 3 : 4;
+    }
+
+
+    internal static long EncodeSelector( int[] buffer, int length )
+    {
+        long selector = 0;
+        for( int i = 0; i < length; i++ )
+            selector |= (long)(ushort)buffer[i] << (i * 16);
+        return selector;
+    }
 }

@@ -112,6 +112,26 @@ public sealed class FactSpace
     }
 
 
+    internal bool GetTuple( int[] selectorIndices, int length, object[] tuple )
+    {
+        for( int i = 0; i < length; i++ )
+        {
+            if( SelectorMap.TryGetValue( selectorIndices[i], out var identityIndex ) )
+                tuple[i] = Facts[identityIndex];
+            else
+                return false;
+        }
+        return true;
+    }
+
+
+    internal void GetIdentityFromSelector( int[] selectorIndices, int length, int[] identityIndices )
+    {
+        for( int i = 0; i < length; i++ )
+            identityIndices[i] = SelectorMap[selectorIndices[i]];
+    }
+
+
     internal void InsertFact( object fact ) => Add( fact );
 
     internal void ModifyFact( int selectorIndex )

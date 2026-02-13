@@ -87,16 +87,12 @@ public abstract class AbstractEvaluator : IEvaluator
                         lastSignature = nextStep.Signature;
                     }
 
-                    // Decode the selector into the indices
-                    // Each indices points to the required
-                    // fact in the factspace
-                    int[] selectorIndices = Helpers.DecodeSelector( nextStep.Selector );
-                    object[] currentTuple = context.Space.GetTuple( selectorIndices );
+                    // Decode the selector into the pre-allocated buffer
+                    // Each index points to the required fact in the factspace
+                    int arity = Helpers.DecodeSelector( nextStep.Selector, context.SelectorBuffer );
 
-
-                    // If space returns null the given step
-                    // was eliminated by modification so skip it
-                    if( currentTuple is null )
+                    object[] currentTuple = context.TupleBuffers[arity - 1];
+                    if( !context.Space.GetTuple( context.SelectorBuffer, arity, currentTuple ) )
                         continue;
 
 
@@ -111,11 +107,13 @@ public abstract class AbstractEvaluator : IEvaluator
 
                     // Setup the context with the current selector and the current identity
                     // translated from the selectorIndices for this tuple
-                    long identity = Helpers.EncodeSelector( context.Space.GetIdentityFromSelector( selectorIndices ) );
+                    context.Space.GetIdentityFromSelector( context.SelectorBuffer, arity, context.IdentityBuffer );
+                    long identity = Helpers.EncodeSelector( context.IdentityBuffer, arity );
 
                     context.CurrentIdentity = identity;
                     context.CurrentSelector = nextStep.Selector;
                     context.CurrentTuple = currentTuple;
+                    context.CurrentArity = arity;
 
                     // Finally evaluate this tuple against the rules for this signature
                     evaluator.Evaluate( currentTuple );

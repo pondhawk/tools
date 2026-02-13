@@ -22,7 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-namespace Pondhawk.Watch.Http;
+namespace Pondhawk.Watch;
 
 /// <summary>
 /// Data transfer object for switch configuration from Watch Server.

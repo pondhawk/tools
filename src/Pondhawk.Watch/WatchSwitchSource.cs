@@ -27,7 +27,7 @@ using System.Net.Http.Json;
 using Serilog.Events;
 using Pondhawk.Watch.Switching;
 
-namespace Pondhawk.Watch.Http;
+namespace Pondhawk.Watch;
 
 /// <summary>
 /// A SwitchSource that fetches switch configuration from a Watch Server.

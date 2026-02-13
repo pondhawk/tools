@@ -66,7 +66,7 @@ public class Validator<TFact, TType>( ValidationRule<TFact> rule, string group, 
         
     public IValidator<TFact, TType> IsNot( Func<TFact, TType, bool> condition )
     {
-        bool Cond(TFact f) => !(condition(f, Extractor(f)));
+        bool Cond(TFact f) => !condition(f, Extractor(f));
         Conditions.Add( Cond );
         return this;
     }

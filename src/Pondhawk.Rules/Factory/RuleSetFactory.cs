@@ -42,7 +42,7 @@ public sealed class RuleSetFactory : IRequiresStart
 
     public void RegisterCompositeNamespace(string name, IEnumerable<string> namespaces)
     {
-        if (!(Started))
+        if (!Started)
             CompositeNamespaces[name] = namespaces;
     }
 
@@ -83,7 +83,7 @@ public sealed class RuleSetFactory : IRequiresStart
 
         var builders = Sources.SelectMany(s => s.GetTypes()).Select(t => Activator.CreateInstance(t) as IBuilder);
 
-        foreach (var b in builders.Where(b => b != null))
+        foreach (var b in builders.Where(b => b is not null))
             b.LoadRules(Tree);
 
 
@@ -108,9 +108,9 @@ public sealed class RuleSetFactory : IRequiresStart
 
     public EvaluationContext BuildContext()
     {
-        var context = ContextFactory != null ? ContextFactory.CreateContext() : new EvaluationContext();
+        var context = ContextFactory?.CreateContext() ?? new EvaluationContext();
 
-        if (ListenerFactory != null)
+        if (ListenerFactory is not null)
             context.Listener = ListenerFactory.CreateListener();
 
         return context;
@@ -128,7 +128,7 @@ public sealed class RuleSetFactory : IRequiresStart
     
     public IRuleSet GetRuleSetForComposite(string name)
     {
-        if (!(CompositeNamespaces.TryGetValue(name, out var composite)))
+        if (!CompositeNamespaces.TryGetValue(name, out var composite))
             throw new InvalidOperationException($"Could not find Composite Namespace for given name ({name}).");
 
         var ruleSet = new FactoryRuleSetImpl(Tree, composite, ContextFactory);

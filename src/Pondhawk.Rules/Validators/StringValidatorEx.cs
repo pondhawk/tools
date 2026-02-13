@@ -57,10 +57,10 @@ public static class StringValidatorEx
     public static IValidator<TFact, string> Required<TFact>( this IValidator<TFact, string> validator) where TFact : class
     {
 
-        var v = validator.Is((f, v) => !(string.IsNullOrWhiteSpace(v)));
+        var v = validator.Is((f, v) => !string.IsNullOrWhiteSpace(v));
 
         var propName = validator.PropertyName.Humanize(LetterCasing.Title);
-        
+
         v.Otherwise($"{propName} is required");
 
         return v;
@@ -82,7 +82,7 @@ public static class StringValidatorEx
 
     public static IValidator<TFact, string> IsNotEmpty<TFact>( this IValidator<TFact, string> validator ) where TFact : class
     {
-        var v = validator.Is( ( f, v ) => !(string.IsNullOrWhiteSpace( v )) );
+        var v = validator.Is( ( f, v ) => !string.IsNullOrWhiteSpace( v ) );
         
         var propName = validator.PropertyName.Humanize(LetterCasing.Title);
         
@@ -138,7 +138,7 @@ public static class StringValidatorEx
     public static IValidator<TFact, string> IsNotIn<TFact>( this IValidator<TFact, string> validator, params string[] values ) where TFact : class
     {
 
-        var v =  validator.Is( ( f, v ) => !(values.Contains( v )) );
+        var v =  validator.Is( ( f, v ) => !values.Contains( v ) );
         
         var propName = validator.PropertyName.Humanize(LetterCasing.Title);
         
@@ -225,7 +225,7 @@ public static class StringValidatorEx
     public static IValidator<TFact, string> IsNotEqualTo<TFact>(  this IValidator<TFact, string> validator, string test ) where TFact : class
     {
 
-        var v = validator.Is( ( f, v ) => !(test.Equals( v )) );
+        var v = validator.Is( ( f, v ) => !test.Equals( v ) );
         
         var propName = validator.PropertyName.Humanize(LetterCasing.Title);
         
@@ -238,7 +238,7 @@ public static class StringValidatorEx
     public static IValidator<TFact, string> IsNotEqualTo<TFact>( this IValidator<TFact, string> validator, Func<TFact,string> extractor ) where TFact : class
     {
 
-        var v =  validator.Is((f, v) => !(extractor(f).Equals(v)));
+        var v =  validator.Is((f, v) => !extractor(f).Equals(v));
         
         var propName = validator.PropertyName.Humanize(LetterCasing.Title);
         

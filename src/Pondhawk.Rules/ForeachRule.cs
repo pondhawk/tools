@@ -295,7 +295,7 @@ public class ForeachRule<TParent,TFact>: AbstractRule
 
                 bool bResult = cond( fact );
 
-                if( !(bResult) && !(Negated) )
+                if( !bResult && !Negated )
                     break;
 
                 if( bResult && Negated )

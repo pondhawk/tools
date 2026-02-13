@@ -189,13 +189,13 @@ public class ValidationRule<TFact> : AbstractRule, IValidationRule<TFact>
 
         var fact = (TFact)offered[0];
 
-        if( CascadeAction != null )
+        if( CascadeAction is not null )
             return this;
 
         if( (Predicates.Count > 0) && (Predicates.Select( cond=>cond(fact) ).Any( r=>r == false )) )
             return null;
 
-        if( TypeValidator.Conditions.Select( cond => cond( fact ) ).Any( result => !(result) ) )
+        if( TypeValidator.Conditions.Select( cond => cond( fact ) ).Any( result => !result ) )
             return this;
 
         return null;
@@ -209,7 +209,7 @@ public class ValidationRule<TFact> : AbstractRule, IValidationRule<TFact>
 
         var fact = (TFact)offered[0];
 
-        if( CascadeAction != null )
+        if( CascadeAction is not null )
             CascadeAction( fact );
         else
             TypeValidator.Consequence( fact );

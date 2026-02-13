@@ -91,7 +91,7 @@ internal sealed class RuleRoot
         // Collect all the rules from these "leaves" and traverse back up the stack
         if( depth == types.Length )
         {
-            if( sink != null )
+            if( sink is not null )
             {
                 foreach( RuleNode node in branches )
                     sink.UnionWith( node.Rules );

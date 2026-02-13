@@ -82,7 +82,7 @@ public sealed class WatchEvaluationListener: IEvaluationListener
     public void FiringRule( IRule rule )
     {
 
-        if (!(Logger.IsEnabled(LogEventLevel.Debug)))
+        if (!Logger.IsEnabled(LogEventLevel.Debug))
             return;
 
         Logger.LogObject($"Rule Firing ({rule.Name})", rule );
@@ -92,7 +92,7 @@ public sealed class WatchEvaluationListener: IEvaluationListener
     public void FiredRule( IRule rule, bool modified )
     {
 
-        if (!(Logger.IsEnabled(LogEventLevel.Debug)))
+        if (!Logger.IsEnabled(LogEventLevel.Debug))
             return;
 
         Logger.Debug( "Rule Fired ({0}). Modified fact? {1}", rule.Name, modified );
@@ -102,7 +102,7 @@ public sealed class WatchEvaluationListener: IEvaluationListener
     public void EndTupleEvaluation( object[] facts )
     {
 
-        if (!(Logger.IsEnabled(LogEventLevel.Debug)))
+        if (!Logger.IsEnabled(LogEventLevel.Debug))
             return;
 
         Logger.Debug( "End Tuple Evaluation" );
@@ -112,7 +112,7 @@ public sealed class WatchEvaluationListener: IEvaluationListener
     public void EndEvaluation()
     {
 
-        if (!(Logger.IsEnabled(LogEventLevel.Debug)))
+        if (!Logger.IsEnabled(LogEventLevel.Debug))
             return;
 
         var context = RuleThreadLocalStorage.CurrentContext;                                    
@@ -126,7 +126,7 @@ public sealed class WatchEvaluationListener: IEvaluationListener
     public void EventCreated( EventDetail evalEvent )
     {
 
-        if (!(Logger.IsEnabled(LogEventLevel.Debug)))
+        if (!Logger.IsEnabled(LogEventLevel.Debug))
             return;
 
         Logger.LogObject( "Evaluation Event Created", evalEvent );
@@ -136,7 +136,7 @@ public sealed class WatchEvaluationListener: IEvaluationListener
     public void Debug( string template, params object[] markers )
     {
 
-        if (!(Logger.IsEnabled(LogEventLevel.Debug)))
+        if (!Logger.IsEnabled(LogEventLevel.Debug))
             return;
 
         Logger.Debug( template, markers );
@@ -146,7 +146,7 @@ public sealed class WatchEvaluationListener: IEvaluationListener
     public void Warning( string template, params object[] markers )
     {
 
-        if (!(Logger.IsEnabled(LogEventLevel.Warning)))
+        if (!Logger.IsEnabled(LogEventLevel.Warning))
             return;
         
         Logger.Warning( template, markers );

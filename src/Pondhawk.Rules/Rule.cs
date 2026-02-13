@@ -321,7 +321,7 @@ public class Rule<TFact> : AbstractRule
     protected override IRule InternalEvaluate( object[] offered  )
     {
 
-        if( CascadeAction != null )
+        if( CascadeAction is not null )
             return this;
 
             
@@ -335,7 +335,7 @@ public class Rule<TFact> : AbstractRule
         foreach( var result in Conditions.Select( cond => cond( fact ) ) )
         {
 
-            if( !(result) && !(Negated) )
+            if( !result && !Negated )
                 return null;
 
             if( result && Negated )
@@ -353,7 +353,7 @@ public class Rule<TFact> : AbstractRule
 
         var fact = (TFact)offered[0];
 
-        if( CascadeAction != null )
+        if( CascadeAction is not null )
         {
             CascadeAction(fact);
             return;
@@ -363,7 +363,7 @@ public class Rule<TFact> : AbstractRule
 
         Consequence( fact );
 
-        if( ModifyFunc != null )
+        if( ModifyFunc is not null )
         {
             object modified = ModifyFunc( fact );
             if( modified is Array arr )
@@ -371,7 +371,7 @@ public class Rule<TFact> : AbstractRule
                 foreach( object o in arr )
                     RuleThreadLocalStorage.CurrentContext.ModifyFact( o );
             }
-            else if( modified != null )
+            else if( modified is not null )
                 RuleThreadLocalStorage.CurrentContext.ModifyFact( modified );
         }
 
@@ -646,7 +646,7 @@ public class Rule<TFact1, TFact2> : AbstractRule
         {
             bool result = cond( fact1, fact2 );
 
-            if( !(result) && !(Negated) )
+            if( !result && !Negated )
                 return null;
             else if( result && Negated )
                 return null;
@@ -666,7 +666,7 @@ public class Rule<TFact1, TFact2> : AbstractRule
 
         Consequence( fact1, fact2 );
 
-        if( ModifyFunc != null )
+        if( ModifyFunc is not null )
         {
             object modified = ModifyFunc( fact1, fact2 );
             if( modified is Array arr )
@@ -674,7 +674,7 @@ public class Rule<TFact1, TFact2> : AbstractRule
                 foreach( object o in arr )
                     RuleThreadLocalStorage.CurrentContext.ModifyFact( o );
             }
-            else if( modified != null )
+            else if( modified is not null )
                 RuleThreadLocalStorage.CurrentContext.ModifyFact( modified );
         }
     }
@@ -950,7 +950,7 @@ public class Rule<TFact1, TFact2, TFact3> : AbstractRule
         {
             bool bResult = cond( fact1, fact2, fact3 );
 
-            if( !(bResult) && !(Negated) )
+            if( !bResult && !Negated )
                 return null;
             else if( bResult && Negated )
                 return null;
@@ -971,7 +971,7 @@ public class Rule<TFact1, TFact2, TFact3> : AbstractRule
 
         Consequence( fact1, fact2, fact3 );
 
-        if( ModifyFunc != null )
+        if( ModifyFunc is not null )
         {
             object modified = ModifyFunc( fact1, fact2, fact3 );
             if( modified is Array arr )
@@ -979,7 +979,7 @@ public class Rule<TFact1, TFact2, TFact3> : AbstractRule
                 foreach( object o in arr )
                     RuleThreadLocalStorage.CurrentContext.ModifyFact( o );
             }
-            else if( modified != null )
+            else if( modified is not null )
                 RuleThreadLocalStorage.CurrentContext.ModifyFact( modified );
         }
     }
@@ -1254,7 +1254,7 @@ public class Rule<TFact1, TFact2, TFact3, TFact4> : AbstractRule
         {
             bool bResult = cond( fact1, fact2, fact3, fact4 );
 
-            if( !(bResult) && !(Negated) )
+            if( !bResult && !Negated )
                 return null;
             else if( bResult && Negated )
                 return null;
@@ -1277,7 +1277,7 @@ public class Rule<TFact1, TFact2, TFact3, TFact4> : AbstractRule
 
         Consequence( fact1, fact2, fact3, fact4 );
 
-        if( ModifyFunc != null )
+        if( ModifyFunc is not null )
         {
             object modified = ModifyFunc( fact1, fact2, fact3, fact4 );
             if( modified is Array arr )
@@ -1285,7 +1285,7 @@ public class Rule<TFact1, TFact2, TFact3, TFact4> : AbstractRule
                 foreach( object o in arr )
                     RuleThreadLocalStorage.CurrentContext.ModifyFact( o );
             }
-            else if( modified != null )
+            else if( modified is not null )
                 RuleThreadLocalStorage.CurrentContext.ModifyFact( modified );
         }
     }

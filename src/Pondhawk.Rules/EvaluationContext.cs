@@ -133,20 +133,20 @@ public sealed class EvaluationContext
 
     public TMember Lookup<TMember>( object key )
     {
-        string name = typeof( TMember ).FullName;
+        var name = typeof( TMember ).FullName;
         return Lookup<TMember>( name, key );
     }
 
         
     public TMember Lookup<TMember>( string name, object key )
     {
-        if( !(Tables.TryGetValue( name, out var table )) )
+        if( !Tables.TryGetValue( name, out var table ) )
             throw new InvalidOperationException($"Could not find lookup table with the name {name}");
 
-        if( !(table.TryGetValue( key, out var member )) )
+        if( !table.TryGetValue( key, out var member ) )
             throw new InvalidOperationException($"Could not find member using key {key} from table {name}");
 
-        if( !(member is TMember) )
+        if( member is not TMember )
             throw new InvalidOperationException( $"Could not cast member to type {typeof (TMember).FullName} using key {key} from table {name}" );
 
         return (TMember)member;

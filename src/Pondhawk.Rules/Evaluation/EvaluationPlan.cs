@@ -86,7 +86,7 @@ internal class EvaluationPlan
         }
 
         Type[] factTypes = Space.GetFactTypes( typeIndices );
-        if( !(RuleBase.HasRules( factTypes, Namespaces )) )
+        if( !RuleBase.HasRules( factTypes, Namespaces ) )
             return stepsAdded;
 
         int signature = Helpers.EncodeSignature( typeIndices );
@@ -175,10 +175,7 @@ internal class EvaluationPlan
     }
 
 
-    internal void Modify()
-    {
-        Build();
-    }
+    internal void Modify() => Build();
 
 
     internal EvaluationStep Next()

@@ -60,7 +60,7 @@ public sealed class FactSpace
 
         Type factType = fact.GetType();
 
-        if( !(SchemaMap.TryGetValue( factType, out var schema )) )
+        if( !SchemaMap.TryGetValue( factType, out var schema ) )
         {
             schema = new Schema {FactType = factType};
 
@@ -112,10 +112,7 @@ public sealed class FactSpace
     }
 
 
-    internal void InsertFact( object fact )
-    {
-        Add( fact );
-    }
+    internal void InsertFact( object fact ) => Add( fact );
 
     internal void ModifyFact( int selectorIndex )
     {

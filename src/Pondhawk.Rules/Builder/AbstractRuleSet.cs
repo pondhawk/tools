@@ -36,10 +36,7 @@ public abstract class AbstractRuleSet : AbstractEvaluator, IRuleSet
     public int DecisionThreshold { get; set; }
 
         
-    public Func<object, bool> Predicate
-    {
-        get { return fact => Decide( fact ); }
-    }
+    public Func<object, bool> Predicate => fact => Decide( fact );
 
     public virtual bool Decide( params object[] facts )
     {

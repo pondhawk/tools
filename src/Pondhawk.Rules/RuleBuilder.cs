@@ -202,8 +202,8 @@ public abstract class RuleBuilder<TFact1, TFact2> : AbstractRuleBuilder, IBuilde
         Guard.IsNotNullOrEmpty(ruleName);
 
 
-        string nameSpace = GetType().Namespace;
-        string fqSetName = $"{nameSpace}.{SetName}";
+        var nameSpace = GetType().Namespace;
+        var fqSetName = $"{nameSpace}.{SetName}";
 
         var rule = new Rule<TFact1, TFact2>( fqSetName, ruleName );
 
@@ -266,8 +266,8 @@ public abstract class RuleBuilder<TFact1, TFact2, TFact3> : AbstractRuleBuilder,
         Guard.IsNotNullOrEmpty(ruleName);
 
 
-        string nameSpace = GetType().Namespace;
-        string fqSetName = $"{nameSpace}.{SetName}";
+        var nameSpace = GetType().Namespace;
+        var fqSetName = $"{nameSpace}.{SetName}";
 
         var rule = new Rule<TFact1, TFact2, TFact3>( fqSetName, ruleName );
 
@@ -334,8 +334,8 @@ public abstract class RuleBuilder<TFact1, TFact2, TFact3, TFact4> : AbstractRule
         Guard.IsNotNullOrEmpty(ruleName);
 
 
-        string nameSpace = GetType().Namespace;
-        string fqSetName = $"{nameSpace}.{SetName}";
+        var nameSpace = GetType().Namespace;
+        var fqSetName = $"{nameSpace}.{SetName}";
 
         var rule = new Rule<TFact1, TFact2, TFact3, TFact4>( fqSetName, ruleName );
 

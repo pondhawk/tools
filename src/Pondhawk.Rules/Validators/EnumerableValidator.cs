@@ -67,7 +67,7 @@ public class EnumerableValidator<TFact, TType>( ValidationRule<TFact> rule, stri
         
     public IEnumerableValidator<TFact, TType> IsNot( Func<TFact, IEnumerable<TType>, bool> condition )
     {
-        bool Cond(TFact f) => !(condition(f, Extractor(f)));
+        bool Cond(TFact f) => !condition(f, Extractor(f));
         Conditions.Add( Cond );
         return this;
     }

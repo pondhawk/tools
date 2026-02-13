@@ -46,7 +46,7 @@ internal class TupleEvaluator( ISet<IRule> rules )
             // Ignore rules that were excluded by a mutex
             // This check is also made in _Filter. A mutex may have occurred
             // during the processing of this fire list
-            if( (rule.Mutex != "") && (Context.Mutexed.Contains( rule.Mutex )) )
+            if( (!string.IsNullOrEmpty(rule.Mutex)) && (Context.Mutexed.Contains( rule.Mutex )) )
                 continue;
 
 
@@ -57,7 +57,7 @@ internal class TupleEvaluator( ISet<IRule> rules )
             // This rule is the winner in the exclusion
             // No other rule in this mutex will be called
             // for this tuple instance
-            if( rule.Mutex != "" )
+            if( !string.IsNullOrEmpty(rule.Mutex) )
                 _HandleMutxedRule( rule );
 
 
@@ -75,7 +75,7 @@ internal class TupleEvaluator( ISet<IRule> rules )
 
 
             // Add this rule to the dictionary of fired rules. Useful for auditing and debugging
-            if( !(Context.Results.FiredRules.ContainsKey( rule.Name )) )
+            if( !Context.Results.FiredRules.ContainsKey( rule.Name ) )
                 Context.Results.FiredRules[rule.Name] = 0;
 
             // Increment the fire count
@@ -116,7 +116,7 @@ internal class TupleEvaluator( ISet<IRule> rules )
     private void _HandleFireOnceRule( IRule rule )
     {
 
-        if ( !(Context.FireOnceRules.TryGetValue( rule, out var set )) )
+        if ( !Context.FireOnceRules.TryGetValue( rule, out var set ) )
         {
             set = new HashSet<long>();
             Context.FireOnceRules[rule] = set;
@@ -129,7 +129,7 @@ internal class TupleEvaluator( ISet<IRule> rules )
         
     private IEnumerable<IRule> _GetFireableRules( object[] facts )
     {
-        IEnumerable<IRule> rules = Rules.Select( r => _Filter( r, facts ) ).Where( r => r != null ).OrderBy( r => r.Salience );
+        IEnumerable<IRule> rules = Rules.Select( r => _Filter( r, facts ) ).Where( r => r is not null ).OrderBy( r => r.Salience );
         return rules;
     }
 
@@ -142,7 +142,7 @@ internal class TupleEvaluator( ISet<IRule> rules )
             return null;
 
         // Ignore rules that were exluded by a mutex
-        if ((rule.Mutex != "") && (Context.Mutexed.Contains(rule.Mutex)))
+        if ((!string.IsNullOrEmpty(rule.Mutex)) && (Context.Mutexed.Contains(rule.Mutex)))
             return null;
 
         if (rule.OnlyFiresOnce)

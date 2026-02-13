@@ -87,7 +87,7 @@ public sealed class RuleTree : IRuleBase, IRuleSink
 
     public void Add( Type factType, IRule rule )
     {
-        if (!(RootMap.TryGetValue(1, out var targetRoot)))
+        if (!RootMap.TryGetValue(1, out var targetRoot))
         {
             targetRoot = new();
             RootMap[1] = targetRoot;
@@ -102,7 +102,7 @@ public sealed class RuleTree : IRuleBase, IRuleSink
     {
         var axisCount = factTypes.Length;
 
-        if( !(RootMap.TryGetValue( axisCount, out var targetRoot )) )
+        if( !RootMap.TryGetValue( axisCount, out var targetRoot ) )
         {
             targetRoot = new();
             RootMap[axisCount] = targetRoot;

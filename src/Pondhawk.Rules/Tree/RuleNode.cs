@@ -50,7 +50,7 @@ internal sealed class RuleNode
     {
         Guard.IsNotNull(namespaces);
 
-        if( !(_hasRules) )
+        if( !_hasRules )
             return false;
 
         var ns = namespaces.ToList();

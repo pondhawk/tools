@@ -43,10 +43,7 @@ internal class SubRule<TParent,TFact>( IEnumerable<TFact> facts, Action<TFact> c
     public DateTime Expiration { get; set; }
 
         
-    public IRule EvaluateRule( object[] fact )
-    {
-        return this;
-    }
+    public IRule EvaluateRule( object[] fact ) => this;
 
     public void FireRule( object[] offered )
     {
@@ -54,7 +51,7 @@ internal class SubRule<TParent,TFact>( IEnumerable<TFact> facts, Action<TFact> c
         foreach( var fact in Facts )
             Consequence( fact );
 
-        if (ModifyFunc != null)
+        if (ModifyFunc is not null)
         {
             var modified = ModifyFunc( Parent );
             if( modified is Array arr )
@@ -62,7 +59,7 @@ internal class SubRule<TParent,TFact>( IEnumerable<TFact> facts, Action<TFact> c
                 foreach (var o in arr)
                     RuleThreadLocalStorage.CurrentContext.ModifyFact( o );
             }
-            else if (modified != null)
+            else if (modified is not null)
                 RuleThreadLocalStorage.CurrentContext.ModifyFact( modified );
         }
 

@@ -33,10 +33,7 @@ namespace Pondhawk.Rules.Evaluation;
 public abstract class AbstractEvaluator : IEvaluator
 {
 
-    public EvaluationResults Evaluate( params object[] facts )
-    {
-        return EvaluateAll( facts );
-    }
+    public EvaluationResults Evaluate( params object[] facts ) => EvaluateAll( facts );
 
     public EvaluationResults EvaluateAll( IEnumerable<object> facts )
     {
@@ -109,9 +106,7 @@ public abstract class AbstractEvaluator : IEvaluator
 
                     if( evaluator == null )
                     {
-                        var factTypes = new Type[currentTuple.Length];
-                        for( int i = 0; i < factTypes.Length; i++ )
-                            factTypes[i] = currentTuple[i].GetType();
+                        var factTypes = currentTuple.Select(f => f.GetType()).ToArray();
 
                         ISet<IRule> rules = GetRuleBase().FindRules( factTypes, GetNamespaces() );
                         evaluator = new( rules );
@@ -187,9 +182,6 @@ public abstract class AbstractEvaluator : IEvaluator
     protected abstract IEnumerable<string> GetNamespaces();
 
     
-    protected virtual EvaluationContext BuildContext()
-    {
-        return new EvaluationContext();
-    }
+    protected virtual EvaluationContext BuildContext() => new();
 }
 

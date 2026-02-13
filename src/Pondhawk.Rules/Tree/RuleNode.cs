@@ -29,7 +29,8 @@ namespace Pondhawk.Rules.Tree;
 
 internal sealed class RuleNode
 {
-    private HashSet<RuleNode> _branches;
+    private Dictionary<Type, RuleNode> _branches;
+    private Dictionary<Type, List<RuleNode>> _branchMatchCache;
 
     private bool _hasRules;
 
@@ -39,12 +40,41 @@ internal sealed class RuleNode
     private HashSet<IRule> _rules;
     public Type Target { get; set; }
 
-        
-    public HashSet<RuleNode> Branches => _branches ??= [];
+    private Dictionary<Type, RuleNode> Branches => _branches ??= [];
 
     private HashSet<string> Namespaces => _namespaces ??= [];
 
     public HashSet<IRule> Rules => _rules ??= [];
+
+    public RuleNode GetOrAddBranch( Type target )
+    {
+        var branches = Branches;
+        if( branches.TryGetValue( target, out var existing ) )
+            return existing;
+
+        var node = new RuleNode { Target = target };
+        branches[target] = node;
+        _branchMatchCache = null;
+        return node;
+    }
+
+    public List<RuleNode> GetMatchingBranches( Type requestType )
+    {
+        if( _branches is null || _branches.Count == 0 )
+            return [];
+
+        _branchMatchCache ??= new();
+        if( _branchMatchCache.TryGetValue( requestType, out var cached ) )
+            return cached;
+
+        var matches = new List<RuleNode>();
+        foreach( var node in _branches.Values )
+            if( node.Target.IsAssignableFrom( requestType ) )
+                matches.Add( node );
+
+        _branchMatchCache[requestType] = matches;
+        return matches;
+    }
 
     public bool HasRules( List<string> namespaces )
     {
@@ -77,10 +107,14 @@ internal sealed class RuleNode
             _hasRules = false;
         }
 
+        if( _branches is not null )
+        {
+            foreach( var n in _branches.Values )
+                n.Clear();
 
-        foreach( RuleNode n in Branches )
-            n.Clear();
+            _branches.Clear();
+        }
 
-        Branches.Clear();
+        _branchMatchCache = null;
     }
 }

@@ -28,82 +28,113 @@ namespace Pondhawk.Rules.Tree;
 
 internal sealed class RuleRoot
 {
-
-    private HashSet<RuleNode> Trunk { get; } = [];
+    private readonly Dictionary<Type, RuleNode> _trunk = [];
+    private Dictionary<Type, List<RuleNode>> _trunkMatchCache;
 
     public void Clear()
     {
-        foreach( var n in Trunk )
+        foreach( var n in _trunk.Values )
             n.Clear();
+
+        _trunk.Clear();
+        _trunkMatchCache = null;
     }
 
     public void Add( Type[] targetTypes, IEnumerable<IRule> rules )
     {
-        _RecurseAdd( 0, targetTypes, Trunk, rules );
-    }
-
-    private void _RecurseAdd( int depth,  Type[] types, ISet<RuleNode> trunk, IEnumerable<IRule> rules )
-    {
-        var target = types[depth];
-
-        var node = trunk.Where( n => n.Target == target ).DefaultIfEmpty( new() ).First();
-        if( node.Target == null )
+        // Depth 0: use trunk dictionary
+        var target = targetTypes[0];
+        if( !_trunk.TryGetValue( target, out var node ) )
         {
-            node.Target = types[depth];
-            trunk.Add( node );
+            node = new RuleNode { Target = target };
+            _trunk[target] = node;
+            _trunkMatchCache = null;
         }
 
-        depth++;
-        if( depth == types.Length )
-        {
-            node.AddRules( rules );
-            return;
-        }
+        // Depth 1..N-1: use node.GetOrAddBranch
+        for( int depth = 1; depth < targetTypes.Length; depth++ )
+            node = node.GetOrAddBranch( targetTypes[depth] );
 
-        _RecurseAdd( depth, types, node.Branches, rules );
+        node.AddRules( rules );
     }
 
     public bool HasRules( Type[] requestTypes, List<string> namespaces ) =>
-        _RecurseQuery( 0, requestTypes, Trunk, namespaces, null );
+        _HasRules( 0, requestTypes, _GetMatchingTrunkNodes( requestTypes[0] ), namespaces );
 
     public ISet<IRule> FindRules( Type[] requestTypes ) => FindRules( requestTypes, [] );
 
     public ISet<IRule> FindRules( Type[] requestTypes, List<string> namespaces )
     {
-        ISet<IRule> sink = new HashSet<IRule>();
-        _RecurseQuery( 0, requestTypes, Trunk, namespaces, sink );
+        var sink = new HashSet<IRule>();
+        _FindRules( 0, requestTypes, _GetMatchingTrunkNodes( requestTypes[0] ), namespaces, sink );
         return sink;
     }
 
-    private bool _RecurseQuery( int depth, Type[] types, IEnumerable<RuleNode> trunk, List<string> namespaces, ISet<IRule> sink )
+    private List<RuleNode> _GetMatchingTrunkNodes( Type requestType )
     {
-        var request = types[depth];
+        if( _trunk.Count == 0 )
+            return [];
 
-        var branches = trunk.Where( n => n.Target.IsAssignableFrom( request ) );
+        _trunkMatchCache ??= new();
+        if( _trunkMatchCache.TryGetValue( requestType, out var cached ) )
+            return cached;
 
-        // increment the depth for the next recursion
+        var matches = new List<RuleNode>();
+        foreach( var node in _trunk.Values )
+            if( node.Target.IsAssignableFrom( requestType ) )
+                matches.Add( node );
+
+        _trunkMatchCache[requestType] = matches;
+        return matches;
+    }
+
+    private void _FindRules( int depth, Type[] types, List<RuleNode> nodes, List<string> namespaces, HashSet<IRule> sink )
+    {
         depth++;
 
-        // If we are at the terminus for the given set of types
-        // Collect all the rules from these "leaves" and traverse back up the stack
         if( depth == types.Length )
         {
-            if( sink is not null )
+            foreach( var node in nodes )
             {
-                foreach( RuleNode node in branches )
-                {
-                    if( namespaces.Count == 0 )
-                        sink.UnionWith( node.Rules );
-                    else
-                        foreach( var rule in node.Rules )
-                            if( namespaces.Contains( rule.Namespace ) )
-                                sink.Add( rule );
-                }
-                return true;
+                if( namespaces.Count == 0 )
+                    sink.UnionWith( node.Rules );
+                else
+                    foreach( var rule in node.Rules )
+                        if( namespaces.Contains( rule.Namespace ) )
+                            sink.Add( rule );
             }
-            return branches.Any( node => node.HasRules( namespaces ) );
+            return;
         }
 
-        return _RecurseQuery( depth, types, branches.SelectMany( n => n.Branches ), namespaces, sink );
+        var requestType = types[depth];
+        foreach( var node in nodes )
+        {
+            var matching = node.GetMatchingBranches( requestType );
+            if( matching.Count > 0 )
+                _FindRules( depth, types, matching, namespaces, sink );
+        }
+    }
+
+    private bool _HasRules( int depth, Type[] types, List<RuleNode> nodes, List<string> namespaces )
+    {
+        depth++;
+
+        if( depth == types.Length )
+        {
+            foreach( var node in nodes )
+                if( node.HasRules( namespaces ) )
+                    return true;
+            return false;
+        }
+
+        var requestType = types[depth];
+        foreach( var node in nodes )
+        {
+            var matching = node.GetMatchingBranches( requestType );
+            if( matching.Count > 0 && _HasRules( depth, types, matching, namespaces ) )
+                return true;
+        }
+
+        return false;
     }
 }

@@ -156,4 +156,128 @@ public class RuleTreeTests
         found.ShouldContain(rule);
     }
 
+
+    // ========== Cache invalidation ==========
+
+    [Fact]
+    public void FindRules_CacheInvalidated_WhenNewRuleAddedForSameArity()
+    {
+        var tree = new RuleTree();
+        var rule1 = new Rule<Person>("test", "rule1")
+            .If(p => true)
+            .Then(p => { });
+
+        tree.Add([typeof(Person)], [rule1]);
+
+        // Warm the cache
+        tree.FindRules([typeof(Person)], []).Count.ShouldBe(1);
+
+        // Add a rule for a base type — should be found for Person queries
+        var rule2 = new Rule<object>("test", "object-rule")
+            .Fire(o => { });
+        tree.Add([typeof(object)], [rule2]);
+
+        // The cache must have been invalidated so the new rule is visible
+        var found = tree.FindRules([typeof(Person)], []).ToList();
+        found.Count.ShouldBe(2);
+        found.ShouldContain(rule1);
+        found.ShouldContain(rule2);
+    }
+
+    [Fact]
+    public void FindRules_CacheInvalidated_AfterClear()
+    {
+        var tree = new RuleTree();
+        var rule = new Rule<Person>("test", "rule1")
+            .If(p => true)
+            .Then(p => { });
+
+        tree.Add([typeof(Person)], [rule]);
+
+        // Warm the cache
+        tree.FindRules([typeof(Person)], []).ShouldNotBeEmpty();
+
+        tree.Clear();
+
+        // After clear the cache must be gone
+        tree.FindRules([typeof(Person)], []).ShouldBeEmpty();
+
+        // Re-add and verify new lookups work
+        var rule2 = new Rule<Person>("test", "rule2")
+            .If(p => true)
+            .Then(p => { });
+        tree.Add([typeof(Person)], [rule2]);
+
+        var found = tree.FindRules([typeof(Person)], []);
+        found.Count.ShouldBe(1);
+        found.ShouldContain(rule2);
+    }
+
+    [Fact]
+    public void FindRules_CacheInvalidated_WhenBranchAddedForMultiArity()
+    {
+        var tree = new RuleTree();
+        var rule1 = new Rule<Person, Order>("test", "rule1")
+            .If((p, o) => true)
+            .Then((p, o) => { });
+
+        tree.Add([typeof(Person), typeof(Order)], [rule1]);
+
+        // Warm the cache
+        tree.FindRules([typeof(Person), typeof(Order)], []).Count.ShouldBe(1);
+
+        // Add a second 2-arity rule with a base type at depth 1
+        var rule2 = new Rule<Person, object>("test", "rule2")
+            .If((p, o) => true)
+            .Then((p, o) => { });
+        tree.Add([typeof(Person), typeof(object)], [rule2]);
+
+        // Order is assignable to object, so both rules should match
+        var found = tree.FindRules([typeof(Person), typeof(Order)], []).ToList();
+        found.Count.ShouldBe(2);
+        found.ShouldContain(rule1);
+        found.ShouldContain(rule2);
+    }
+
+
+    // ========== HasRules ==========
+
+    [Fact]
+    public void HasRules_ReturnsTrueForMatchingType()
+    {
+        var tree = new RuleTree();
+        var rule = new Rule<Person>("test", "rule1")
+            .If(p => true)
+            .Then(p => { });
+
+        tree.Add([typeof(Person)], [rule]);
+
+        tree.HasRules([typeof(Person)]).ShouldBeTrue();
+    }
+
+    [Fact]
+    public void HasRules_ReturnsFalseForUnregisteredType()
+    {
+        var tree = new RuleTree();
+        var rule = new Rule<Person>("test", "rule1")
+            .If(p => true)
+            .Then(p => { });
+
+        tree.Add([typeof(Person)], [rule]);
+
+        tree.HasRules([typeof(Order)]).ShouldBeFalse();
+    }
+
+    [Fact]
+    public void HasRules_PolymorphicMatch_ReturnsTrueForDerivedType()
+    {
+        var tree = new RuleTree();
+        var rule = new Rule<object>("test", "object-rule")
+            .Fire(o => { });
+
+        tree.Add([typeof(object)], [rule]);
+
+        tree.HasRules([typeof(Person)]).ShouldBeTrue();
+    }
+
 }

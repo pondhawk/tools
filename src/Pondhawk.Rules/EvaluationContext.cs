@@ -52,7 +52,7 @@ public sealed class EvaluationContext
         Description = "";
 
         MaxEvaluations = 500000;
-        MaxDuration = 10*1000;
+        MaxDuration = 10_000;
 
         MaxViolations = int.MaxValue;
 

@@ -44,11 +44,9 @@ public abstract class AbstractEvaluator : IEvaluator
     }
 
     
-    public EvaluationResults Evaluate( EvaluationContext evc )
+    public EvaluationResults Evaluate( EvaluationContext context )
     {
-        Guard.IsNotNull(evc);
-
-        var context = evc;    
+        Guard.IsNotNull(context);
 
 
         //**************************************************

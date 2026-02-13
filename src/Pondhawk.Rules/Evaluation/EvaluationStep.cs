@@ -28,10 +28,10 @@ using System.Runtime.CompilerServices;
 
 namespace Pondhawk.Rules.Evaluation;
 
-internal struct EvaluationStep
+internal readonly struct EvaluationStep
 {
-    public int Priority;
-    public long Selector;
-    public int Signature;
+    public int Priority { get; init; }
+    public long Selector { get; init; }
+    public int Signature { get; init; }
 }
 

@@ -82,7 +82,7 @@ public abstract class BaseValidator<TFact>
             markers[i] = o;
         }
 
-        string desc = len == 0 ? template : String.Format( template, markers );
+        string desc = len == 0 ? template : string.Format( template, markers );
         RuleThreadLocalStorage.CurrentContext.Event( category, group, desc );
     }
 }

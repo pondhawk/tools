@@ -273,7 +273,7 @@ public class ForeachRule<TParent,TFact>: AbstractRule
             markers[i] = o;
         }
 
-        string desc = String.Format( template, markers );
+        string desc = string.Format( template, markers );
         RuleThreadLocalStorage.CurrentContext.Event( category, group, desc, fact );
     }
 
@@ -292,17 +292,10 @@ public class ForeachRule<TParent,TFact>: AbstractRule
 
             foreach( var cond in Conditions )
             {
-
-                bool bResult = cond( fact );
-
-                if( !bResult && !Negated )
-                    break;
-
-                if( bResult && Negated )
+                if( cond( fact ) == Negated )
                     break;
 
                 trueFacts.Add( fact );
-
             }
 
         }

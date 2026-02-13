@@ -138,8 +138,8 @@ internal class EvaluationPlan
         long selector = Helpers.EncodeSelector( indices );
         if( IssuedSelectors.Contains( selector ) )
             return;
-        else
-            IssuedSelectors.Add( selector );
+
+        IssuedSelectors.Add( selector );
 
         var step = new EvaluationStep {Priority = priority, Signature = signature, Selector = selector};
 

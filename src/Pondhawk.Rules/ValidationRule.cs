@@ -192,7 +192,7 @@ public class ValidationRule<TFact> : AbstractRule, IValidationRule<TFact>
         if( CascadeAction is not null )
             return this;
 
-        if( (Predicates.Count > 0) && (Predicates.Select( cond=>cond(fact) ).Any( r=>r == false )) )
+        if( Predicates.Count > 0 && Predicates.Any( cond => !cond(fact) ) )
             return null;
 
         if( TypeValidator.Conditions.Select( cond => cond( fact ) ).Any( result => !result ) )

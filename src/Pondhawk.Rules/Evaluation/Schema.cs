@@ -26,12 +26,7 @@ namespace Pondhawk.Rules.Evaluation;
 
 internal sealed class Schema
 {
-    public Schema()
-    {
-        Members = [];
-    }
-
     public Type FactType { get; set; }
-    public List<int> Members { get;  }
+    public List<int> Members { get; } = [];
 }
 

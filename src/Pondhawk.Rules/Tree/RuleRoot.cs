@@ -97,8 +97,7 @@ internal sealed class RuleRoot
                     sink.UnionWith( node.Rules );
                 return true;
             }
-            else
-                return branches.Any( node => node.HasRules( namespaces ) );
+            return branches.Any( node => node.HasRules( namespaces ) );
         }
 
         return _RecurseQuery( depth, types, branches.SelectMany( n => n.Branches ), namespaces, sink );

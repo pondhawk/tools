@@ -282,7 +282,7 @@ public class Rule<TFact> : AbstractRule
             markers[i] = o;
         }
 
-        var desc = String.Format( template, markers );
+        var desc = string.Format( template, markers );
         RuleThreadLocalStorage.CurrentContext.Event( category, group, desc, fact );
     }
 
@@ -331,16 +331,10 @@ public class Rule<TFact> : AbstractRule
 
 
 
-        // ***********************************************************************
         foreach( var result in Conditions.Select( cond => cond( fact ) ) )
         {
-
-            if( !result && !Negated )
+            if( result == Negated )
                 return null;
-
-            if( result && Negated )
-                return null;
-
         }
 
         return this;
@@ -621,7 +615,7 @@ public class Rule<TFact1, TFact2> : AbstractRule
             markers[i] = o;
         }
 
-        string desc = String.Format( template, markers );
+        string desc = string.Format( template, markers );
         RuleThreadLocalStorage.CurrentContext.Event( category, group, desc );
     }
 
@@ -644,11 +638,7 @@ public class Rule<TFact1, TFact2> : AbstractRule
 
         foreach( var cond in Conditions )
         {
-            bool result = cond( fact1, fact2 );
-
-            if( !result && !Negated )
-                return null;
-            else if( result && Negated )
+            if( cond( fact1, fact2 ) == Negated )
                 return null;
         }
 
@@ -925,7 +915,7 @@ public class Rule<TFact1, TFact2, TFact3> : AbstractRule
             markers[i] = o;
         }
 
-        string desc = String.Format( template, markers );
+        string desc = string.Format( template, markers );
         RuleThreadLocalStorage.CurrentContext.Event( category, group, desc );
     }
 
@@ -948,11 +938,7 @@ public class Rule<TFact1, TFact2, TFact3> : AbstractRule
 
         foreach( var cond in Conditions )
         {
-            bool bResult = cond( fact1, fact2, fact3 );
-
-            if( !bResult && !Negated )
-                return null;
-            else if( bResult && Negated )
+            if( cond( fact1, fact2, fact3 ) == Negated )
                 return null;
         }
 
@@ -1228,7 +1214,7 @@ public class Rule<TFact1, TFact2, TFact3, TFact4> : AbstractRule
             markers[i] = o;
         }
 
-        string desc = String.Format( template, markers );
+        string desc = string.Format( template, markers );
         RuleThreadLocalStorage.CurrentContext.Event( category, group, desc );
     }
 
@@ -1252,11 +1238,7 @@ public class Rule<TFact1, TFact2, TFact3, TFact4> : AbstractRule
 
         foreach( var cond in Conditions )
         {
-            bool bResult = cond( fact1, fact2, fact3, fact4 );
-
-            if( !bResult && !Negated )
-                return null;
-            else if( bResult && Negated )
+            if( cond( fact1, fact2, fact3, fact4 ) == Negated )
                 return null;
         }
 

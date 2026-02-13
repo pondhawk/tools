@@ -25,47 +25,45 @@ SOFTWARE.
 using Pondhawk.Exceptions;
 using Pondhawk.Rules.Builder;
 
-namespace Pondhawk.Rules.Listeners
+namespace Pondhawk.Rules.Listeners;
+
+public sealed class NoopEvaluationListener : IEvaluationListener
 {
-
-    public class NoopEvaluationListener : IEvaluationListener
+    public void BeginEvaluation()
     {
-        public void BeginEvaluation()
-        {
-        }
+    }
 
-        public void BeginTupleEvaluation( object[] facts )
-        {
-        }
+    public void BeginTupleEvaluation( object[] facts )
+    {
+    }
 
-        public void FiringRule( IRule rule )
-        {
-        }
+    public void FiringRule( IRule rule )
+    {
+    }
 
-        public void FiredRule( IRule rule, bool modified )
-        {
-        }
+    public void FiredRule( IRule rule, bool modified )
+    {
+    }
 
-        public void EndTupleEvaluation( object[] facts )
-        {
-        }
+    public void EndTupleEvaluation( object[] facts )
+    {
+    }
 
-        public void EndEvaluation()
-        {
-        }
+    public void EndEvaluation()
+    {
+    }
 
-        public void Debug( string template, params object[] markers )
-        {
-        }
+    public void Debug( string template, params object[] markers )
+    {
+    }
 
-        public void Warning( string template, params object[] markers )
-        {
-        }
+    public void Warning( string template, params object[] markers )
+    {
+    }
 
-        public void EventCreated( EventDetail evalEvent )
-        {
-        }
-
+    public void EventCreated( EventDetail evalEvent )
+    {
     }
 
 }
+

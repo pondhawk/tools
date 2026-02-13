@@ -22,8 +22,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+using CommunityToolkit.Diagnostics;
 using Pondhawk.Rules.Builder;
 using Pondhawk.Utilities.Types;
+using TypeExtensions = Pondhawk.Utilities.Types.TypeExtensions;
 
 namespace Pondhawk.Rules;
 
@@ -99,10 +101,10 @@ public abstract class RuleBuilder<TFact> : AbstractRuleBuilder, IBuilder
 
     protected RuleBuilder()
     {
-        Targets = new[] {typeof(TFact)};
+        Targets = [typeof(TFact)];
     }
 
-        
+
     public virtual Rule<TFact> Rule( params string[] tags)
     {
 
@@ -181,7 +183,7 @@ public abstract class RuleBuilder<TFact1, TFact2> : AbstractRuleBuilder, IBuilde
 
     protected RuleBuilder()
     {
-        Targets = new[] { typeof(TFact1), typeof(TFact2) };
+        Targets = [typeof(TFact1), typeof(TFact2)];
     }
 
     /// <summary>
@@ -197,11 +199,7 @@ public abstract class RuleBuilder<TFact1, TFact2> : AbstractRuleBuilder, IBuilde
         
     public virtual Rule<TFact1, TFact2> AddRule( string ruleName )
     {
-        if (ruleName == null)
-            throw new ArgumentNullException( nameof(ruleName) );
-
-        if (ruleName == "")
-            throw new ArgumentException( "All rules must have names and should be unique within a given builder", nameof(ruleName) );
+        Guard.IsNotNullOrEmpty(ruleName);
 
 
         string nameSpace = GetType().Namespace;
@@ -248,7 +246,7 @@ public abstract class RuleBuilder<TFact1, TFact2, TFact3> : AbstractRuleBuilder,
 
     protected RuleBuilder()
     {
-        Targets = new[] { typeof(TFact1), typeof(TFact2), typeof(TFact3) };
+        Targets = [typeof(TFact1), typeof(TFact2), typeof(TFact3)];
     }
         
 
@@ -265,11 +263,7 @@ public abstract class RuleBuilder<TFact1, TFact2, TFact3> : AbstractRuleBuilder,
         
     public virtual Rule<TFact1, TFact2, TFact3> AddRule( string ruleName )
     {
-        if( ruleName == null )
-            throw new ArgumentNullException( nameof(ruleName) );
-
-        if( ruleName == "" )
-            throw new ArgumentException( "All rules must have names and should be unique within a given builder", nameof(ruleName) );
+        Guard.IsNotNullOrEmpty(ruleName);
 
 
         string nameSpace = GetType().Namespace;
@@ -319,7 +313,7 @@ public abstract class RuleBuilder<TFact1, TFact2, TFact3, TFact4> : AbstractRule
 
     protected RuleBuilder()
     {
-        Targets = new[] { typeof(TFact1), typeof(TFact2), typeof(TFact3), typeof(TFact4) };
+        Targets = [typeof(TFact1), typeof(TFact2), typeof(TFact3), typeof(TFact4)];
     }
 
 
@@ -337,11 +331,7 @@ public abstract class RuleBuilder<TFact1, TFact2, TFact3, TFact4> : AbstractRule
         
     public virtual Rule<TFact1, TFact2, TFact3, TFact4> AddRule( string ruleName )
     {
-        if( ruleName == null )
-            throw new ArgumentNullException( nameof(ruleName) );
-
-        if( ruleName == "" )
-            throw new ArgumentException( "All rules must have names and should be unique within a given builder", nameof(ruleName) );
+        Guard.IsNotNullOrEmpty(ruleName);
 
 
         string nameSpace = GetType().Namespace;

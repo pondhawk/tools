@@ -22,6 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+using CommunityToolkit.Diagnostics;
 using Pondhawk.Exceptions;
 using Pondhawk.Rules.Evaluation;
 using Pondhawk.Rules.Listeners;
@@ -29,7 +30,7 @@ using Pondhawk.Rules.Util;
 
 namespace Pondhawk.Rules;
 
-public class EvaluationContext
+public sealed class EvaluationContext
 {
     public EvaluationContext()
     {
@@ -38,11 +39,11 @@ public class EvaluationContext
 
         Listener = new NoopEvaluationListener();
 
-        Space = new FactSpace();
+        Space = new();
 
-        Tables = new Dictionary<string, IDictionary<object, object>>();
+        Tables = new();
 
-        Results = new EvaluationResults();
+        Results = new();
 
         CurrentRuleName = "";
         ModificationsOccurred = false;
@@ -55,8 +56,8 @@ public class EvaluationContext
 
         MaxViolations = int.MaxValue;
 
-        Mutexed = new HashSet<string>();
-        FireOnceRules = new Dictionary<object, ISet<long>>();
+        Mutexed = [];
+        FireOnceRules = new();
 
     }
 
@@ -73,8 +74,8 @@ public class EvaluationContext
     internal bool ModificationsOccurred { get; private set; }
     internal bool InsertionsOccurred { get; private set; }
 
-    internal ISet<string> Mutexed { get; }
-    internal IDictionary<object, ISet<long>> FireOnceRules { get; set; }
+    internal HashSet<string> Mutexed { get; }
+    internal Dictionary<object, ISet<long>> FireOnceRules { get; set; }
 
 
     internal long StartedTick { get; set; } = Environment.TickCount64;
@@ -100,7 +101,7 @@ public class EvaluationContext
 
 
 
-    private IDictionary<string, IDictionary<object, object>> Tables { get; }
+    private Dictionary<string, IDictionary<object, object>> Tables { get; }
 
     public void AddLookup<TMember>(Func<TMember,object> keyExtractor, IEnumerable<TMember> members )
     {
@@ -111,7 +112,7 @@ public class EvaluationContext
     public void AddLookup<TMember>( string name, Func<TMember, object> keyExtractor,  IEnumerable<TMember> members )
     {
 
-        IDictionary<object,object> table = new Dictionary<object, object>();
+        Dictionary<object,object> table = new();
 
         foreach( var m in members )
         {
@@ -158,8 +159,7 @@ public class EvaluationContext
 
     internal void InsertFact(  object fact )
     {
-        if( fact == null )
-            throw new ArgumentNullException( nameof(fact) );
+        Guard.IsNotNull(fact);
 
         int index = _SelectorFromFact( fact );
         if( index == 0 )
@@ -172,8 +172,7 @@ public class EvaluationContext
 
     internal void ModifyFact(  object fact )
     {
-        if( fact == null )
-            throw new ArgumentNullException( nameof(fact) );
+        Guard.IsNotNull(fact);
 
         int index = _SelectorFromFact( fact );
         if( index > 0 )
@@ -186,8 +185,7 @@ public class EvaluationContext
 
     internal void RetractFact(  object fact )
     {
-        if( fact == null )
-            throw new ArgumentNullException( nameof(fact) );
+        Guard.IsNotNull(fact);
 
         int index = _SelectorFromFact( fact );
         if( index > 0 )
@@ -223,15 +221,11 @@ public class EvaluationContext
     }
 
     
-    internal virtual void Event( EventDetail.EventCategory category, string group,  string template, params object[] parameters )
+    internal void Event( EventDetail.EventCategory category, string group,  string template, params object[] parameters )
     {
 
             
-        if( template == null )
-            throw new ArgumentNullException( nameof(template) );
-
-        if( string.IsNullOrWhiteSpace( template ) )
-            throw new InvalidOperationException( "Can not create an Event with a blank message (template was null or blank)" );
+        Guard.IsNotNullOrWhiteSpace(template);
 
 
         var source = "";

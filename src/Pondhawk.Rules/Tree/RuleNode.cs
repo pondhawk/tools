@@ -22,35 +22,33 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+using CommunityToolkit.Diagnostics;
 using Pondhawk.Rules.Builder;
 
 namespace Pondhawk.Rules.Tree;
 
-internal class RuleNode
+internal sealed class RuleNode
 {
-    private ISet<RuleNode> _branches;
+    private HashSet<RuleNode> _branches;
 
     private bool _hasRules;
 
 
-    private ISet<string> _namespaces;
+    private HashSet<string> _namespaces;
 
-    private ISet<IRule> _rules;
+    private HashSet<IRule> _rules;
     public Type Target { get; set; }
 
         
-    public ISet<RuleNode> Branches => _branches ?? (_branches = new HashSet<RuleNode>());
+    public HashSet<RuleNode> Branches => _branches ??= [];
 
-        
-    private ISet<string> Namespaces => _namespaces ?? (_namespaces = new HashSet<string>());
+    private HashSet<string> Namespaces => _namespaces ??= [];
 
-        
-    public ISet<IRule> Rules => _rules ?? (_rules = new HashSet<IRule>());
+    public HashSet<IRule> Rules => _rules ??= [];
 
     public bool HasRules(  IEnumerable<string> namespaces )
     {
-        if( namespaces == null )
-            throw new ArgumentNullException( nameof(namespaces) );
+        Guard.IsNotNull(namespaces);
 
         if( !(_hasRules) )
             return false;
@@ -63,8 +61,7 @@ internal class RuleNode
 
     public void AddRules(  IEnumerable<IRule> source )
     {
-        if( source == null )
-            throw new ArgumentNullException( nameof(source) );
+        Guard.IsNotNull(source);
 
         _hasRules = true;
         foreach( IRule r in source )

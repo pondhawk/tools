@@ -26,14 +26,12 @@ using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo( "Pondhawk.Rules.Tests" )]
 
-namespace Pondhawk.Rules.Evaluation
+namespace Pondhawk.Rules.Evaluation;
+
+internal struct EvaluationStep
 {
-
-    internal struct EvaluationStep
-    {
-        public int Priority;
-        public long Selector;
-        public int Signature;
-    }
-
+    public int Priority;
+    public long Selector;
+    public int Signature;
 }
+

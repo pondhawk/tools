@@ -22,12 +22,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-namespace Pondhawk.Rules.Evaluation
+namespace Pondhawk.Rules.Evaluation;
+
+public interface IEvaluationContextFactory
 {
-
-    public interface IEvaluationContextFactory
-    {
-        EvaluationContext CreateContext();
-    }
-
+    EvaluationContext CreateContext();
 }
+

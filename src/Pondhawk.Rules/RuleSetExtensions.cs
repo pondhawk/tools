@@ -1,7 +1,5 @@
 ﻿
 
-// ReSharper disable UnusedMember.Global
-
 using Pondhawk.Exceptions;
 using Pondhawk.Logging;
 

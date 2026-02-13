@@ -24,20 +24,18 @@ SOFTWARE.
 
 using Pondhawk.Utilities.Types;
 
-namespace Pondhawk.Rules.Builder
+namespace Pondhawk.Rules.Builder;
+
+public class RuleBuilderSource: TypeSource, IRuleBuilderSource
 {
 
-    public class RuleBuilderSource: TypeSource, IRuleBuilderSource
+    private static Func<Type, bool> Predicate { get; } = t => typeof(IBuilder).IsAssignableFrom(t);
+
+    protected override Func<Type, bool> GetPredicate()
     {
-
-        private static Func<Type, bool> Predicate { get; } = t => typeof(IBuilder).IsAssignableFrom(t);
-
-        protected override Func<Type, bool> GetPredicate()
-        {
-            return Predicate;
-        }
-
+        return Predicate;
     }
 
-
 }
+
+

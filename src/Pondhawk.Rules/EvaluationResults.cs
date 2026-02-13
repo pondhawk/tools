@@ -24,65 +24,63 @@ SOFTWARE.
 
 using Pondhawk.Exceptions;
 
-namespace Pondhawk.Rules
+namespace Pondhawk.Rules;
+
+public sealed class EvaluationResults
 {
 
-    public class EvaluationResults
+    public EvaluationResults()
     {
+        Events = new HashSet<EventDetail>( new EventDetail.Comparer() );
+        Shared = new Dictionary<string, object>();
 
-        public EvaluationResults()
-        {
-            Events = new HashSet<EventDetail>( new EventDetail.Comparer() );
-            Shared = new Dictionary<string, object>();
+        TotalEvaluated = 0;
+        TotalFired = 0;
 
-            TotalEvaluated = 0;
-            TotalFired = 0;
+        Started = DateTime.Now;
+        Completed = DateTime.MaxValue;
 
-            Started = DateTime.Now;
-            Completed = DateTime.MaxValue;
+        FiredRules = new Dictionary<string, int>();
 
-            FiredRules = new Dictionary<string, int>();
+        MutexWinners = new Dictionary<string, string>();
+    }
 
-            MutexWinners = new Dictionary<string, string>();
-        }
-
-        public IDictionary<string, object> Shared { get; }
+    public IDictionary<string, object> Shared { get; }
 
 
-        public int TotalAffirmations { get; set; }
+    public int TotalAffirmations { get; set; }
 
-        public int TotalVetos { get; set; }
+    public int TotalVetos { get; set; }
 
-        public int Score => TotalAffirmations - TotalVetos;
+    public int Score => TotalAffirmations - TotalVetos;
 
 
-        public ISet<EventDetail> Events { get;}
+    public ISet<EventDetail> Events { get;}
 
-        public int ViolationCount { get; set; }
+    public int ViolationCount { get; set; }
 
-        public bool HasViolations => ViolationCount > 0;
+    public bool HasViolations => ViolationCount > 0;
 
-        public DateTime Started { get; set; }
-        public DateTime Completed { get; set; }
+    public DateTime Started { get; set; }
+    public DateTime Completed { get; set; }
 
-        public long Duration => Convert.ToInt64( (Completed - Started).TotalMilliseconds );
+    public long Duration => Convert.ToInt64( (Completed - Started).TotalMilliseconds );
 
-        public int TotalEvaluated { get; set; }
-        public int TotalFired { get; set; }
+    public int TotalEvaluated { get; set; }
+    public int TotalFired { get; set; }
 
-        public IDictionary<string, string> MutexWinners { get;  }
-        public IDictionary<string, int> FiredRules { get;  }
+    public IDictionary<string, string> MutexWinners { get;  }
+    public IDictionary<string, int> FiredRules { get;  }
 
-        public void Affirm( int amount )
-        {
-            TotalAffirmations += amount;
-        }
+    public void Affirm( int amount )
+    {
+        TotalAffirmations += amount;
+    }
 
-        public void Veto( int amount )
-        {
-            TotalVetos += amount;
-        }
-
+    public void Veto( int amount )
+    {
+        TotalVetos += amount;
     }
 
 }
+

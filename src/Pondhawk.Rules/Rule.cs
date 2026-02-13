@@ -22,6 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+using CommunityToolkit.Diagnostics;
 using Pondhawk.Exceptions;
 using Pondhawk.Rules.Builder;
 using Pondhawk.Rules.Evaluation;
@@ -34,7 +35,7 @@ public class Rule<TFact> : AbstractRule
     {
         Negated = false;
 
-        Conditions = new List<Func<TFact, bool>>();
+        Conditions = [];
         Consequence = null;
     }
 
@@ -42,7 +43,7 @@ public class Rule<TFact> : AbstractRule
 
     private Action<TFact> CascadeAction { get; set; }
 
-    protected IList<Func<TFact, bool>> Conditions { get; set; }
+    protected List<Func<TFact, bool>> Conditions { get; set; }
     protected Action<TFact> Consequence { get; set; }
     protected Func<TFact, object> ModifyFunc { get; set; }
 
@@ -296,9 +297,7 @@ public class Rule<TFact> : AbstractRule
 
     public void Cascade<TRef>(  Func<TFact, TRef> extractor ) where TRef : class
     {
-
-        if (extractor == null)
-            throw new ArgumentNullException( nameof(extractor) );
+        Guard.IsNotNull(extractor);
 
         CascadeAction = f => RuleThreadLocalStorage.CurrentContext.InsertFact( extractor( f ) );
 
@@ -307,8 +306,7 @@ public class Rule<TFact> : AbstractRule
 
     public void CascadeAll<TChild>(  Func<TFact, IEnumerable<TChild>> extractor ) where TChild : class
     {
-        if (extractor == null)
-            throw new ArgumentNullException( nameof(extractor) );
+        Guard.IsNotNull(extractor);
 
         CascadeAction = f => _CascadeCollection( extractor( f ) );
     }
@@ -368,12 +366,12 @@ public class Rule<TFact> : AbstractRule
         if( ModifyFunc != null )
         {
             object modified = ModifyFunc( fact );
-            if( modified is Array )
+            if( modified is Array arr )
             {
-                foreach( object o in (modified as Array) )
+                foreach( object o in arr )
                     RuleThreadLocalStorage.CurrentContext.ModifyFact( o );
             }
-            else if( (modified != null) )
+            else if( modified != null )
                 RuleThreadLocalStorage.CurrentContext.ModifyFact( modified );
         }
 
@@ -389,14 +387,14 @@ public class Rule<TFact1, TFact2> : AbstractRule
     {
         Negated = false;
 
-        Conditions = new List<Func<TFact1, TFact2, bool>>();
+        Conditions = [];
         Consequence = null;
     }
 
     public bool Negated { get; private set; }
 
 
-    protected IList<Func<TFact1, TFact2, bool>> Conditions { get; set; }
+    protected List<Func<TFact1, TFact2, bool>> Conditions { get; set; }
     protected Action<TFact1, TFact2> Consequence { get; set; }
     protected Func<TFact1, TFact2, object> ModifyFunc { get; set; }
 
@@ -671,12 +669,12 @@ public class Rule<TFact1, TFact2> : AbstractRule
         if( ModifyFunc != null )
         {
             object modified = ModifyFunc( fact1, fact2 );
-            if( modified is Array )
+            if( modified is Array arr )
             {
-                foreach( object o in (modified as Array) )
+                foreach( object o in arr )
                     RuleThreadLocalStorage.CurrentContext.ModifyFact( o );
             }
-            else if( (modified != null) )
+            else if( modified != null )
                 RuleThreadLocalStorage.CurrentContext.ModifyFact( modified );
         }
     }
@@ -690,14 +688,14 @@ public class Rule<TFact1, TFact2, TFact3> : AbstractRule
     {
         Negated = false;
 
-        Conditions = new List<Func<TFact1, TFact2, TFact3, bool>>();
+        Conditions = [];
         Consequence = null;
     }
 
     public bool Negated { get; private set; }
 
 
-    protected IList<Func<TFact1, TFact2, TFact3, bool>> Conditions { get; set; }
+    protected List<Func<TFact1, TFact2, TFact3, bool>> Conditions { get; set; }
     protected Action<TFact1, TFact2, TFact3> Consequence { get; set; }
     protected Func<TFact1, TFact2, TFact3, object> ModifyFunc { get; set; }
 
@@ -976,12 +974,12 @@ public class Rule<TFact1, TFact2, TFact3> : AbstractRule
         if( ModifyFunc != null )
         {
             object modified = ModifyFunc( fact1, fact2, fact3 );
-            if( modified is Array )
+            if( modified is Array arr )
             {
-                foreach( object o in (modified as Array) )
+                foreach( object o in arr )
                     RuleThreadLocalStorage.CurrentContext.ModifyFact( o );
             }
-            else if( (modified != null) )
+            else if( modified != null )
                 RuleThreadLocalStorage.CurrentContext.ModifyFact( modified );
         }
     }
@@ -994,14 +992,14 @@ public class Rule<TFact1, TFact2, TFact3, TFact4> : AbstractRule
     {
         Negated = false;
 
-        Conditions = new List<Func<TFact1, TFact2, TFact3, TFact4, bool>>();
+        Conditions = [];
         Consequence = null;
     }
 
     public bool Negated { get; private set; }
 
 
-    protected IList<Func<TFact1, TFact2, TFact3, TFact4, bool>> Conditions { get; set; }
+    protected List<Func<TFact1, TFact2, TFact3, TFact4, bool>> Conditions { get; set; }
     protected Action<TFact1, TFact2, TFact3, TFact4> Consequence { get; set; }
     protected Func<TFact1, TFact2, TFact3, TFact4, object> ModifyFunc { get; set; }
 
@@ -1282,12 +1280,12 @@ public class Rule<TFact1, TFact2, TFact3, TFact4> : AbstractRule
         if( ModifyFunc != null )
         {
             object modified = ModifyFunc( fact1, fact2, fact3, fact4 );
-            if( modified is Array )
+            if( modified is Array arr )
             {
-                foreach( object o in (modified as Array) )
+                foreach( object o in arr )
                     RuleThreadLocalStorage.CurrentContext.ModifyFact( o );
             }
-            else if( (modified != null) )
+            else if( modified != null )
                 RuleThreadLocalStorage.CurrentContext.ModifyFact( modified );
         }
     }

@@ -37,7 +37,7 @@ public abstract class BaseValidator<TFact>
         Rule  = rule;
         Group = group;
 
-        Conditions = new List<Func<TFact, bool>>();
+        Conditions = [];
         Consequence = f => { };
 
     }
@@ -48,7 +48,7 @@ public abstract class BaseValidator<TFact>
     private ValidationRule<TFact> Rule { get; }
 
 
-    public IList<Func<TFact, bool>> Conditions { get; }
+    public List<Func<TFact, bool>> Conditions { get; }
     public Action<TFact> Consequence { get; private set; }
 
 

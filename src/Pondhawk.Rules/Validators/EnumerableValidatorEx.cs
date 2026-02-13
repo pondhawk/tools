@@ -26,8 +26,6 @@ SOFTWARE.
 using Humanizer;
 using JetBrains.Annotations;
 
-// ReSharper disable UnusedMember.Global
-
 namespace Pondhawk.Rules.Validators;
 
 [UsedImplicitly]

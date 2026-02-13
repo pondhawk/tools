@@ -34,9 +34,9 @@ public static class StringValidatorEx
     static StringValidatorEx()
     {
 
-        _USStates = new HashSet<string>( new[] { "AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA", "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD", "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ", "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC", "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY", "DC" } );
+        _USStates = new HashSet<string>(["AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA", "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD", "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ", "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC", "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY", "DC"]);
 
-        _states = new HashSet<string>( new[] { "AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA", "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD", "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ", "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC", "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY", "DC", "PR", "VI", "AS", "GU", "MP", "AB", "BC", "MB", "NB", "NL", "NS", "ON", "PE", "QC", "SK", "NT", "NU", "YT" } );
+        _states = new HashSet<string>(["AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA", "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD", "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ", "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC", "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY", "DC", "PR", "VI", "AS", "GU", "MP", "AB", "BC", "MB", "NB", "NL", "NS", "ON", "PE", "QC", "SK", "NT", "NU", "YT"]);
 
 
     }
@@ -149,7 +149,7 @@ public static class StringValidatorEx
     }
 
 
-    public static IValidator<TFact, string> IsLessThen<TFact>(  this IValidator<TFact, string> validator, string test ) where TFact : class
+    public static IValidator<TFact, string> IsLessThan<TFact>(  this IValidator<TFact, string> validator, string test ) where TFact : class
     {
 
         var v =  validator.Is( ( f, v ) => string.Compare( test, v, StringComparison.Ordinal ) == 1 );
@@ -162,7 +162,7 @@ public static class StringValidatorEx
         
     }
 
-    public static IValidator<TFact, string> IsLessThen<TFact>( this IValidator<TFact, string> validator, Func<TFact, string> extractor ) where TFact : class
+    public static IValidator<TFact, string> IsLessThan<TFact>( this IValidator<TFact, string> validator, Func<TFact, string> extractor ) where TFact : class
     {
 
         var v =  validator.Is((f, v) => string.Compare(extractor(f), v, StringComparison.Ordinal) == 1);
@@ -176,7 +176,7 @@ public static class StringValidatorEx
     }
 
 
-    public static IValidator<TFact, string> IsGreaterThen<TFact>(  this IValidator<TFact, string> validator, string test ) where TFact : class
+    public static IValidator<TFact, string> IsGreaterThan<TFact>(  this IValidator<TFact, string> validator, string test ) where TFact : class
     {
 
         var v = validator.Is( ( f, v ) => string.Compare( test, v, StringComparison.Ordinal ) == -1 );
@@ -189,7 +189,7 @@ public static class StringValidatorEx
         
     }
 
-    public static IValidator<TFact, string> IsGreaterThen<TFact>( this IValidator<TFact, string> validator, Func<TFact, string> extractor ) where TFact : class
+    public static IValidator<TFact, string> IsGreaterThan<TFact>( this IValidator<TFact, string> validator, Func<TFact, string> extractor ) where TFact : class
     {
         return validator.Is((f, v) => string.Compare(extractor(f), v, StringComparison.Ordinal) == -1);
     }
@@ -333,11 +333,9 @@ public static class StringValidatorEx
 
 
 
-    // ReSharper disable once InconsistentNaming
-    private static readonly ISet<string> _USStates;
+    private static readonly HashSet<string> _USStates;
 
 
-    // ReSharper disable once InconsistentNaming
     public static IValidator<TFact, string> IsUSState<TFact>( this IValidator<TFact, string> validator) where TFact : class
     {
         
@@ -352,11 +350,9 @@ public static class StringValidatorEx
     }
 
 
-    // ReSharper disable once InconsistentNaming
-    private static readonly ISet<string> _states;
+    private static readonly HashSet<string> _states;
 
 
-    // ReSharper disable once InconsistentNaming
     public static IValidator<TFact, string> IsState<TFact>( this IValidator<TFact, string> validator) where TFact : class
     {
 

@@ -48,21 +48,13 @@ public interface IEnumerableValidator<out TFact, out TType>
 
 
 
-public class EnumerableValidator<TFact, TType> : BaseValidator<TFact>, IEnumerableValidator<TFact, TType>
+public class EnumerableValidator<TFact, TType>( ValidationRule<TFact> rule, string group, string propertyName, Func<TFact, IEnumerable<TType>> extractor )
+    : BaseValidator<TFact>( rule, group ), IEnumerableValidator<TFact, TType>
 {
-    public EnumerableValidator( ValidationRule<TFact> rule, string group, string propertyName, Func<TFact, IEnumerable<TType>> extractor ) : base( rule, group )
-    {
+    public string GroupName { get; } = group;
+    public string PropertyName { get; } = propertyName;
 
-        GroupName = group;
-        PropertyName = propertyName;
-        
-        Extractor = extractor;
-    }
-
-    public string GroupName { get; }
-    public string PropertyName { get; }
-
-    protected Func<TFact, IEnumerable<TType>> Extractor { get;  }
+    protected Func<TFact, IEnumerable<TType>> Extractor { get; } = extractor;
 
         
     public IEnumerableValidator<TFact, TType> Is( Func<TFact, IEnumerable<TType>, bool> condition )

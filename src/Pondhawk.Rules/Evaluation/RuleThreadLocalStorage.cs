@@ -22,22 +22,20 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-namespace Pondhawk.Rules.Evaluation
+namespace Pondhawk.Rules.Evaluation;
+public static class RuleThreadLocalStorage
 {
-    public static class RuleThreadLocalStorage
+    [ThreadStatic] private static EvaluationContext _currentContext;
+
+    public static EvaluationContext CurrentContext
     {
-        [ThreadStatic] private static EvaluationContext _currentContext;
-
-        public static EvaluationContext CurrentContext
-        {
-            get => _currentContext;
-            set => _currentContext = value;
-        }
-
-        public static void ClearCurrentContext()
-        {
-            CurrentContext = null;
-        }
+        get => _currentContext;
+        set => _currentContext = value;
     }
 
+    public static void ClearCurrentContext()
+    {
+        CurrentContext = null;
+    }
 }
+

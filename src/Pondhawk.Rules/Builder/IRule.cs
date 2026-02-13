@@ -22,24 +22,22 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-namespace Pondhawk.Rules.Builder
+namespace Pondhawk.Rules.Builder;
+
+public interface IRule
 {
+    string Namespace { get; }
+    string Name { get; }
 
-    public interface IRule
-    {
-        string Namespace { get; }
-        string Name { get; }
+    int Salience { get; }
+    bool OnlyFiresOnce { get; }
 
-        int Salience { get; }
-        bool OnlyFiresOnce { get; }
+    string Mutex { get; }
 
-        string Mutex { get; }
+    DateTime Inception { get; }
+    DateTime Expiration { get; }
 
-        DateTime Inception { get; }
-        DateTime Expiration { get; }
-
-        IRule EvaluateRule( object[] fact );
-        void FireRule( object[] fact );
-    }
-
+    IRule EvaluateRule( object[] fact );
+    void FireRule( object[] fact );
 }
+

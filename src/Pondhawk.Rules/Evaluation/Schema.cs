@@ -22,18 +22,16 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-namespace Pondhawk.Rules.Evaluation
+namespace Pondhawk.Rules.Evaluation;
+
+internal sealed class Schema
 {
-
-    internal class Schema
+    public Schema()
     {
-        public Schema()
-        {
-            Members = new List<int>();
-        }
-
-        public Type FactType { get; set; }
-        public IList<int> Members { get;  }
+        Members = [];
     }
 
+    public Type FactType { get; set; }
+    public List<int> Members { get;  }
 }
+

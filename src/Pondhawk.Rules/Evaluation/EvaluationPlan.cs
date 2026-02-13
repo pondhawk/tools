@@ -46,7 +46,7 @@ internal class EvaluationPlan
 
         Queues = new Queue<EvaluationStep>[Count];
         for( int q = 0; q < Count; q++ )
-            Queues[q] = new Queue<EvaluationStep>( 1024 );
+            Queues[q] = new( 1024 );
     }
 
 
@@ -56,7 +56,7 @@ internal class EvaluationPlan
 
     private IEnumerable<string> Namespaces { get; }
 
-    private ISet<long> IssuedSelectors { get; } = new HashSet<long>();
+    private HashSet<long> IssuedSelectors { get; } = [];
 
     private int Count { get; }
     private Queue<EvaluationStep>[] Queues { get; }
@@ -95,7 +95,7 @@ internal class EvaluationPlan
         {
             foreach( int p in factIndices[0] )
             {
-                _AddStep( signature, new[] {p}, 1 );
+                _AddStep( signature, [p], 1 );
                 stepsAdded++;
             }
         }
@@ -104,7 +104,7 @@ internal class EvaluationPlan
             foreach( int p1 in factIndices[0] )
             foreach( int p2 in factIndices[1] )
             {
-                _AddStep( signature, new[] {p1, p2}, 2 );
+                _AddStep( signature, [p1, p2], 2 );
                 stepsAdded++;
             }
         }
@@ -114,7 +114,7 @@ internal class EvaluationPlan
             foreach( int p2 in factIndices[1] )
             foreach( int p3 in factIndices[2] )
             {
-                _AddStep( signature, new[] {p1, p2, p3}, 3 );
+                _AddStep( signature, [p1, p2, p3], 3 );
                 stepsAdded++;
             }
         }
@@ -125,7 +125,7 @@ internal class EvaluationPlan
             foreach( int p3 in factIndices[2] )
             foreach( int p4 in factIndices[3] )
             {
-                _AddStep( signature, new[] {p1, p2, p3, p4}, 4 );
+                _AddStep( signature, [p1, p2, p3, p4], 4 );
                 stepsAdded++;
             }
         }

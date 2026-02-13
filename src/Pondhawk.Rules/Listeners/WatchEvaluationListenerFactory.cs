@@ -24,27 +24,23 @@ SOFTWARE.
 
 
 
-// ReSharper disable UnusedMember.Global
-
 using Serilog;
 using Serilog.Core;
 
-namespace Pondhawk.Rules.Listeners
+namespace Pondhawk.Rules.Listeners;
+
+public sealed class WatchEvaluationListenerFactory: IEvaluationListenerFactory
 {
 
-    public class WatchEvaluationListenerFactory: IEvaluationListenerFactory
+
+    public string Category { get; set; } = string.Empty;
+
+    
+    public IEvaluationListener CreateListener()
     {
-
-
-        public string Category { get; set; } = string.Empty;
-
-        
-        public IEvaluationListener CreateListener()
-        {
-            var logger = Log.ForContext(Constants.SourceContextPropertyName, Category );
-            return new WatchEvaluationListener( logger );
-        }
-
+        var logger = Log.ForContext(Constants.SourceContextPropertyName, Category );
+        return new WatchEvaluationListener( logger );
     }
 
 }
+

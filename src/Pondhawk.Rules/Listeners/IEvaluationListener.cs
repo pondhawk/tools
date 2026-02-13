@@ -25,28 +25,26 @@ SOFTWARE.
 using Pondhawk.Exceptions;
 using Pondhawk.Rules.Builder;
 
-namespace Pondhawk.Rules.Listeners
+namespace Pondhawk.Rules.Listeners;
+
+public interface IEvaluationListener
 {
+    void BeginEvaluation();
 
-    public interface IEvaluationListener
-    {
-        void BeginEvaluation();
+    void BeginTupleEvaluation( object[] facts );
 
-        void BeginTupleEvaluation( object[] facts );
+    void FiringRule( IRule rule );
 
-        void FiringRule( IRule rule );
+    void FiredRule( IRule rule, bool modified );
 
-        void FiredRule( IRule rule, bool modified );
+    void EndTupleEvaluation( object[] facts );
 
-        void EndTupleEvaluation( object[] facts );
+    void EndEvaluation();
 
-        void EndEvaluation();
+    void EventCreated( EventDetail evalEvent );
 
-        void EventCreated( EventDetail evalEvent );
-
-        void Debug( string template, params object[] markers );
-        void Warning( string template, params object[] markers );
-
-    }
+    void Debug( string template, params object[] markers );
+    void Warning( string template, params object[] markers );
 
 }
+

@@ -47,21 +47,13 @@ public interface IValidator<out TFact, out TType>
 }
 
 
-public class Validator<TFact, TType> : BaseValidator<TFact>, IValidator<TFact,TType>
+public class Validator<TFact, TType>( ValidationRule<TFact> rule, string group, string propertyName, Func<TFact, TType> extractor )
+    : BaseValidator<TFact>( rule, group ), IValidator<TFact,TType>
 {
+    public string GroupName { get; } = group;
+    public string PropertyName { get; } = propertyName;
 
-    public Validator( ValidationRule<TFact> rule, string group, string propertyName, Func<TFact, TType> extractor ) : base( rule, group )
-    {
-
-        GroupName = group;
-        PropertyName = propertyName;
-        Extractor = extractor;
-    }
-
-    public string GroupName { get; private set; }
-    public string PropertyName { get; private set; }
-
-    protected Func<TFact, TType> Extractor { get;  }
+    protected Func<TFact, TType> Extractor { get; } = extractor;
 
         
     public IValidator<TFact, TType> Is( Func<TFact, TType, bool> condition )

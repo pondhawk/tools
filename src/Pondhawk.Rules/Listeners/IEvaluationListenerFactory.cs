@@ -22,12 +22,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-namespace Pondhawk.Rules.Listeners
+namespace Pondhawk.Rules.Listeners;
+
+public interface IEvaluationListenerFactory
 {
-
-    public interface IEvaluationListenerFactory
-    {
-        IEvaluationListener CreateListener();
-    }
-
+    IEvaluationListener CreateListener();
 }
+

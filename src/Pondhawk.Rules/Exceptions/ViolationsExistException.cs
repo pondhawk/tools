@@ -24,37 +24,33 @@ SOFTWARE.
 
 
 
-// ReSharper disable UnusedMember.Global
-
 using Pondhawk.Exceptions;
 
-namespace Pondhawk.Rules.Exceptions
+namespace Pondhawk.Rules.Exceptions;
+
+public sealed class ViolationsExistException : FluentException<ViolationsExistException>
 {
 
-    public class ViolationsExistException : FluentException<ViolationsExistException>
+
+    public ViolationsExistException(  EvaluationResults result ) : base( "Violation events occurred during evaluation" )
     {
+        Result = result;
 
-
-        public ViolationsExistException(  EvaluationResults result ) : base( "Violation events occurred during evaluation" )
-        {
-            Result = result;
-
-            WithKind(ErrorKind.Predicate);
-            WithDetails(result.Events);
-
-        }
-
-
-        public EvaluationResults Result { get; }
-
-
-        
-        public IEnumerable<EventDetail> Violations
-        {
-            get { return Result.Events.Where( e => e.Category == EventDetail.EventCategory.Violation ); }
-        }
-
+        WithKind(ErrorKind.Predicate);
+        WithDetails(result.Events);
 
     }
 
+
+    public EvaluationResults Result { get; }
+
+
+    
+    public IEnumerable<EventDetail> Violations
+    {
+        get { return Result.Events.Where( e => e.Category == EventDetail.EventCategory.Violation ); }
+    }
+
+
 }
+

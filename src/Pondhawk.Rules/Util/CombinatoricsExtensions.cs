@@ -24,48 +24,46 @@ SOFTWARE.
 
 using System.Diagnostics.CodeAnalysis;
 
-namespace Pondhawk.Rules.Util
+namespace Pondhawk.Rules.Util;
+
+[SuppressMessage( "ReSharper", "PossibleMultipleEnumeration" )]
+internal static class CombinatoricsExtensions
 {
-
-    [SuppressMessage( "ReSharper", "PossibleMultipleEnumeration" )]
-    internal static class CombinatoricsExtensions
+    internal static IEnumerable<IEnumerable<T>> Combinations<T>( this IEnumerable<T> elements, int k )
     {
-        internal static IEnumerable<IEnumerable<T>> Combinations<T>( this IEnumerable<T> elements, int k )
-        {
-            return k == 0 ? new[] {new T[0]} : elements.SelectMany( ( e, i ) => elements.Skip( i + 1 ).Combinations( k - 1 ).Select( c => (new[] {e}).Concat( c ) ) );
-        }
-
-        internal static IEnumerable<IEnumerable<T>> CombinationsWithRepetition<T>( this IEnumerable<T> elements, int k )
-        {
-            return k == 0 ? new[] {new T[0]} : elements.SelectMany( ( e, i ) => elements.CombinationsWithRepetition( k - 1 ).Select( c => (new[] {e}).Concat( c ) ) );
-        }
-
-
-        internal static IEnumerable<IEnumerable<T>> Variations<T>( this IEnumerable<T> elements, int k )
-        {
-            IList<IEnumerable<T>> results = new List<IEnumerable<T>>();
-
-            for( var x = 1; x <= k; x++ )
-            {
-                foreach( var cmb in elements.Combinations( x ) )
-                    results.Add( cmb );
-            }
-
-            return results;
-        }
-
-        internal static IEnumerable<IEnumerable<T>> VariationsWithRepetition<T>( this IEnumerable<T> elements, int k )
-        {
-            IList<IEnumerable<T>> results = new List<IEnumerable<T>>();
-
-            for( var x = 1; x <= k; x++ )
-            {
-                foreach( var cmb in elements.CombinationsWithRepetition( x ) )
-                    results.Add( cmb );
-            }
-
-            return results;
-        }
+        return k == 0 ? new[] {new T[0]} : elements.SelectMany( ( e, i ) => elements.Skip( i + 1 ).Combinations( k - 1 ).Select( c => (new[] {e}).Concat( c ) ) );
     }
 
+    internal static IEnumerable<IEnumerable<T>> CombinationsWithRepetition<T>( this IEnumerable<T> elements, int k )
+    {
+        return k == 0 ? new[] {new T[0]} : elements.SelectMany( ( e, i ) => elements.CombinationsWithRepetition( k - 1 ).Select( c => (new[] {e}).Concat( c ) ) );
+    }
+
+
+    internal static IEnumerable<IEnumerable<T>> Variations<T>( this IEnumerable<T> elements, int k )
+    {
+        List<IEnumerable<T>> results = [];
+
+        for( var x = 1; x <= k; x++ )
+        {
+            foreach( var cmb in elements.Combinations( x ) )
+                results.Add( cmb );
+        }
+
+        return results;
+    }
+
+    internal static IEnumerable<IEnumerable<T>> VariationsWithRepetition<T>( this IEnumerable<T> elements, int k )
+    {
+        List<IEnumerable<T>> results = [];
+
+        for( var x = 1; x <= k; x++ )
+        {
+            foreach( var cmb in elements.CombinationsWithRepetition( x ) )
+                results.Add( cmb );
+        }
+
+        return results;
+    }
 }
+

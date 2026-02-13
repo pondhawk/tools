@@ -22,34 +22,29 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+using CommunityToolkit.Diagnostics;
 using Pondhawk.Rules.Builder;
 
 namespace Pondhawk.Rules.Tree;
 
-public class RuleTree : IRuleBase, IRuleSink
+public sealed class RuleTree : IRuleBase, IRuleSink
 {
 
-    private IDictionary<int, RuleRoot> RootMap { get; } = new Dictionary<int, RuleRoot>();
+    private Dictionary<int, RuleRoot> RootMap { get; } = new();
 
     public int MaxAxisCount => RootMap.Count > 0 ? RootMap.Keys.Max() : 0;
 
     public bool HasRules(  Type[] factTypes )
     {
+        Guard.IsNotNull(factTypes);
 
-        if (factTypes == null)
-            throw new ArgumentNullException( nameof(factTypes) );
-            
         return HasRules( factTypes, new string[] {} );
     }
 
     public bool HasRules(  Type[] factTypes, IEnumerable<string> namespaces )
     {
-
-        if( factTypes == null )
-            throw new ArgumentNullException( nameof(factTypes) );
-
-        if( namespaces == null )
-            throw new ArgumentNullException( nameof(namespaces) );
+        Guard.IsNotNull(factTypes);
+        Guard.IsNotNull(namespaces);
 
         RootMap.TryGetValue( factTypes.Length, out var targetRoot );
         if( targetRoot == null )
@@ -63,23 +58,17 @@ public class RuleTree : IRuleBase, IRuleSink
         
     public ISet<IRule> FindRules( Type[] factTypes )
     {
-
-        if (factTypes == null)
-            throw new ArgumentNullException( nameof(factTypes) );
+        Guard.IsNotNull(factTypes);
 
         RootMap.TryGetValue( factTypes.Length, out var targetRoot );
         return targetRoot == null ? new HashSet<IRule>() : targetRoot.FindRules( factTypes );
     }
 
-        
+
     public ISet<IRule> FindRules( Type[] factTypes, IEnumerable<string> namespaces )
     {
-
-        if (factTypes == null)
-            throw new ArgumentNullException( nameof(factTypes) );
-
-        if (namespaces == null)
-            throw new ArgumentNullException( nameof(namespaces) );
+        Guard.IsNotNull(factTypes);
+        Guard.IsNotNull(namespaces);
             
             
         var allRules = FindRules( factTypes );
@@ -100,11 +89,11 @@ public class RuleTree : IRuleBase, IRuleSink
     {
         if (!(RootMap.TryGetValue(1, out var targetRoot)))
         {
-            targetRoot = new RuleRoot();
+            targetRoot = new();
             RootMap[1] = targetRoot;
         }
 
-        targetRoot.Add( new []{factType}, new []{rule});            
+        targetRoot.Add( [factType], [rule]);            
 
     }
 
@@ -115,7 +104,7 @@ public class RuleTree : IRuleBase, IRuleSink
 
         if( !(RootMap.TryGetValue( axisCount, out var targetRoot )) )
         {
-            targetRoot = new RuleRoot();
+            targetRoot = new();
             RootMap[axisCount] = targetRoot;
         }
 

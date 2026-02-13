@@ -26,10 +26,10 @@ using Pondhawk.Rules.Builder;
 
 namespace Pondhawk.Rules.Tree;
 
-internal class RuleRoot
+internal sealed class RuleRoot
 {
 
-    protected ISet<RuleNode> Trunk { get; } = new HashSet<RuleNode>();
+    private HashSet<RuleNode> Trunk { get; } = [];
 
     public void Clear()
     {
@@ -46,7 +46,7 @@ internal class RuleRoot
     {
         var target = types[depth];
 
-        var node = trunk.Where( n => n.Target == target ).DefaultIfEmpty( new RuleNode() ).First();
+        var node = trunk.Where( n => n.Target == target ).DefaultIfEmpty( new() ).First();
         if( node.Target == null )
         {
             node.Target = types[depth];
@@ -73,7 +73,7 @@ internal class RuleRoot
     {
         ISet<IRule> sink = new HashSet<IRule>();
 
-        _RecurseQuery( 0, requestTypes, Trunk, new string[] {}, sink );
+        _RecurseQuery( 0, requestTypes, Trunk, [], sink );
 
         return sink;
     }

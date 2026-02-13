@@ -26,96 +26,94 @@ using Pondhawk.Exceptions;
 using Pondhawk.Rules.Evaluation;
 using Pondhawk.Rules.Tree;
 
-namespace Pondhawk.Rules.Builder
+namespace Pondhawk.Rules.Builder;
+
+public abstract class AbstractRuleBuilder
 {
 
-    public abstract class AbstractRuleBuilder
+    protected AbstractRuleBuilder()
     {
-
-        protected AbstractRuleBuilder()
-        {
-            SetName = GetType().Name;
-        }
-
-        public string SetName { get; protected set; }
-
-        public bool DefaultFireOnce { get; protected set; } = false;
-        public int DefaultSalience { get; protected set; } = 500;
-
-        public DateTime DefaultInception { get; protected set; } = DateTime.MinValue;
-        public DateTime DefaultExpiration { get; protected set; } = DateTime.MaxValue;
-
-
-        protected Type[] Targets { get; set; } = new Type[0];
-
-        public ISet<IRule>             Rules { get;  } = new HashSet<IRule>();
-        public ISet<Action<IRuleSink>> Sinks { get;  } = new HashSet<Action<IRuleSink>>();
-
-        public virtual void LoadRules( IRuleSink ruleSink )
-        {
-
-            foreach( var sink in Sinks )
-                sink( ruleSink );
-
-            if( Targets.Length > 0 )
-                ruleSink.Add( Targets, Rules );
-
-        }
-
-
-        protected string CurrentRuleName => RuleThreadLocalStorage.CurrentContext.CurrentRuleName;
-
-        protected TMember Lookup<TMember>( object key )
-        {
-            return RuleThreadLocalStorage.CurrentContext.Lookup<TMember>( key );
-        }
-
-        protected TMember Lookup<TMember>( string name, object key )
-        {
-            return RuleThreadLocalStorage.CurrentContext.Lookup<TMember>( name, key );
-        }
-
-        protected IDictionary<string, object> Shared => RuleThreadLocalStorage.CurrentContext.Shared;
-
-        protected void Info( string group, string template, params object[] markers )
-        {
-            RuleThreadLocalStorage.CurrentContext.Event( EventDetail.EventCategory.Info, group, template, markers );
-        }
-
-        protected void Violation( string group, string template, params object[] markers )
-        {
-            RuleThreadLocalStorage.CurrentContext.Event( EventDetail.EventCategory.Violation, group, template, markers );
-        }
-
-        protected void Affirm( int amount )
-        {
-            RuleThreadLocalStorage.CurrentContext.Results.Affirm( amount );
-        }
-
-        protected void Veto( int amount )
-        {
-            RuleThreadLocalStorage.CurrentContext.Results.Veto( amount );
-        }
-
-        protected void Debug( string template, params object[] markers )
-        {
-            RuleThreadLocalStorage.CurrentContext.Listener.Debug( template, markers );
-        }
-
-        protected void Insert( object fact )
-        {
-            RuleThreadLocalStorage.CurrentContext.InsertFact( fact );
-        }
-
-        protected void Modify( object fact )
-        {
-            RuleThreadLocalStorage.CurrentContext.ModifyFact( fact );
-        }
-
-        protected void Retract( object fact )
-        {
-            RuleThreadLocalStorage.CurrentContext.RetractFact( fact );
-        }
+        SetName = GetType().Name;
     }
 
+    public string SetName { get; protected set; }
+
+    public bool DefaultFireOnce { get; protected set; } = false;
+    public int DefaultSalience { get; protected set; } = 500;
+
+    public DateTime DefaultInception { get; protected set; } = DateTime.MinValue;
+    public DateTime DefaultExpiration { get; protected set; } = DateTime.MaxValue;
+
+
+    protected Type[] Targets { get; set; } = [];
+
+    public ISet<IRule>             Rules { get;  } = new HashSet<IRule>();
+    public ISet<Action<IRuleSink>> Sinks { get;  } = new HashSet<Action<IRuleSink>>();
+
+    public virtual void LoadRules( IRuleSink ruleSink )
+    {
+
+        foreach( var sink in Sinks )
+            sink( ruleSink );
+
+        if( Targets.Length > 0 )
+            ruleSink.Add( Targets, Rules );
+
+    }
+
+
+    protected string CurrentRuleName => RuleThreadLocalStorage.CurrentContext.CurrentRuleName;
+
+    protected TMember Lookup<TMember>( object key )
+    {
+        return RuleThreadLocalStorage.CurrentContext.Lookup<TMember>( key );
+    }
+
+    protected TMember Lookup<TMember>( string name, object key )
+    {
+        return RuleThreadLocalStorage.CurrentContext.Lookup<TMember>( name, key );
+    }
+
+    protected IDictionary<string, object> Shared => RuleThreadLocalStorage.CurrentContext.Shared;
+
+    protected void Info( string group, string template, params object[] markers )
+    {
+        RuleThreadLocalStorage.CurrentContext.Event( EventDetail.EventCategory.Info, group, template, markers );
+    }
+
+    protected void Violation( string group, string template, params object[] markers )
+    {
+        RuleThreadLocalStorage.CurrentContext.Event( EventDetail.EventCategory.Violation, group, template, markers );
+    }
+
+    protected void Affirm( int amount )
+    {
+        RuleThreadLocalStorage.CurrentContext.Results.Affirm( amount );
+    }
+
+    protected void Veto( int amount )
+    {
+        RuleThreadLocalStorage.CurrentContext.Results.Veto( amount );
+    }
+
+    protected void Debug( string template, params object[] markers )
+    {
+        RuleThreadLocalStorage.CurrentContext.Listener.Debug( template, markers );
+    }
+
+    protected void Insert( object fact )
+    {
+        RuleThreadLocalStorage.CurrentContext.InsertFact( fact );
+    }
+
+    protected void Modify( object fact )
+    {
+        RuleThreadLocalStorage.CurrentContext.ModifyFact( fact );
+    }
+
+    protected void Retract( object fact )
+    {
+        RuleThreadLocalStorage.CurrentContext.RetractFact( fact );
+    }
 }
+

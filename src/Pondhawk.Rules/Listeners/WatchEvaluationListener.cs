@@ -30,130 +30,128 @@ using Serilog;
 using Serilog.Core;
 using Serilog.Events;
 
-namespace Pondhawk.Rules.Listeners
+namespace Pondhawk.Rules.Listeners;
+
+
+public sealed class WatchEvaluationListener: IEvaluationListener
 {
 
+    public WatchEvaluationListener( ILogger logger )
+    {
+        Logger = logger;
+    }
 
-    public class WatchEvaluationListener: IEvaluationListener
+    public WatchEvaluationListener(  string category )
+    {
+        Logger =  Log.ForContext(Constants.SourceContextPropertyName, category);
+    }
+
+
+    private ILogger Logger { get; }
+
+
+    public void BeginEvaluation()
     {
 
-        public WatchEvaluationListener( ILogger logger )
-        {
-            Logger = logger;
-        }
+        
+        if( !Logger.IsEnabled( LogEventLevel.Debug ) )
+            return;
 
-        public WatchEvaluationListener(  string category )
-        {
-            Logger =  Log.ForContext(Constants.SourceContextPropertyName, category);
-        }
+        var context = RuleThreadLocalStorage.CurrentContext;            
 
+        Logger.Debug( "Begin Evaluation - ({ContextDescription})", context.Description );
 
-        private ILogger Logger { get; }
+        Logger.LogObject( "Context", context );
 
+    }
 
-        public void BeginEvaluation()
-        {
+    public void BeginTupleEvaluation( object[] facts )
+    {
 
-            
-            if( !Logger.IsEnabled( LogEventLevel.Debug ) )
-                return;
+        if (!Logger.IsEnabled(LogEventLevel.Debug))
+            return;
 
-            var context = RuleThreadLocalStorage.CurrentContext;            
+        Logger.Debug( "Begin Tuple Evaluation" );
 
-            Logger.Debug( "Begin Evaluation - ({ContextDescription})", context.Description );
-
-            Logger.LogObject( "Context", context );
-
-        }
-
-        public void BeginTupleEvaluation( object[] facts )
-        {
-
-            if (!Logger.IsEnabled(LogEventLevel.Debug))
-                return;
-
-            Logger.Debug( "Begin Tuple Evaluation" );
-
-            for (int i = 0; i < facts.Length; i++)
-                Logger.LogObject($"{facts[i].GetType().FullName}[{i}]", facts[i]);
+        for (int i = 0; i < facts.Length; i++)
+            Logger.LogObject($"{facts[i].GetType().FullName}[{i}]", facts[i]);
 
 
-        }
+    }
 
-        public void FiringRule( IRule rule )
-        {
+    public void FiringRule( IRule rule )
+    {
 
-            if (!(Logger.IsEnabled(LogEventLevel.Debug)))
-                return;
+        if (!(Logger.IsEnabled(LogEventLevel.Debug)))
+            return;
 
-            Logger.LogObject($"Rule Firing ({rule.Name})", rule );
+        Logger.LogObject($"Rule Firing ({rule.Name})", rule );
 
-        }
+    }
 
-        public void FiredRule( IRule rule, bool modified )
-        {
+    public void FiredRule( IRule rule, bool modified )
+    {
 
-            if (!(Logger.IsEnabled(LogEventLevel.Debug)))
-                return;
+        if (!(Logger.IsEnabled(LogEventLevel.Debug)))
+            return;
 
-            Logger.Debug( "Rule Fired ({0}). Modified fact? {1}", rule.Name, modified );
+        Logger.Debug( "Rule Fired ({0}). Modified fact? {1}", rule.Name, modified );
 
-        }
+    }
 
-        public void EndTupleEvaluation( object[] facts )
-        {
+    public void EndTupleEvaluation( object[] facts )
+    {
 
-            if (!(Logger.IsEnabled(LogEventLevel.Debug)))
-                return;
+        if (!(Logger.IsEnabled(LogEventLevel.Debug)))
+            return;
 
-            Logger.Debug( "End Tuple Evaluation" );
+        Logger.Debug( "End Tuple Evaluation" );
 
-        }
+    }
 
-        public void EndEvaluation()
-        {
+    public void EndEvaluation()
+    {
 
-            if (!(Logger.IsEnabled(LogEventLevel.Debug)))
-                return;
+        if (!(Logger.IsEnabled(LogEventLevel.Debug)))
+            return;
 
-            var context = RuleThreadLocalStorage.CurrentContext;                                    
+        var context = RuleThreadLocalStorage.CurrentContext;                                    
 
-            Logger.LogObject( "Results", context.Results );
+        Logger.LogObject( "Results", context.Results );
 
-            Logger.Debug( "End Evaluation - ({context.Description})", context.Description );
+        Logger.Debug( "End Evaluation - ({context.Description})", context.Description );
 
-        }
+    }
 
-        public void EventCreated( EventDetail evalEvent )
-        {
+    public void EventCreated( EventDetail evalEvent )
+    {
 
-            if (!(Logger.IsEnabled(LogEventLevel.Debug)))
-                return;
+        if (!(Logger.IsEnabled(LogEventLevel.Debug)))
+            return;
 
-            Logger.LogObject( "Evaluation Event Created", evalEvent );
+        Logger.LogObject( "Evaluation Event Created", evalEvent );
 
-        }
+    }
 
-        public void Debug( string template, params object[] markers )
-        {
+    public void Debug( string template, params object[] markers )
+    {
 
-            if (!(Logger.IsEnabled(LogEventLevel.Debug)))
-                return;
+        if (!(Logger.IsEnabled(LogEventLevel.Debug)))
+            return;
 
-            Logger.Debug( template, markers );
+        Logger.Debug( template, markers );
 
-        }
+    }
 
-        public void Warning( string template, params object[] markers )
-        {
+    public void Warning( string template, params object[] markers )
+    {
 
-            if (!(Logger.IsEnabled(LogEventLevel.Warning)))
-                return;
-            
-            Logger.Warning( template, markers );
-
-        }
+        if (!(Logger.IsEnabled(LogEventLevel.Warning)))
+            return;
+        
+        Logger.Warning( template, markers );
 
     }
 
 }
+

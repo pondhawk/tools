@@ -26,14 +26,9 @@ using Pondhawk.Rules.Builder;
 
 namespace Pondhawk.Rules.Evaluation;
 
-internal class TupleEvaluator
+internal class TupleEvaluator( ISet<IRule> rules )
 {
-    public TupleEvaluator( ISet<IRule> rules )
-    {
-        Rules = rules;
-    }
-
-    private ISet<IRule> Rules { get; }
+    private ISet<IRule> Rules { get; } = rules;
 
     private EvaluationContext Context => RuleThreadLocalStorage.CurrentContext;
 

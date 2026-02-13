@@ -24,20 +24,18 @@ SOFTWARE.
 
 using Pondhawk.Exceptions;
 
-namespace Pondhawk.Rules.Exceptions
+namespace Pondhawk.Rules.Exceptions;
+
+public sealed class EvaluationExhaustedException : FunctionalException
 {
 
-    public class EvaluationExhaustedException : FunctionalException
+    public EvaluationExhaustedException( EvaluationResults result ): base( "The current evaluation ended due to excessive duration or evaluation count. Check the results for circular rules. (FiredRules count very high)" )
     {
-
-        public EvaluationExhaustedException( EvaluationResults result ): base( "The current evaluation ended due to excessive duration or evaluation count. Check the results for circular rules. (FiredRules count very high)" )
-        {
-            Result = result;
-        }
-
-        public EvaluationResults Result { get; }
-
+        Result = result;
     }
 
+    public EvaluationResults Result { get; }
 
 }
+
+

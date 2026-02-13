@@ -24,19 +24,17 @@ SOFTWARE.
 
 using Pondhawk.Exceptions;
 
-namespace Pondhawk.Rules.Exceptions
+namespace Pondhawk.Rules.Exceptions;
+
+public sealed class NoRulesEvaluatedException : FunctionalException
 {
 
-    public class NoRulesEvaluatedException : FunctionalException
+    public NoRulesEvaluatedException( EvaluationResults result ) : base( "The current evaluation ended without evaluating any rules. (TotalEvaluated == 0)" )
     {
-
-        public NoRulesEvaluatedException( EvaluationResults result ) : base( "The current evaluation ended without evaluating any rules. (TotalEvaluated == 0)" )
-        {
-            Result = result;
-        }
-
-        public EvaluationResults Result { get; }
-
+        Result = result;
     }
 
+    public EvaluationResults Result { get; }
+
 }
+

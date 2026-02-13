@@ -25,17 +25,17 @@ SOFTWARE.
 
 namespace Pondhawk.Rules.Evaluation;
 
-public class FactSpace
+public sealed class FactSpace
 {
 
-    private IList<object> Facts { get; } = new List<object>();
-    private ISet<object> Guard { get; } = new HashSet<object>();
+    private List<object> Facts { get; } = [];
+    private HashSet<object> Guard { get; } = [];
 
-    private IDictionary<Type, Schema> SchemaMap { get; } = new Dictionary<Type, Schema>();
-    internal IList<Schema> Schema { get; } = new List<Schema>();
+    private Dictionary<Type, Schema> SchemaMap { get; } = new();
+    internal List<Schema> Schema { get; } = [];
 
     private int NextPosition { get; set; } = 1;
-    private IDictionary<int, int> SelectorMap { get; } = new Dictionary<int, int>();
+    private Dictionary<int, int> SelectorMap { get; } = new();
 
 
     internal int TypeCount => Schema.Count;

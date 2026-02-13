@@ -377,13 +377,13 @@ public class ValidationTests
     }
 
     [Fact]
-    public void DecimalValidator_IsGreaterThen_Above_Passes()
+    public void DecimalValidator_IsGreaterThan_Above_Passes()
     {
         var ruleSet = new RuleSet();
 
         ruleSet.AddValidation<Person>("salary-min")
             .Assert<decimal>(p => p.Salary)
-            .IsGreaterThen(0m);
+            .IsGreaterThan(0m);
 
         var person = new Person { Name = "Test", Salary = 50000m };
         var result = EvaluateSafe(ruleSet, person);

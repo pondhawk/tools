@@ -31,14 +31,14 @@ using Pondhawk.Utilities.Container;
 
 namespace Pondhawk.Rules.Factory;
 
-public class RuleSetFactory : IRequiresStart
+public sealed class RuleSetFactory : IRequiresStart
 {
 
 
     public IEvaluationContextFactory ContextFactory { get; set; }
     public IEvaluationListenerFactory ListenerFactory { get; set; }
 
-    private IDictionary<string, IEnumerable<string>> CompositeNamespaces { get; } = new Dictionary<string, IEnumerable<string>>();
+    private Dictionary<string, IEnumerable<string>> CompositeNamespaces { get; } = new();
 
     public void RegisterCompositeNamespace(string name, IEnumerable<string> namespaces)
     {
@@ -48,7 +48,7 @@ public class RuleSetFactory : IRequiresStart
 
 
 
-    private List<IRuleBuilderSource> Sources { get; } = new List<IRuleBuilderSource>();
+    private List<IRuleBuilderSource> Sources { get; } = [];
 
 
     public void AddAllSources(IEnumerable<IRuleBuilderSource> sources)
@@ -120,7 +120,7 @@ public class RuleSetFactory : IRequiresStart
     
     public IRuleSet GetRuleSet()
     {
-        var ruleSet = new FactoryRuleSetImpl(Tree, new HashSet<string>(), ContextFactory);
+        var ruleSet = new FactoryRuleSetImpl(Tree, [], ContextFactory);
         return ruleSet;
     }
 

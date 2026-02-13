@@ -26,8 +26,6 @@ SOFTWARE.
 using Humanizer;
 using JetBrains.Annotations;
 
-// ReSharper disable UnusedMember.Global
-
 namespace Pondhawk.Rules.Validators;
 
 [UsedImplicitly]
@@ -74,7 +72,7 @@ public static class DateTimeValidatorEx
         return v;
     }
 
-    public static IValidator<TFact, DateTime> IsGreaterThen<TFact>(this IValidator<TFact, DateTime> validator, DateTime test) where TFact : class
+    public static IValidator<TFact, DateTime> IsGreaterThan<TFact>(this IValidator<TFact, DateTime> validator, DateTime test) where TFact : class
     {
         var v = validator.Is((_, value) => value > test);
         var propName = validator.PropertyName.Humanize(LetterCasing.Title);
@@ -82,7 +80,7 @@ public static class DateTimeValidatorEx
         return v;
     }
 
-    public static IValidator<TFact, DateTime> IsGreaterThen<TFact>(this IValidator<TFact, DateTime> validator, Func<TFact, DateTime> extractor) where TFact : class
+    public static IValidator<TFact, DateTime> IsGreaterThan<TFact>(this IValidator<TFact, DateTime> validator, Func<TFact, DateTime> extractor) where TFact : class
     {
         var v = validator.Is((f, value) => value > extractor(f));
         var propName = validator.PropertyName.Humanize(LetterCasing.Title);
@@ -90,7 +88,7 @@ public static class DateTimeValidatorEx
         return v;
     }
 
-    public static IValidator<TFact, DateTime> IsLessThen<TFact>(this IValidator<TFact, DateTime> validator, DateTime test) where TFact : class
+    public static IValidator<TFact, DateTime> IsLessThan<TFact>(this IValidator<TFact, DateTime> validator, DateTime test) where TFact : class
     {
         var v = validator.Is((_, value) => value < test);
         var propName = validator.PropertyName.Humanize(LetterCasing.Title);
@@ -98,7 +96,7 @@ public static class DateTimeValidatorEx
         return v;
     }
 
-    public static IValidator<TFact, DateTime> IsLessThen<TFact>(this IValidator<TFact, DateTime> validator, Func<TFact, DateTime> extractor) where TFact : class
+    public static IValidator<TFact, DateTime> IsLessThan<TFact>(this IValidator<TFact, DateTime> validator, Func<TFact, DateTime> extractor) where TFact : class
     {
         var v = validator.Is((f, value) => value < extractor(f));
         var propName = validator.PropertyName.Humanize(LetterCasing.Title);

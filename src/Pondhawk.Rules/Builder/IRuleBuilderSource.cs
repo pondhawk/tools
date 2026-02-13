@@ -22,14 +22,12 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-namespace Pondhawk.Rules.Builder
+namespace Pondhawk.Rules.Builder;
+
+public interface IRuleBuilderSource
 {
-
-    public interface IRuleBuilderSource
-    {
-        IEnumerable<Type> GetTypes();
-
-    }
-
+    IEnumerable<Type> GetTypes();
 
 }
+
+

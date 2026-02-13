@@ -25,41 +25,30 @@ SOFTWARE.
 using Pondhawk.Rules.Evaluation;
 using Pondhawk.Rules.Tree;
 
-namespace Pondhawk.Rules.Builder
+namespace Pondhawk.Rules.Builder;
+
+internal class FactoryRuleSetImpl( IRuleBase ruleBase, IEnumerable<string> namespaces, IEvaluationContextFactory contextFactory ) : AbstractRuleSet
 {
+    private IRuleBase RuleBase { get; } = ruleBase;
 
-    internal class FactoryRuleSetImpl : AbstractRuleSet
+    internal IEnumerable<string> Namespaces { get; } = namespaces;
+
+    protected override IRuleBase GetRuleBase()
     {
-        internal FactoryRuleSetImpl( IRuleBase ruleBase, IEnumerable<string> namespaces, IEvaluationContextFactory contextFactory )
-        {
-            RuleBase = ruleBase;
-            Namespaces = namespaces;
-            ContextFactory = contextFactory;
-        }
-
-
-        private IRuleBase RuleBase { get;  }
-
-
-        internal IEnumerable<string> Namespaces { get;  }
-
-        protected override IRuleBase GetRuleBase()
-        {
-            return RuleBase;
-        }
-
-        protected override IEnumerable<string> GetNamespaces()
-        {
-            return Namespaces;
-        }
-
-
-        private IEvaluationContextFactory ContextFactory { get; }
-
-        public override EvaluationContext GetEvaluationContext()
-        {
-            return ContextFactory == null ? new EvaluationContext() : ContextFactory.CreateContext();
-        }
+        return RuleBase;
     }
 
+    protected override IEnumerable<string> GetNamespaces()
+    {
+        return Namespaces;
+    }
+
+
+    private IEvaluationContextFactory ContextFactory { get; } = contextFactory;
+
+    public override EvaluationContext GetEvaluationContext()
+    {
+        return ContextFactory == null ? new() : ContextFactory.CreateContext();
+    }
 }
+

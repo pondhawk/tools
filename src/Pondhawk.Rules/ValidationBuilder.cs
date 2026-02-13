@@ -3,8 +3,6 @@ using Pondhawk.Rules.Builder;
 using Pondhawk.Rules.Validators;
 using Pondhawk.Utilities.Types;
 
-// ReSharper disable UnusedMember.Global
-
 namespace Pondhawk.Rules;
 
 public abstract class ValidationBuilder<TFact>: AbstractRuleBuilder, IBuilder

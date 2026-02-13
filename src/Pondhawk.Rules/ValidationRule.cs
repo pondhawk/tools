@@ -23,6 +23,7 @@ SOFTWARE.
 */
 
 using System.Linq.Expressions;
+using CommunityToolkit.Diagnostics;
 using Pondhawk.Rules.Builder;
 using Pondhawk.Rules.Evaluation;
 using Pondhawk.Rules.Validators;
@@ -30,7 +31,6 @@ using Pondhawk.Utilities.Types;
 
 namespace Pondhawk.Rules;
 
-// ReSharper disable once UnusedTypeParameter
 public interface IValidationRule<out TFact>: IRule
 {
         
@@ -46,11 +46,11 @@ public class ValidationRule<TFact> : AbstractRule, IValidationRule<TFact>
 
         OnlyFiresOnce = true;
 
-        Predicates = new List<Func<TFact, bool>>();
+        Predicates = [];
     }
 
 
-    protected IList<Func<TFact, bool>> Predicates { get; private set; }
+    protected List<Func<TFact, bool>> Predicates { get; private set; }
     protected BaseValidator<TFact> TypeValidator { get; private set; }
 
     private Action<TFact> CascadeAction { get; set; }
@@ -66,8 +66,7 @@ public class ValidationRule<TFact> : AbstractRule, IValidationRule<TFact>
         
     public ValidationRule<TFact> InMutex( string name )
     {
-        if( string.IsNullOrWhiteSpace( name ) )
-            throw new ArgumentNullException( nameof( name ) );
+        Guard.IsNotNullOrWhiteSpace(name);
 
         Mutex = name;
         return this;
@@ -92,10 +91,9 @@ public class ValidationRule<TFact> : AbstractRule, IValidationRule<TFact>
         
     public ValidationRule<TFact> When( Func<TFact, bool> predicate )
     {
-        if( predicate == null )
-            throw new ArgumentNullException( nameof( predicate ) );
+        Guard.IsNotNull(predicate);
 
-        Predicates = new List<Func<TFact, bool>> {predicate};
+        Predicates = [predicate];
         return this;
     }
 
@@ -103,8 +101,7 @@ public class ValidationRule<TFact> : AbstractRule, IValidationRule<TFact>
         
     public ValidationRule<TFact> And( Func<TFact, bool> predicate )
     {
-        if (predicate == null)
-            throw new ArgumentNullException(nameof(predicate));
+        Guard.IsNotNull(predicate);
 
         Predicates.Add(predicate);
         return this;
@@ -115,9 +112,7 @@ public class ValidationRule<TFact> : AbstractRule, IValidationRule<TFact>
         
     public IValidator<TFact, TType> Assert<TType>( Expression<Func<TFact, TType>> extractorEx )
     {
-
-        if( extractorEx == null )
-            throw new ArgumentNullException( nameof( extractorEx ) );
+        Guard.IsNotNull(extractorEx);
 
         var factName = typeof(TFact).GetConciseName();
 
@@ -142,9 +137,7 @@ public class ValidationRule<TFact> : AbstractRule, IValidationRule<TFact>
 
     public EnumerableValidator<TFact, TType> AssertOver<TType>( Expression<Func<TFact, IEnumerable<TType>>> extractorEx )
     {
-
-        if( extractorEx == null )
-            throw new ArgumentNullException( nameof( extractorEx ) );
+        Guard.IsNotNull(extractorEx);
 
         var factName = typeof(TFact).Name;
 
@@ -170,8 +163,7 @@ public class ValidationRule<TFact> : AbstractRule, IValidationRule<TFact>
 
     public void Cascade<TRef>(  Func<TFact, TRef> extractor ) where TRef : class
     {
-        if( extractor == null )
-            throw new ArgumentNullException( nameof( extractor ) );
+        Guard.IsNotNull(extractor);
 
         CascadeAction = f => RuleThreadLocalStorage.CurrentContext.InsertFact( extractor( f ) );
     }
@@ -179,8 +171,7 @@ public class ValidationRule<TFact> : AbstractRule, IValidationRule<TFact>
 
     public void CascadeAll<TChild>(  Func<TFact, IEnumerable<TChild>> extractor ) where TChild : class
     {
-        if( extractor == null )
-            throw new ArgumentNullException( nameof( extractor ) );
+        Guard.IsNotNull(extractor);
 
         CascadeAction = f => _CascadeCollection( extractor( f ) );
     }

@@ -26,24 +26,13 @@ using Pondhawk.Rules.Evaluation;
 
 namespace Pondhawk.Rules.Builder;
 
-internal class SubRule<TParent,TFact>: IRule
+internal class SubRule<TParent,TFact>( IEnumerable<TFact> facts, Action<TFact> consequence, TParent parent, Func<TParent,object> modifyFunc ) : IRule
 {
+    private IEnumerable<TFact> Facts { get; } = facts;
+    private Action<TFact> Consequence { get; } = consequence;
 
-    public SubRule( IEnumerable<TFact> facts, Action<TFact> consequence, TParent parent, Func<TParent,object> modifyFunc  )
-    {
-        Facts = facts;
-        Consequence = consequence;
-
-        Parent = parent;
-        ModifyFunc = modifyFunc;
-
-    }
-
-    private IEnumerable<TFact> Facts { get;}
-    private Action<TFact> Consequence { get;}
-
-    private TParent Parent { get; }
-    private Func<TParent, object> ModifyFunc { get;}
+    private TParent Parent { get; } = parent;
+    private Func<TParent, object> ModifyFunc { get; } = modifyFunc;
 
     public string Namespace { get; set; }
     public string Name { get; set; }
@@ -68,12 +57,12 @@ internal class SubRule<TParent,TFact>: IRule
         if (ModifyFunc != null)
         {
             var modified = ModifyFunc( Parent );
-            if( modified is Array )
+            if( modified is Array arr )
             {
-                foreach (var o in (modified as Array))
+                foreach (var o in arr)
                     RuleThreadLocalStorage.CurrentContext.ModifyFact( o );
             }
-            else if ((modified != null))
+            else if (modified != null)
                 RuleThreadLocalStorage.CurrentContext.ModifyFact( modified );
         }
 

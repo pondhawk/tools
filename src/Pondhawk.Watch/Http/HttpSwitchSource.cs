@@ -74,8 +74,9 @@ public class HttpSwitchSource : SwitchSource, IAsyncDisposable
     /// </summary>
     /// <remarks>
     /// This method is idempotent - calling it multiple times has no additional effect.
+    /// The initial fetch is performed asynchronously in the poll loop.
     /// </remarks>
-    public override async Task StartAsync(CancellationToken ct = default)
+    public override void Start()
     {
         lock (_startLock)
         {
@@ -84,33 +85,15 @@ public class HttpSwitchSource : SwitchSource, IAsyncDisposable
             _started = true;
         }
 
-        // Do initial fetch
-        await UpdateAsync(ct);
-
-        // Start background polling if enabled
-        if (PollingEnabled)
-        {
-            _pollTask = Task.Run(() => PollLoopAsync(_cts.Token), ct);
-        }
+        _pollTask = Task.Run(() => PollLoopAsync(_cts.Token));
     }
 
     /// <summary>
     /// Stops polling.
     /// </summary>
-    public override async Task StopAsync(CancellationToken ct = default)
+    public override void Stop()
     {
         _cts.Cancel();
-        if (_pollTask is not null)
-        {
-            try
-            {
-                await _pollTask;
-            }
-            catch (OperationCanceledException)
-            {
-                // Expected on shutdown
-            }
-        }
     }
 
     /// <summary>
@@ -146,6 +129,12 @@ public class HttpSwitchSource : SwitchSource, IAsyncDisposable
 
     private async Task PollLoopAsync(CancellationToken ct)
     {
+        // Initial fetch (primer)
+        await UpdateAsync(ct);
+
+        if (!PollingEnabled)
+            return;
+
         while (!ct.IsCancellationRequested)
         {
             try
@@ -169,7 +158,20 @@ public class HttpSwitchSource : SwitchSource, IAsyncDisposable
     /// </summary>
     public async ValueTask DisposeAsync()
     {
-        await StopAsync();
+        Stop();
+
+        if (_pollTask is not null)
+        {
+            try
+            {
+                await _pollTask;
+            }
+            catch (OperationCanceledException)
+            {
+                // Expected on shutdown
+            }
+        }
+
         _cts.Dispose();
     }
 }

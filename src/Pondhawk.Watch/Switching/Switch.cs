@@ -35,7 +35,7 @@ namespace Pondhawk.Watch.Switching;
 /// Switch instances are immutable after construction via the fluent API.
 /// They are safe to cache and share across threads.
 /// </remarks>
-public class Switch : ISwitch
+public class Switch
 {
     /// <summary>
     /// Creates a new Switch instance with default values.

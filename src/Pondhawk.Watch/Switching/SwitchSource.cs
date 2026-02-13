@@ -47,7 +47,7 @@ namespace Pondhawk.Watch.Switching;
 /// is released to ensure readers see a consistent state.
 /// </para>
 /// </remarks>
-public class SwitchSource : ISwitchSource
+public class SwitchSource
 {
     private long _version;
     private readonly ReaderWriterLockSlim _switchLock = new();
@@ -60,12 +60,12 @@ public class SwitchSource : ISwitchSource
     /// <summary>
     /// Gets or sets the default switch used when no pattern matches.
     /// </summary>
-    public ISwitch DefaultSwitch { get; set; } = new Switch { Level = LogEventLevel.Error, Color = Color.LightGray };
+    public Switch DefaultSwitch { get; set; } = new Switch { Level = LogEventLevel.Error, Color = Color.LightGray };
 
     /// <summary>
     /// Gets or sets the debug switch for explicit debug logging.
     /// </summary>
-    public ISwitch DebugSwitch { get; set; } = new Switch { Level = LogEventLevel.Debug, Color = Color.PapayaWhip };
+    public Switch DebugSwitch { get; set; } = new Switch { Level = LogEventLevel.Debug, Color = Color.PapayaWhip };
 
     /// <summary>
     /// Gets the ordered list of patterns (longest first).
@@ -75,7 +75,7 @@ public class SwitchSource : ISwitchSource
     /// <summary>
     /// Gets the dictionary of switches keyed by pattern.
     /// </summary>
-    protected IDictionary<string, ISwitch> Switches { get; set; } = new ConcurrentDictionary<string, ISwitch>();
+    protected IDictionary<string, Switch> Switches { get; set; } = new ConcurrentDictionary<string, Switch>();
 
     /// <summary>
     /// Gets the current switch definitions.
@@ -166,19 +166,17 @@ public class SwitchSource : ISwitchSource
     }
 
     /// <summary>
-    /// Starts the switch source. Override for async initialization.
+    /// Starts the switch source. Override for initialization.
     /// </summary>
-    public virtual Task StartAsync(CancellationToken ct = default)
+    public virtual void Start()
     {
-        return Task.CompletedTask;
     }
 
     /// <summary>
-    /// Stops the switch source. Override for async cleanup.
+    /// Stops the switch source. Override for cleanup.
     /// </summary>
-    public virtual Task StopAsync(CancellationToken ct = default)
+    public virtual void Stop()
     {
-        return Task.CompletedTask;
     }
 
     /// <summary>
@@ -187,7 +185,7 @@ public class SwitchSource : ISwitchSource
     /// <param name="category">The logger category to match.</param>
     /// <returns>The matching switch or DefaultSwitch.</returns>
     /// <exception cref="ArgumentException">When category is null or whitespace.</exception>
-    public virtual ISwitch Lookup(string category)
+    public virtual Switch Lookup(string category)
     {
         if (string.IsNullOrWhiteSpace(category))
             throw new ArgumentException("Value cannot be null or whitespace.", nameof(category));
@@ -228,12 +226,12 @@ public class SwitchSource : ISwitchSource
     /// <summary>
     /// Gets the default switch.
     /// </summary>
-    public ISwitch GetDefaultSwitch() => DefaultSwitch;
+    public Switch GetDefaultSwitch() => DefaultSwitch;
 
     /// <summary>
     /// Gets the debug switch.
     /// </summary>
-    public ISwitch GetDebugSwitch() => DebugSwitch;
+    public Switch GetDebugSwitch() => DebugSwitch;
 
     /// <summary>
     /// Asynchronously updates switches from the underlying source.
@@ -256,7 +254,7 @@ public class SwitchSource : ISwitchSource
     {
         ArgumentNullException.ThrowIfNull(switchSource);
 
-        var switches = new ConcurrentDictionary<string, ISwitch>();
+        var switches = new ConcurrentDictionary<string, Switch>();
         var pKeys = new List<string>();
 
         foreach (var def in switchSource.Where(s => !s.IsQuiet))
@@ -298,7 +296,7 @@ public class SwitchSource : ISwitchSource
     /// </summary>
     /// <param name="category">The category to match.</param>
     /// <returns>The matching switch or null.</returns>
-    private ISwitch? FindMatchingSwitch(string category)
+    private Switch? FindMatchingSwitch(string category)
     {
         if (Patterns.Count == 0)
             return null;

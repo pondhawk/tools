@@ -1,4 +1,5 @@
 using Pondhawk.Logging;
+using Pondhawk.Watch.Switching;
 using Serilog;
 using Serilog.Configuration;
 using Serilog.Events;
@@ -14,7 +15,7 @@ public static class WatchSinkExtensions
     /// Adds a Watch sink to the Serilog configuration with Channel-based batching.
     /// </summary>
     /// <param name="config">The Serilog sink configuration.</param>
-    /// <param name="sink">The Watch event sink provider.</param>
+    /// <param name="httpClient">The HTTP client configured for the Watch Server.</param>
     /// <param name="switchSource">The switch source for log level control.</param>
     /// <param name="domain">The domain name for log event batches.</param>
     /// <param name="batchSize">The batch size before flushing.</param>
@@ -22,14 +23,14 @@ public static class WatchSinkExtensions
     /// <returns>The logger configuration for chaining.</returns>
     public static LoggerConfiguration WatchSink(
         this LoggerSinkConfiguration config,
-        IEventSinkProvider sink,
-        ISwitchSource switchSource,
+        HttpClient httpClient,
+        SwitchSource switchSource,
         string domain = "Default",
         int batchSize = 100,
         TimeSpan? flushInterval = null)
     {
         ArgumentNullException.ThrowIfNull(config);
-        ArgumentNullException.ThrowIfNull(sink);
+        ArgumentNullException.ThrowIfNull(httpClient);
         ArgumentNullException.ThrowIfNull(switchSource);
 
         WatchSwitchConfig.IsEnabledFunc = (category, serilogLevel) =>
@@ -43,10 +44,9 @@ public static class WatchSinkExtensions
 
         SerilogExtensions.Default = new LoggerSource();
 
-        switchSource.StartAsync().GetAwaiter().GetResult();
-        sink.StartAsync().GetAwaiter().GetResult();
+        switchSource.Start();
 
-        var watchSink = new WatchSink(sink, switchSource, domain, batchSize, flushInterval);
+        var watchSink = new WatchSink(httpClient, switchSource, domain, batchSize, flushInterval);
 
         return config.Sink(watchSink);
     }

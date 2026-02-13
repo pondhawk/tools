@@ -1,7 +1,11 @@
+using System.Collections.Concurrent;
 using System.Diagnostics;
+using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Threading.Channels;
 using Pondhawk.Logging;
+using Pondhawk.Watch.Sink;
+using Pondhawk.Watch.Switching;
 using Serilog.Core;
 using Serilog.Events;
 using SerilogEvent = Serilog.Events.LogEvent;
@@ -9,23 +13,24 @@ using SerilogEvent = Serilog.Events.LogEvent;
 namespace Pondhawk.Watch;
 
 /// <summary>
-/// Serilog ILogEventSink with Channel-based batching for the Watch pipeline.
+/// Serilog ILogEventSink with Channel-based batching, HTTP posting, and circuit breaker
+/// for the Watch pipeline.
 /// </summary>
 /// <remarks>
 /// <para>
-/// Combines Channel-based batching (from WatchLoggerProvider) with
-/// Serilog-to-Watch event mapping (from WatchBatchedSink).
+/// Combines Channel-based batching with Serilog-to-Watch event mapping and
+/// HTTP posting with circuit breaker resilience.
 /// </para>
 /// <para>
 /// Emit() is non-blocking: events are written to an unbounded channel.
 /// A background task drains the channel by batch size or flush interval
-/// and sends converted Watch LogEvents to the sink provider.
+/// and sends converted Watch LogEvents to the Watch Server.
 /// </para>
 /// </remarks>
 public sealed class WatchSink : ILogEventSink, IDisposable, IAsyncDisposable
 {
-    private readonly IEventSinkProvider _sink;
-    private readonly ISwitchSource _switchSource;
+    private readonly HttpClient _client;
+    private readonly SwitchSource _switchSource;
     private readonly string _domain;
     private readonly int _batchSize;
     private readonly TimeSpan _flushInterval;
@@ -35,14 +40,67 @@ public sealed class WatchSink : ILogEventSink, IDisposable, IAsyncDisposable
     private readonly TaskCompletionSource _flushCompleted = new(TaskCreationOptions.RunContinuationsAsynchronously);
     private bool _disposed;
 
+    // Circuit breaker state
+    private int _consecutiveFailures;
+    private DateTime _circuitOpenUntil = DateTime.MinValue;
+    private readonly object _circuitLock = new();
+
+    // Critical event buffer
+    private readonly ConcurrentQueue<LogEvent> _criticalBuffer = new();
+    private long _droppedEventCount;
+
+    /// <summary>
+    /// Gets or sets the failure threshold before the circuit opens.
+    /// </summary>
+    public int FailureThreshold { get; set; } = 3;
+
+    /// <summary>
+    /// Gets or sets the base delay before retrying after circuit opens.
+    /// </summary>
+    public TimeSpan BaseRetryDelay { get; set; } = TimeSpan.FromSeconds(5);
+
+    /// <summary>
+    /// Gets or sets the maximum retry delay.
+    /// </summary>
+    public TimeSpan MaxRetryDelay { get; set; } = TimeSpan.FromMinutes(2);
+
+    /// <summary>
+    /// Gets or sets the maximum number of critical events to buffer during outage.
+    /// </summary>
+    public int MaxCriticalBufferSize { get; set; } = 1000;
+
+    /// <summary>
+    /// Gets the current circuit state.
+    /// </summary>
+    public bool IsCircuitOpen
+    {
+        get
+        {
+            lock (_circuitLock)
+            {
+                return _circuitOpenUntil > DateTime.UtcNow;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Gets the number of events currently in the critical buffer.
+    /// </summary>
+    public int CriticalBufferCount => _criticalBuffer.Count;
+
+    /// <summary>
+    /// Gets the total number of events dropped due to buffer overflow.
+    /// </summary>
+    public long DroppedEventCount => Interlocked.Read(ref _droppedEventCount);
+
     public WatchSink(
-        IEventSinkProvider sink,
-        ISwitchSource switchSource,
+        HttpClient client,
+        SwitchSource switchSource,
         string domain = "Default",
         int batchSize = 100,
         TimeSpan? flushInterval = null)
     {
-        _sink = sink ?? throw new ArgumentNullException(nameof(sink));
+        _client = client ?? throw new ArgumentNullException(nameof(client));
         _switchSource = switchSource ?? throw new ArgumentNullException(nameof(switchSource));
         _domain = domain ?? throw new ArgumentNullException(nameof(domain));
         _batchSize = batchSize;
@@ -115,7 +173,7 @@ public sealed class WatchSink : ILogEventSink, IDisposable, IAsyncDisposable
         }
     }
 
-    private async Task FlushBatchAsync(List<SerilogEvent> events)
+    internal async Task FlushBatchAsync(List<SerilogEvent> events)
     {
         var watchBatch = new LogEventBatch { Domain = _domain };
 
@@ -128,14 +186,99 @@ public sealed class WatchSink : ILogEventSink, IDisposable, IAsyncDisposable
 
         if (watchBatch.Events.Count > 0)
         {
-            try
+            await SendBatchAsync(watchBatch);
+        }
+    }
+
+    private async Task SendBatchAsync(LogEventBatch batch)
+    {
+        // Check circuit state
+        if (IsCircuitOpen)
+        {
+            BufferCriticalEvents(batch);
+            return;
+        }
+
+        try
+        {
+            // Add any buffered critical events to this batch
+            FlushCriticalBuffer(batch);
+
+            await using var stream = await LogEventBatchSerializer.ToStream(batch);
+
+            using var content = new StreamContent(stream);
+            content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
+            content.Headers.Add("X-Domain", _domain);
+
+            var response = await _client.PostAsync("api/sink", content, CancellationToken.None);
+            response.EnsureSuccessStatusCode();
+
+            OnSuccess();
+        }
+        catch
+        {
+            OnFailure(batch);
+        }
+    }
+
+    private void OnSuccess()
+    {
+        lock (_circuitLock)
+        {
+            _consecutiveFailures = 0;
+            _circuitOpenUntil = DateTime.MinValue;
+        }
+    }
+
+    private void OnFailure(LogEventBatch batch)
+    {
+        lock (_circuitLock)
+        {
+            _consecutiveFailures++;
+
+            if (_consecutiveFailures >= FailureThreshold)
             {
-                await _sink.Accept(watchBatch, CancellationToken.None);
+                // Calculate delay with exponential backoff
+                var backoffFactor = Math.Pow(2, _consecutiveFailures - FailureThreshold);
+                var delay = TimeSpan.FromTicks((long)(BaseRetryDelay.Ticks * backoffFactor));
+
+                if (delay > MaxRetryDelay)
+                    delay = MaxRetryDelay;
+
+                _circuitOpenUntil = DateTime.UtcNow.Add(delay);
             }
-            catch
+        }
+
+        // Buffer critical events from the failed batch
+        BufferCriticalEvents(batch);
+    }
+
+    private void BufferCriticalEvents(LogEventBatch batch)
+    {
+        foreach (var e in batch.Events)
+        {
+            // Buffer Warning and Error level events
+            if (e.Level >= (int)LogEventLevel.Warning)
             {
-                // Sink failures are handled by the sink itself (circuit breaker, etc.)
+                // Enforce max buffer size - track dropped events
+                while (_criticalBuffer.Count >= MaxCriticalBufferSize)
+                {
+                    if (_criticalBuffer.TryDequeue(out _))
+                    {
+                        Interlocked.Increment(ref _droppedEventCount);
+                    }
+                }
+
+                _criticalBuffer.Enqueue(e);
             }
+        }
+    }
+
+    private void FlushCriticalBuffer(LogEventBatch batch)
+    {
+        while (_criticalBuffer.TryDequeue(out var e))
+        {
+            batch.Events.Insert(0, e);
         }
     }
 
@@ -280,23 +423,7 @@ public sealed class WatchSink : ILogEventSink, IDisposable, IAsyncDisposable
             // Ignore exceptions during disposal
         }
 
-        try
-        {
-            _sink.StopAsync().GetAwaiter().GetResult();
-        }
-        catch
-        {
-            // Ignore exceptions during sink stop
-        }
-
-        try
-        {
-            _switchSource.StopAsync().GetAwaiter().GetResult();
-        }
-        catch
-        {
-            // Ignore exceptions during switch source stop
-        }
+        _switchSource.Stop();
     }
 
     public async ValueTask DisposeAsync()
@@ -317,22 +444,6 @@ public sealed class WatchSink : ILogEventSink, IDisposable, IAsyncDisposable
             // Ignore exceptions during disposal (including timeout)
         }
 
-        try
-        {
-            await _sink.StopAsync();
-        }
-        catch
-        {
-            // Ignore exceptions during sink stop
-        }
-
-        try
-        {
-            await _switchSource.StopAsync();
-        }
-        catch
-        {
-            // Ignore exceptions during switch source stop
-        }
+        _switchSource.Stop();
     }
 }

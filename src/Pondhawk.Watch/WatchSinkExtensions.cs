@@ -1,5 +1,4 @@
 using Pondhawk.Logging;
-using Pondhawk.Watch.Switching;
 using Serilog;
 using Serilog.Configuration;
 using Serilog.Events;

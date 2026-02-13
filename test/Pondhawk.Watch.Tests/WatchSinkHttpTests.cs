@@ -1,5 +1,4 @@
 using System.Net;
-using Pondhawk.Watch.Switching;
 using Pondhawk.Watch.Tests.Http;
 using Serilog.Events;
 using Shouldly;

@@ -25,7 +25,6 @@ SOFTWARE.
 using System.Drawing;
 using System.Net.Http.Json;
 using Serilog.Events;
-using Pondhawk.Watch.Switching;
 
 namespace Pondhawk.Watch;
 

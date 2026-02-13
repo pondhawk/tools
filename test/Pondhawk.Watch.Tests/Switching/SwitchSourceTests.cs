@@ -1,5 +1,4 @@
 using System.Drawing;
-using Pondhawk.Watch.Switching;
 using Serilog.Events;
 using Shouldly;
 using Xunit;

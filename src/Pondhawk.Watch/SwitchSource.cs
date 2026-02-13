@@ -30,7 +30,7 @@ using Serilog.Events;
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable UnusedMethodReturnValue.Global
 
-namespace Pondhawk.Watch.Switching;
+namespace Pondhawk.Watch;
 
 /// <summary>
 /// Provides pattern-based switch lookup with version-based cache invalidation.

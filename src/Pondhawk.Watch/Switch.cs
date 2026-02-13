@@ -26,7 +26,7 @@ SOFTWARE.
 using System.Drawing;
 using Serilog.Events;
 
-namespace Pondhawk.Watch.Switching;
+namespace Pondhawk.Watch;
 
 /// <summary>
 /// Default implementation of ISwitch with fluent configuration API.

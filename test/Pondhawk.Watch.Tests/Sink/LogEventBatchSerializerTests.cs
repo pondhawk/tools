@@ -1,7 +1,7 @@
 using Shouldly;
 using Xunit;
 
-namespace Pondhawk.Watch.Tests.Sink;
+namespace Pondhawk.Watch.Tests;
 
 public class LogEventBatchSerializerTests
 {

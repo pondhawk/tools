@@ -9,7 +9,7 @@ using Xunit;
 
 namespace Pondhawk.Watch.Tests.Http;
 
-public class HttpSwitchSourceTests
+public class WatchSwitchSourceTests
 {
 
     private static HttpClient CreateClient(MockHttpHandler handler)
@@ -29,7 +29,7 @@ public class HttpSwitchSourceTests
     [Fact]
     public void Constructor_NullClient_Throws()
     {
-        Should.Throw<ArgumentNullException>(() => new HttpSwitchSource(null, "domain"));
+        Should.Throw<ArgumentNullException>(() => new WatchSwitchSource(null, "domain"));
     }
 
     [Fact]
@@ -38,7 +38,7 @@ public class HttpSwitchSourceTests
         var handler = new MockHttpHandler();
         var client = CreateClient(handler);
 
-        Should.Throw<ArgumentNullException>(() => new HttpSwitchSource(client, null));
+        Should.Throw<ArgumentNullException>(() => new WatchSwitchSource(client, null));
     }
 
     // --- Defaults ---
@@ -47,7 +47,7 @@ public class HttpSwitchSourceTests
     public void PollingEnabled_DefaultsToTrue()
     {
         var handler = new MockHttpHandler();
-        var source = new HttpSwitchSource(CreateClient(handler), "test");
+        var source = new WatchSwitchSource(CreateClient(handler), "test");
 
         source.PollingEnabled.ShouldBeTrue();
     }
@@ -56,7 +56,7 @@ public class HttpSwitchSourceTests
     public void InheritsSwitchSource_DefaultVersion()
     {
         var handler = new MockHttpHandler();
-        var source = new HttpSwitchSource(CreateClient(handler), "test");
+        var source = new WatchSwitchSource(CreateClient(handler), "test");
 
         source.Version.ShouldBe(0);
     }
@@ -71,7 +71,7 @@ public class HttpSwitchSourceTests
             new SwitchDto { Pattern = "MyApp", Tag = "app", Level = (int)LogEventLevel.Debug, Color = System.Drawing.Color.Green.ToArgb() }
         ));
 
-        var source = new HttpSwitchSource(CreateClient(handler), "my-domain");
+        var source = new WatchSwitchSource(CreateClient(handler), "my-domain");
 
         await source.UpdateAsync();
 
@@ -88,7 +88,7 @@ public class HttpSwitchSourceTests
             new SwitchDto { Pattern = "MyApp.Services", Tag = "svc", Level = (int)LogEventLevel.Debug, Color = System.Drawing.Color.Blue.ToArgb() }
         ));
 
-        var source = new HttpSwitchSource(CreateClient(handler), "test");
+        var source = new WatchSwitchSource(CreateClient(handler), "test");
 
         await source.UpdateAsync();
 
@@ -108,7 +108,7 @@ public class HttpSwitchSourceTests
             new SwitchDto { Pattern = "MyApp.Data", Level = (int)LogEventLevel.Debug, Color = 0 }
         ));
 
-        var source = new HttpSwitchSource(CreateClient(handler), "test");
+        var source = new WatchSwitchSource(CreateClient(handler), "test");
 
         await source.UpdateAsync();
 
@@ -125,7 +125,7 @@ public class HttpSwitchSourceTests
             new SwitchDto { Pattern = "Quiet", Level = 999, Color = 0 }
         ));
 
-        var source = new HttpSwitchSource(CreateClient(handler), "test");
+        var source = new WatchSwitchSource(CreateClient(handler), "test");
 
         await source.UpdateAsync();
 
@@ -141,7 +141,7 @@ public class HttpSwitchSourceTests
             new SwitchDto { Pattern = "P1", Level = 0, Color = 0 }
         ));
 
-        var source = new HttpSwitchSource(CreateClient(handler), "test");
+        var source = new WatchSwitchSource(CreateClient(handler), "test");
         source.Version.ShouldBe(0);
 
         await source.UpdateAsync();
@@ -157,7 +157,7 @@ public class HttpSwitchSourceTests
         var handler = new MockHttpHandler();
         handler.RespondWith(HttpStatusCode.InternalServerError);
 
-        var source = new HttpSwitchSource(CreateClient(handler), "test");
+        var source = new WatchSwitchSource(CreateClient(handler), "test");
 
         // Should silently swallow the error
         await source.UpdateAsync();
@@ -169,7 +169,7 @@ public class HttpSwitchSourceTests
         var handler = new MockHttpHandler();
         handler.ThrowOnSend(new HttpRequestException("connection refused"));
 
-        var source = new HttpSwitchSource(CreateClient(handler), "test");
+        var source = new WatchSwitchSource(CreateClient(handler), "test");
 
         // Should silently swallow the error
         await source.UpdateAsync();
@@ -182,7 +182,7 @@ public class HttpSwitchSourceTests
         var json = JsonSerializer.Serialize(new { Switches = (object)null });
         handler.RespondWith(HttpStatusCode.OK, new StringContent(json, Encoding.UTF8, "application/json"));
 
-        var source = new HttpSwitchSource(CreateClient(handler), "test");
+        var source = new WatchSwitchSource(CreateClient(handler), "test");
 
         await source.UpdateAsync();
         source.Version.ShouldBe(0); // No update occurred
@@ -196,7 +196,7 @@ public class HttpSwitchSourceTests
             new SwitchDto { Pattern = "Existing", Level = (int)LogEventLevel.Debug, Color = 0 }
         ));
 
-        var source = new HttpSwitchSource(CreateClient(handler), "test");
+        var source = new WatchSwitchSource(CreateClient(handler), "test");
         await source.UpdateAsync();
 
         source.Lookup("Existing.Sub").Level.ShouldBe(LogEventLevel.Debug);
@@ -219,7 +219,7 @@ public class HttpSwitchSourceTests
             new SwitchDto { Pattern = "App", Level = (int)LogEventLevel.Information, Color = 0 }
         ));
 
-        await using var source = new HttpSwitchSource(CreateClient(handler), "test")
+        await using var source = new WatchSwitchSource(CreateClient(handler), "test")
         {
             PollingEnabled = false // disable polling to avoid background tasks
         };
@@ -239,7 +239,7 @@ public class HttpSwitchSourceTests
         var handler = new MockHttpHandler();
         handler.RespondWith(HttpStatusCode.OK, CreateSwitchesJson());
 
-        await using var source = new HttpSwitchSource(CreateClient(handler), "test")
+        await using var source = new WatchSwitchSource(CreateClient(handler), "test")
         {
             PollingEnabled = false
         };
@@ -261,7 +261,7 @@ public class HttpSwitchSourceTests
         var handler = new MockHttpHandler();
         handler.RespondWith(HttpStatusCode.OK, CreateSwitchesJson());
 
-        await using var source = new HttpSwitchSource(CreateClient(handler), "test", TimeSpan.FromMilliseconds(50))
+        await using var source = new WatchSwitchSource(CreateClient(handler), "test", TimeSpan.FromMilliseconds(50))
         {
             PollingEnabled = true
         };
@@ -283,7 +283,7 @@ public class HttpSwitchSourceTests
         var handler = new MockHttpHandler();
         handler.RespondWith(HttpStatusCode.OK, CreateSwitchesJson());
 
-        await using var source = new HttpSwitchSource(CreateClient(handler), "test", TimeSpan.FromMilliseconds(50))
+        await using var source = new WatchSwitchSource(CreateClient(handler), "test", TimeSpan.FromMilliseconds(50))
         {
             PollingEnabled = true
         };
@@ -306,7 +306,7 @@ public class HttpSwitchSourceTests
     public void Stop_WithoutStart_DoesNotThrow()
     {
         var handler = new MockHttpHandler();
-        var source = new HttpSwitchSource(CreateClient(handler), "test");
+        var source = new WatchSwitchSource(CreateClient(handler), "test");
 
         source.Stop();
     }
@@ -319,7 +319,7 @@ public class HttpSwitchSourceTests
         var handler = new MockHttpHandler();
         handler.RespondWith(HttpStatusCode.OK, CreateSwitchesJson());
 
-        var source = new HttpSwitchSource(CreateClient(handler), "test", TimeSpan.FromMilliseconds(50))
+        var source = new WatchSwitchSource(CreateClient(handler), "test", TimeSpan.FromMilliseconds(50))
         {
             PollingEnabled = true
         };
@@ -336,7 +336,7 @@ public class HttpSwitchSourceTests
     [Fact]
     public async Task DisposeAsync_WithoutStart_DoesNotThrow()
     {
-        var source = new HttpSwitchSource(CreateClient(new MockHttpHandler()), "test");
+        var source = new WatchSwitchSource(CreateClient(new MockHttpHandler()), "test");
 
         await source.DisposeAsync();
     }
@@ -349,7 +349,7 @@ public class HttpSwitchSourceTests
         var handler = new MockHttpHandler();
         handler.RespondWith(HttpStatusCode.OK, CreateSwitchesJson());
 
-        var source = new HttpSwitchSource(CreateClient(handler), "my domain/special");
+        var source = new WatchSwitchSource(CreateClient(handler), "my domain/special");
 
         await source.UpdateAsync();
 

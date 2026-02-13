@@ -235,7 +235,7 @@ public class SwitchSource
 
     /// <summary>
     /// Asynchronously updates switches from the underlying source.
-    /// Override in derived classes (e.g., HttpSwitchSource) to fetch from remote.
+    /// Override in derived classes (e.g., WatchSwitchSource) to fetch from remote.
     /// </summary>
     public virtual Task UpdateAsync(CancellationToken ct = default)
     {

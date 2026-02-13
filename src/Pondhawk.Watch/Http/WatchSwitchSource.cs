@@ -41,7 +41,7 @@ namespace Pondhawk.Watch.Http;
 /// Thread-safety: All operations are thread-safe. Polling runs on a background task.
 /// </para>
 /// </remarks>
-public class HttpSwitchSource : SwitchSource, IAsyncDisposable
+public class WatchSwitchSource : SwitchSource, IAsyncDisposable
 {
     private readonly HttpClient _client;
     private readonly string _domain;
@@ -57,12 +57,12 @@ public class HttpSwitchSource : SwitchSource, IAsyncDisposable
     public bool PollingEnabled { get; set; } = true;
 
     /// <summary>
-    /// Creates a new HttpSwitchSource.
+    /// Creates a new WatchSwitchSource.
     /// </summary>
     /// <param name="client">The HTTP client to use for requests.</param>
     /// <param name="domain">The domain name to fetch switches for.</param>
     /// <param name="pollInterval">The interval between polls. Default is 30 seconds.</param>
-    public HttpSwitchSource(HttpClient client, string domain, TimeSpan? pollInterval = null)
+    public WatchSwitchSource(HttpClient client, string domain, TimeSpan? pollInterval = null)
     {
         _client = client ?? throw new ArgumentNullException(nameof(client));
         _domain = domain ?? throw new ArgumentNullException(nameof(domain));

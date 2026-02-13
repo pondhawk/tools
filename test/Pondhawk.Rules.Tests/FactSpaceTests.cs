@@ -125,7 +125,7 @@ public class FactSpaceTests
 
         var tuple = space.GetTuple([999]);
 
-        tuple.Length.ShouldBe(0);
+        tuple.ShouldBeNull();
     }
 
 
@@ -173,8 +173,8 @@ public class FactSpaceTests
         // Retract it
         space.RetractFact(1);
 
-        // Now GetTuple should return empty since selector 1 is removed
-        space.GetTuple([1]).Length.ShouldBe(0);
+        // Now GetTuple should return null since selector 1 is removed
+        space.GetTuple([1]).ShouldBeNull();
     }
 
     [Fact]
@@ -192,7 +192,7 @@ public class FactSpaceTests
         space.ModifyFact(1);
 
         // Old selector should no longer work
-        space.GetTuple([1]).Length.ShouldBe(0);
+        space.GetTuple([1]).ShouldBeNull();
 
         // New selector (2) should point to the same fact
         space.GetTuple([2])[0].ShouldBe(person);

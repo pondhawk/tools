@@ -94,11 +94,9 @@ public abstract class AbstractEvaluator : IEvaluator
                     object[] currentTuple = context.Space.GetTuple( selectorIndices );
 
 
-                    // If space returns an empty tuple
-                    // it signals that the given step
-                    // was eliminated by modification
-                    // so skip it
-                    if( currentTuple.Length == 0 )
+                    // If space returns null the given step
+                    // was eliminated by modification so skip it
+                    if( currentTuple is null )
                         continue;
 
 

@@ -126,11 +126,17 @@ internal class TupleEvaluator( ISet<IRule> rules )
     }
 
 
-        
-    private IEnumerable<IRule> _GetFireableRules( object[] facts )
+    private List<IRule> _GetFireableRules( object[] facts )
     {
-        IEnumerable<IRule> rules = Rules.Select( r => _Filter( r, facts ) ).Where( r => r is not null ).OrderBy( r => r.Salience );
-        return rules;
+        var fireable = new List<IRule>( Rules.Count );
+        foreach( var rule in Rules )
+        {
+            var filtered = _Filter( rule, facts );
+            if( filtered is not null )
+                fireable.Add( filtered );
+        }
+        fireable.Sort( static (a, b) => a.Salience.CompareTo( b.Salience ) );
+        return fireable;
     }
 
     private IRule _Filter(  IRule rule, object[] facts )

@@ -46,17 +46,12 @@ internal sealed class RuleNode
 
     public HashSet<IRule> Rules => _rules ??= [];
 
-    public bool HasRules(  IEnumerable<string> namespaces )
+    public bool HasRules( List<string> namespaces )
     {
-        Guard.IsNotNull(namespaces);
-
         if( !_hasRules )
             return false;
 
-        var ns = namespaces.ToList();
-
-        return ns.Count == 0 || ns.Any( n => _namespaces.Contains( n ) );
-
+        return namespaces.Count == 0 || namespaces.Exists( n => _namespaces.Contains( n ) );
     }
 
     public void AddRules(  IEnumerable<IRule> source )

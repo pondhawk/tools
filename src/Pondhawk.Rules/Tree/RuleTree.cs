@@ -47,11 +47,11 @@ public sealed class RuleTree : IRuleBase, IRuleSink
         Guard.IsNotNull(namespaces);
 
         RootMap.TryGetValue( factTypes.Length, out var targetRoot );
-        if( targetRoot == null )
+        if( targetRoot is null )
             return false;
 
-        return targetRoot.HasRules( factTypes, namespaces );
-
+        var ns = namespaces as List<string> ?? namespaces.ToList();
+        return targetRoot.HasRules( factTypes, ns );
     }
 
 
@@ -61,7 +61,7 @@ public sealed class RuleTree : IRuleBase, IRuleSink
         Guard.IsNotNull(factTypes);
 
         RootMap.TryGetValue( factTypes.Length, out var targetRoot );
-        return targetRoot == null ? new HashSet<IRule>() : targetRoot.FindRules( factTypes );
+        return targetRoot is null ? new HashSet<IRule>() : targetRoot.FindRules( factTypes );
     }
 
 
@@ -69,19 +69,13 @@ public sealed class RuleTree : IRuleBase, IRuleSink
     {
         Guard.IsNotNull(factTypes);
         Guard.IsNotNull(namespaces);
-            
-            
-        var allRules = FindRules( factTypes );
 
+        RootMap.TryGetValue( factTypes.Length, out var targetRoot );
+        if( targetRoot is null )
+            return new HashSet<IRule>();
 
-        var ns = namespaces.ToList();
-        // If no namespaces were specified return all the rules
-        if( ns.Count == 0 )
-            return allRules;
-
-        // Otherwise return only rules in the requested namespaces
-        ISet<IRule> rulesForSets = new HashSet<IRule>( allRules.Where( r => ns.Contains( r.Namespace ) ) );
-        return rulesForSets;
+        var ns = namespaces as List<string> ?? namespaces.ToList();
+        return targetRoot.FindRules( factTypes, ns );
     }
 
 

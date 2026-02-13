@@ -63,22 +63,19 @@ internal sealed class RuleRoot
         _RecurseAdd( depth, types, node.Branches, rules );
     }
 
-    public bool HasRules( Type[] requestTypes, IEnumerable<string> namespaces )
-    {
-        return _RecurseQuery( 0, requestTypes, Trunk, namespaces, null );
-    }
+    public bool HasRules( Type[] requestTypes, List<string> namespaces ) =>
+        _RecurseQuery( 0, requestTypes, Trunk, namespaces, null );
 
-        
-    public ISet<IRule> FindRules( Type[] requestTypes )
+    public ISet<IRule> FindRules( Type[] requestTypes ) => FindRules( requestTypes, [] );
+
+    public ISet<IRule> FindRules( Type[] requestTypes, List<string> namespaces )
     {
         ISet<IRule> sink = new HashSet<IRule>();
-
-        _RecurseQuery( 0, requestTypes, Trunk, [], sink );
-
+        _RecurseQuery( 0, requestTypes, Trunk, namespaces, sink );
         return sink;
     }
 
-    private bool _RecurseQuery( int depth,  Type[] types, IEnumerable<RuleNode> trunk, IEnumerable<string> namespaces, ISet<IRule> sink )
+    private bool _RecurseQuery( int depth, Type[] types, IEnumerable<RuleNode> trunk, List<string> namespaces, ISet<IRule> sink )
     {
         var request = types[depth];
 
@@ -94,7 +91,14 @@ internal sealed class RuleRoot
             if( sink is not null )
             {
                 foreach( RuleNode node in branches )
-                    sink.UnionWith( node.Rules );
+                {
+                    if( namespaces.Count == 0 )
+                        sink.UnionWith( node.Rules );
+                    else
+                        foreach( var rule in node.Rules )
+                            if( namespaces.Contains( rule.Namespace ) )
+                                sink.Add( rule );
+                }
                 return true;
             }
             return branches.Any( node => node.HasRules( namespaces ) );

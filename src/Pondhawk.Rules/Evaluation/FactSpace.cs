@@ -105,7 +105,7 @@ public sealed class FactSpace
             if( SelectorMap.TryGetValue( selectorIndex, out var identityIndex ) )
                 tuple[i] = Facts[identityIndex];
             else
-                return new object[] {};
+                return null;
         }
 
         return tuple;

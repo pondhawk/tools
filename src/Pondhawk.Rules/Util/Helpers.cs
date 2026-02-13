@@ -27,75 +27,57 @@ namespace Pondhawk.Rules.Util;
 
 internal static class Helpers
 {
-    internal static int EncodeSignature(  byte[] signatureIndices )
+    internal static int EncodeSignature( byte[] signatureIndices )
     {
-        byte[] bytes = {0, 0, 0, 0};
+        int signature = 0;
         for( int i = 0; i < signatureIndices.Length; i++ )
-            bytes[i] = (byte)(signatureIndices[i] + 1);
-
-        int signature = BitConverter.ToInt32( bytes, 0 );
-
+            signature |= (signatureIndices[i] + 1) << (i * 8);
         return signature;
     }
 
-        
+
     internal static byte[] DecodeSignature( int signature )
     {
-        byte[] bytes = BitConverter.GetBytes( signature );
+        int b0 = signature & 0xFF;
+        int b1 = (signature >> 8) & 0xFF;
+        int b2 = (signature >> 16) & 0xFF;
+        int b3 = (signature >> 24) & 0xFF;
 
-        int len = 4;
-        for( int i = 0; i < 4; i++ )
-            if( bytes[i] == 0 )
-            {
-                len = i;
-                break;
-            }
+        int len = b0 == 0 ? 0 : b1 == 0 ? 1 : b2 == 0 ? 2 : b3 == 0 ? 3 : 4;
 
         var signatureIndices = new byte[len];
-        for( int i = 0; i < len; i++ )
-            signatureIndices[i] = (byte)(bytes[i] - 1);
+        if( len > 0 ) signatureIndices[0] = (byte)(b0 - 1);
+        if( len > 1 ) signatureIndices[1] = (byte)(b1 - 1);
+        if( len > 2 ) signatureIndices[2] = (byte)(b2 - 1);
+        if( len > 3 ) signatureIndices[3] = (byte)(b3 - 1);
 
         return signatureIndices;
     }
 
 
-    internal static long EncodeSelector(  int[] selectorIndices )
+    internal static long EncodeSelector( int[] selectorIndices )
     {
-        byte[] bytes = {0, 0, 0, 0, 0, 0, 0, 0};
+        long selector = 0;
         for( int i = 0; i < selectorIndices.Length; i++ )
-        {
-            byte[] b = BitConverter.GetBytes( (UInt16)selectorIndices[i] );
-            Array.Copy( b, 0, bytes, (i*2), 2 );
-        }
-
-        long selector = BitConverter.ToInt64( bytes, 0 );
-
+            selector |= (long)(ushort)selectorIndices[i] << (i * 16);
         return selector;
     }
 
-        
+
     internal static int[] DecodeSelector( long selector )
     {
-        byte[] bytes = BitConverter.GetBytes( selector );
+        int v0 = (int)(selector & 0xFFFF);
+        int v1 = (int)((selector >> 16) & 0xFFFF);
+        int v2 = (int)((selector >> 32) & 0xFFFF);
+        int v3 = (int)((selector >> 48) & 0xFFFF);
 
-        var full = new UInt16[4];
-
-        full[0] = BitConverter.ToUInt16( bytes, 0 );
-        full[1] = BitConverter.ToUInt16( bytes, 2 );
-        full[2] = BitConverter.ToUInt16( bytes, 4 );
-        full[3] = BitConverter.ToUInt16( bytes, 6 );
-
-        int len = 4;
-        for( int i = 0; i < 4; i++ )
-            if( full[i] == 0 )
-            {
-                len = i;
-                break;
-            }
+        int len = v0 == 0 ? 0 : v1 == 0 ? 1 : v2 == 0 ? 2 : v3 == 0 ? 3 : 4;
 
         var selectorIndices = new int[len];
-        for( int i = 0; i < len; i++ )
-            selectorIndices[i] = full[i];
+        if( len > 0 ) selectorIndices[0] = v0;
+        if( len > 1 ) selectorIndices[1] = v1;
+        if( len > 2 ) selectorIndices[2] = v2;
+        if( len > 3 ) selectorIndices[3] = v3;
 
         return selectorIndices;
     }

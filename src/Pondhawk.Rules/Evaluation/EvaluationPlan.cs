@@ -61,6 +61,9 @@ internal class EvaluationPlan
     private int Count { get; }
     private Queue<EvaluationStep>[] Queues { get; }
 
+    private List<byte[]> CachedVariations { get; set; }
+    private int CachedTypeCount { get; set; }
+
 
     private IEnumerable<IEnumerable<byte>> _GetVariations( int maxAxis, int typeCount )
     {
@@ -86,7 +89,7 @@ internal class EvaluationPlan
         }
 
         Type[] factTypes = Space.GetFactTypes( typeIndices );
-        if( !RuleBase.HasRules( factTypes, Namespaces ) )
+        if( RuleBase.FindRules( factTypes, Namespaces ).Count == 0 )
             return stepsAdded;
 
         int signature = Helpers.EncodeSignature( typeIndices );
@@ -159,10 +162,18 @@ internal class EvaluationPlan
         if( axisCount == 0 )
             return stats;
 
-        foreach( var v in _GetVariations( axisCount, Space.TypeCount ) )
+        if( CachedVariations is null || Space.TypeCount != CachedTypeCount )
+        {
+            CachedTypeCount = Space.TypeCount;
+            CachedVariations = [];
+            foreach( var v in _GetVariations( axisCount, Space.TypeCount ) )
+                CachedVariations.Add( v.ToArray() );
+        }
+
+        foreach( var v in CachedVariations )
         {
             stats.VariationsConsidered++;
-            int stepsAdded = _GenerateSteps( v.ToArray() );
+            int stepsAdded = _GenerateSteps( v );
 
             if( stepsAdded > 0 )
             {

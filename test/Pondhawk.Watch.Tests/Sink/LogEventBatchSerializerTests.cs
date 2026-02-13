@@ -1,4 +1,3 @@
-using Pondhawk.Watch.Sink;
 using Shouldly;
 using Xunit;
 

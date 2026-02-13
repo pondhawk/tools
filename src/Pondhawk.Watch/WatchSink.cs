@@ -4,7 +4,6 @@ using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Threading.Channels;
 using Pondhawk.Logging;
-using Pondhawk.Watch.Sink;
 using Pondhawk.Watch.Switching;
 using Serilog.Core;
 using Serilog.Events;

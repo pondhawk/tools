@@ -146,14 +146,14 @@ public class Rule<TFact> : AbstractRule
         
     public Rule<TFact> ThenAffirm( int weight )
     {
-        Consequence = f => _HandleAffirm( weight );
+        Consequence = f => HandleAffirm( weight );
         return this;
     }
 
-        
+
     public Rule<TFact> ThenVeto( int weight )
     {
-        Consequence = s => _HandleVeto( weight );
+        Consequence = s => HandleVeto( weight );
         return this;
     }
 
@@ -196,32 +196,20 @@ public class Rule<TFact> : AbstractRule
     public Rule<TFact> FireAffirm( int weight )
     {
         Conditions.Add( f => true );
-        Consequence = f => _HandleAffirm( weight );
+        Consequence = f => HandleAffirm( weight );
         return this;
     }
 
-        
+
     public Rule<TFact> FireVeto( int weight )
     {
         Conditions.Add( f => true );
-        Consequence = f => _HandleVeto( weight );
+        Consequence = f => HandleVeto( weight );
         return this;
     }
 
 
-    private void _HandleAffirm( int weight )
-    {
-        RuleThreadLocalStorage.CurrentContext.Results.TotalAffirmations += weight;
-    }
 
-
-    private void _HandleVeto( int weight )
-    {
-        RuleThreadLocalStorage.CurrentContext.Results.TotalVetos += weight;
-    }
-
-
-        
     public Rule<TFact> Otherwise( Action<TFact> oConsequence )
     {
         Negated = true;
@@ -258,15 +246,15 @@ public class Rule<TFact> : AbstractRule
     public Rule<TFact> OtherwiseAffirm( int weight )
     {
         Negated = true;
-        Consequence = f => _HandleAffirm( weight );
+        Consequence = f => HandleAffirm( weight );
         return this;
     }
 
-        
+
     public Rule<TFact> OtherwiseVeto( int weight )
     {
         Negated = true;
-        Consequence = f => _HandleVeto( weight );
+        Consequence = f => HandleVeto( weight );
         return this;
     }
 
@@ -358,16 +346,7 @@ public class Rule<TFact> : AbstractRule
         Consequence( fact );
 
         if( ModifyFunc is not null )
-        {
-            object modified = ModifyFunc( fact );
-            if( modified is Array arr )
-            {
-                foreach( object o in arr )
-                    RuleThreadLocalStorage.CurrentContext.ModifyFact( o );
-            }
-            else if( modified is not null )
-                RuleThreadLocalStorage.CurrentContext.ModifyFact( modified );
-        }
+            DispatchModify( ModifyFunc( fact ) );
 
     }
 
@@ -483,14 +462,14 @@ public class Rule<TFact1, TFact2> : AbstractRule
         
     public Rule<TFact1, TFact2> ThenAffirm( int weight )
     {
-        Consequence = ( f1, f2 ) => _HandleAffirm( weight );
+        Consequence = ( f1, f2 ) => HandleAffirm( weight );
         return this;
     }
 
-        
+
     public Rule<TFact1, TFact2> ThenVeto( int weight )
     {
-        Consequence = ( f1, f2 ) => _HandleVeto( weight );
+        Consequence = ( f1, f2 ) => HandleVeto( weight );
         return this;
     }
 
@@ -531,31 +510,20 @@ public class Rule<TFact1, TFact2> : AbstractRule
     public Rule<TFact1, TFact2> FireAffirm( int weight )
     {
         Conditions.Add( ( f1, f2 ) => true );
-        Consequence = ( f1, f2 ) => _HandleAffirm( weight );
+        Consequence = ( f1, f2 ) => HandleAffirm( weight );
         return this;
     }
 
-        
+
     public Rule<TFact1, TFact2> FireVeto( int weight )
     {
         Conditions.Add( ( f1, f2 ) => true );
-        Consequence = ( f1, f2 ) => _HandleVeto( weight );
+        Consequence = ( f1, f2 ) => HandleVeto( weight );
         return this;
     }
 
 
-    private void _HandleAffirm( int weight )
-    {
-        RuleThreadLocalStorage.CurrentContext.Results.TotalAffirmations += weight;
-    }
 
-    private void _HandleVeto( int weight )
-    {
-        RuleThreadLocalStorage.CurrentContext.Results.TotalVetos += weight;
-    }
-
-
-        
     public Rule<TFact1, TFact2> Otherwise( Action<TFact1, TFact2> oConsequence )
     {
         Negated = true;
@@ -591,15 +559,15 @@ public class Rule<TFact1, TFact2> : AbstractRule
     public Rule<TFact1, TFact2> OtherwiseAffirm( int weight )
     {
         Negated = true;
-        Consequence = ( f1, f2 ) => _HandleAffirm( weight );
+        Consequence = ( f1, f2 ) => HandleAffirm( weight );
         return this;
     }
 
-        
+
     public Rule<TFact1, TFact2> OtherwiseVeto( int weight )
     {
         Negated = true;
-        Consequence = ( f1, f2 ) => _HandleVeto( weight );
+        Consequence = ( f1, f2 ) => HandleVeto( weight );
         return this;
     }
 
@@ -657,16 +625,7 @@ public class Rule<TFact1, TFact2> : AbstractRule
         Consequence( fact1, fact2 );
 
         if( ModifyFunc is not null )
-        {
-            object modified = ModifyFunc( fact1, fact2 );
-            if( modified is Array arr )
-            {
-                foreach( object o in arr )
-                    RuleThreadLocalStorage.CurrentContext.ModifyFact( o );
-            }
-            else if( modified is not null )
-                RuleThreadLocalStorage.CurrentContext.ModifyFact( modified );
-        }
+            DispatchModify( ModifyFunc( fact1, fact2 ) );
     }
 }
 
@@ -781,14 +740,14 @@ public class Rule<TFact1, TFact2, TFact3> : AbstractRule
         
     public Rule<TFact1, TFact2, TFact3> ThenAffirm( int weight )
     {
-        Consequence = ( f1, f2, f3 ) => _HandleAffirm( weight );
+        Consequence = ( f1, f2, f3 ) => HandleAffirm( weight );
         return this;
     }
 
-        
+
     public Rule<TFact1, TFact2, TFact3> ThenVeto( int weight )
     {
-        Consequence = ( f1, f2, f3 ) => _HandleVeto( weight );
+        Consequence = ( f1, f2, f3 ) => HandleVeto( weight );
         return this;
     }
 
@@ -829,31 +788,20 @@ public class Rule<TFact1, TFact2, TFact3> : AbstractRule
     public Rule<TFact1, TFact2, TFact3> FireAffirm( int weight )
     {
         Conditions.Add( ( f1, f2, f3 ) => true );
-        Consequence = ( f1, f2, f3 ) => _HandleAffirm( weight );
+        Consequence = ( f1, f2, f3 ) => HandleAffirm( weight );
         return this;
     }
 
-        
+
     public Rule<TFact1, TFact2, TFact3> FireVeto( int weight )
     {
         Conditions.Add( ( f1, f2, f3 ) => true );
-        Consequence = ( f1, f2, f3 ) => _HandleVeto( weight );
+        Consequence = ( f1, f2, f3 ) => HandleVeto( weight );
         return this;
     }
 
 
-    private void _HandleAffirm( int weight )
-    {
-        RuleThreadLocalStorage.CurrentContext.Results.TotalAffirmations += weight;
-    }
 
-    private void _HandleVeto( int weight )
-    {
-        RuleThreadLocalStorage.CurrentContext.Results.TotalVetos += weight;
-    }
-
-
-        
     public Rule<TFact1, TFact2, TFact3> Otherwise( Action<TFact1, TFact2, TFact3> oConsequence )
     {
         Negated = true;
@@ -891,15 +839,15 @@ public class Rule<TFact1, TFact2, TFact3> : AbstractRule
     public Rule<TFact1, TFact2, TFact3> OtherwiseAffirm( int weight )
     {
         Negated = true;
-        Consequence = ( f1, f2, f3 ) => _HandleAffirm( weight );
+        Consequence = ( f1, f2, f3 ) => HandleAffirm( weight );
         return this;
     }
 
-        
+
     public Rule<TFact1, TFact2, TFact3> OtherwiseVeto( int weight )
     {
         Negated = true;
-        Consequence = ( f1, f2, f3 ) => _HandleVeto( weight );
+        Consequence = ( f1, f2, f3 ) => HandleVeto( weight );
         return this;
     }
 
@@ -958,16 +906,7 @@ public class Rule<TFact1, TFact2, TFact3> : AbstractRule
         Consequence( fact1, fact2, fact3 );
 
         if( ModifyFunc is not null )
-        {
-            object modified = ModifyFunc( fact1, fact2, fact3 );
-            if( modified is Array arr )
-            {
-                foreach( object o in arr )
-                    RuleThreadLocalStorage.CurrentContext.ModifyFact( o );
-            }
-            else if( modified is not null )
-                RuleThreadLocalStorage.CurrentContext.ModifyFact( modified );
-        }
+            DispatchModify( ModifyFunc( fact1, fact2, fact3 ) );
     }
 }
 
@@ -1080,14 +1019,14 @@ public class Rule<TFact1, TFact2, TFact3, TFact4> : AbstractRule
         
     public Rule<TFact1, TFact2, TFact3, TFact4> ThenAffirm( int weight )
     {
-        Consequence = ( f1, f2, f3, f4 ) => _HandleAffirm( weight );
+        Consequence = ( f1, f2, f3, f4 ) => HandleAffirm( weight );
         return this;
     }
 
-        
+
     public Rule<TFact1, TFact2, TFact3, TFact4> ThenVeto( int weight )
     {
-        Consequence = ( f1, f2, f3, f4 ) => _HandleVeto( weight );
+        Consequence = ( f1, f2, f3, f4 ) => HandleVeto( weight );
         return this;
     }
 
@@ -1128,31 +1067,20 @@ public class Rule<TFact1, TFact2, TFact3, TFact4> : AbstractRule
     public Rule<TFact1, TFact2, TFact3, TFact4> FireAffirm( int weight )
     {
         Conditions.Add( ( f1, f2, f3, f4 ) => true );
-        Consequence = ( f1, f2, f3, f4 ) => _HandleAffirm( weight );
+        Consequence = ( f1, f2, f3, f4 ) => HandleAffirm( weight );
         return this;
     }
 
-        
+
     public Rule<TFact1, TFact2, TFact3, TFact4> FireVeto( int weight )
     {
         Conditions.Add( ( f1, f2, f3, f4 ) => true );
-        Consequence = ( f1, f2, f3, f4 ) => _HandleVeto( weight );
+        Consequence = ( f1, f2, f3, f4 ) => HandleVeto( weight );
         return this;
     }
 
 
-    private void _HandleAffirm( int weight )
-    {
-        RuleThreadLocalStorage.CurrentContext.Results.TotalAffirmations += weight;
-    }
 
-    private void _HandleVeto( int weight )
-    {
-        RuleThreadLocalStorage.CurrentContext.Results.TotalVetos += weight;
-    }
-
-
-        
     public Rule<TFact1, TFact2, TFact3, TFact4> Otherwise( Action<TFact1, TFact2, TFact3, TFact4> oConsequence )
     {
         Negated = true;
@@ -1190,15 +1118,15 @@ public class Rule<TFact1, TFact2, TFact3, TFact4> : AbstractRule
     public Rule<TFact1, TFact2, TFact3, TFact4> OtherwiseAffirm( int weight )
     {
         Negated = true;
-        Consequence = ( f1, f2, f3, f4 ) => _HandleAffirm( weight );
+        Consequence = ( f1, f2, f3, f4 ) => HandleAffirm( weight );
         return this;
     }
 
-        
+
     public Rule<TFact1, TFact2, TFact3, TFact4> OtherwiseVeto( int weight )
     {
         Negated = true;
-        Consequence = ( f1, f2, f3, f4 ) => _HandleVeto( weight );
+        Consequence = ( f1, f2, f3, f4 ) => HandleVeto( weight );
         return this;
     }
 
@@ -1260,15 +1188,6 @@ public class Rule<TFact1, TFact2, TFact3, TFact4> : AbstractRule
         Consequence( fact1, fact2, fact3, fact4 );
 
         if( ModifyFunc is not null )
-        {
-            object modified = ModifyFunc( fact1, fact2, fact3, fact4 );
-            if( modified is Array arr )
-            {
-                foreach( object o in arr )
-                    RuleThreadLocalStorage.CurrentContext.ModifyFact( o );
-            }
-            else if( modified is not null )
-                RuleThreadLocalStorage.CurrentContext.ModifyFact( modified );
-        }
+            DispatchModify( ModifyFunc( fact1, fact2, fact3, fact4 ) );
     }
 }

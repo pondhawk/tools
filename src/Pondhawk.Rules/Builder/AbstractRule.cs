@@ -80,4 +80,26 @@ public abstract class AbstractRule : IRule
         RuleThreadLocalStorage.CurrentContext.Results.TotalFired++;
     }
 
+
+    protected void HandleAffirm( int weight )
+    {
+        RuleThreadLocalStorage.CurrentContext.Results.TotalAffirmations += weight;
+    }
+
+    protected void HandleVeto( int weight )
+    {
+        RuleThreadLocalStorage.CurrentContext.Results.TotalVetos += weight;
+    }
+
+    protected static void DispatchModify( object modified )
+    {
+        if( modified is Array arr )
+        {
+            foreach( object o in arr )
+                RuleThreadLocalStorage.CurrentContext.ModifyFact( o );
+        }
+        else if( modified is not null )
+            RuleThreadLocalStorage.CurrentContext.ModifyFact( modified );
+    }
+
 }

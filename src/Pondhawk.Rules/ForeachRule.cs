@@ -133,14 +133,14 @@ public class ForeachRule<TParent,TFact>: AbstractRule
     
     public ForeachRule<TParent, TFact> ThenAffirm( int weight )
     {
-        Consequence = f => _HandleAffirm( weight );
+        Consequence = f => HandleAffirm( weight );
         return this;
     }
 
-    
+
     public ForeachRule<TParent, TFact> ThenVeto( int weight )
     {
-        Consequence = s => _HandleVeto( weight );
+        Consequence = s => HandleVeto( weight );
         return this;
     }
 
@@ -181,32 +181,20 @@ public class ForeachRule<TParent,TFact>: AbstractRule
     public ForeachRule<TParent, TFact> FireAffirm( int weight )
     {
         Conditions.Add( f => true );
-        Consequence = f => _HandleAffirm( weight );
+        Consequence = f => HandleAffirm( weight );
         return this;
     }
 
-    
+
     public ForeachRule<TParent, TFact> FireVeto( int weight )
     {
         Conditions.Add( f => true );
-        Consequence = f => _HandleVeto( weight );
+        Consequence = f => HandleVeto( weight );
         return this;
     }
 
 
-    private void _HandleAffirm( int weight )
-    {
-        RuleThreadLocalStorage.CurrentContext.Results.TotalAffirmations += weight;
-    }
 
-
-    private void _HandleVeto( int weight )
-    {
-        RuleThreadLocalStorage.CurrentContext.Results.TotalVetos += weight;
-    }
-
-
-    
     public ForeachRule<TParent, TFact> Otherwise( Action<TFact> oConsequence )
     {
         Negated = true;
@@ -242,15 +230,15 @@ public class ForeachRule<TParent,TFact>: AbstractRule
     public ForeachRule<TParent, TFact> OtherwiseAffirm( int weight )
     {
         Negated = true;
-        Consequence = f => _HandleAffirm( weight );
+        Consequence = f => HandleAffirm( weight );
         return this;
     }
 
-    
+
     public ForeachRule<TParent, TFact> OtherwiseVeto( int weight )
     {
         Negated = true;
-        Consequence = f => _HandleVeto( weight );
+        Consequence = f => HandleVeto( weight );
         return this;
     }
 

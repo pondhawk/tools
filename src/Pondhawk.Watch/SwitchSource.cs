@@ -25,6 +25,7 @@ SOFTWARE.
 using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
 using System.Drawing;
+using CommunityToolkit.Diagnostics;
 using Serilog.Events;
 
 // ReSharper disable MemberCanBePrivate.Global
@@ -252,7 +253,7 @@ public class SwitchSource
     /// </remarks>
     public virtual void Update(IEnumerable<SwitchDef> switchSource)
     {
-        ArgumentNullException.ThrowIfNull(switchSource);
+        Guard.IsNotNull(switchSource);
 
         var switches = new ConcurrentDictionary<string, Switch>();
         var pKeys = new List<string>();

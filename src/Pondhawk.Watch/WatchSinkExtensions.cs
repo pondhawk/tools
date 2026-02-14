@@ -1,3 +1,4 @@
+using CommunityToolkit.Diagnostics;
 using Pondhawk.Logging;
 using Serilog;
 using Serilog.Configuration;
@@ -28,9 +29,9 @@ public static class WatchSinkExtensions
         int batchSize = 100,
         TimeSpan? flushInterval = null)
     {
-        ArgumentNullException.ThrowIfNull(config);
-        ArgumentNullException.ThrowIfNull(httpClient);
-        ArgumentNullException.ThrowIfNull(switchSource);
+        Guard.IsNotNull(config);
+        Guard.IsNotNull(httpClient);
+        Guard.IsNotNull(switchSource);
 
         WatchSwitchConfig.IsEnabledFunc = (category, serilogLevel) =>
         {

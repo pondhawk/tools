@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
+using CommunityToolkit.Diagnostics;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Pondhawk.Watch.Framework.StateTypes;
@@ -43,8 +44,11 @@ namespace Pondhawk.Watch.Framework
 
         internal WatchLogger(WatchLoggerProvider provider, string category)
         {
-            _provider = provider ?? throw new ArgumentNullException(nameof(provider));
-            _category = category ?? throw new ArgumentNullException(nameof(category));
+            Guard.IsNotNull(provider);
+            Guard.IsNotNull(category);
+
+            _provider = provider;
+            _category = category;
         }
 
         public bool IsEnabled(LogLevel logLevel)

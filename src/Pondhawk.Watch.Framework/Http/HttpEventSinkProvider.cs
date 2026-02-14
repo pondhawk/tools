@@ -28,6 +28,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using CommunityToolkit.Diagnostics;
 using Newtonsoft.Json;
 
 namespace Pondhawk.Watch.Framework.Http
@@ -72,8 +73,11 @@ namespace Pondhawk.Watch.Framework.Http
 
         public HttpEventSinkProvider(HttpClient client, string domain)
         {
-            _client = client ?? throw new ArgumentNullException(nameof(client));
-            _domain = domain ?? throw new ArgumentNullException(nameof(domain));
+            Guard.IsNotNull(client);
+            Guard.IsNotNull(domain);
+
+            _client = client;
+            _domain = domain;
         }
 
         public void Start() { }

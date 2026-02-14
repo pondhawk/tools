@@ -22,6 +22,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+using CommunityToolkit.Diagnostics;
+
 namespace Pondhawk.Utilities.Types;
 
 public static class TypeExtensions
@@ -31,7 +33,7 @@ public static class TypeExtensions
     public static string ToHexString( this byte[] bytes )
     {
 
-        ArgumentNullException.ThrowIfNull(bytes);
+        Guard.IsNotNull(bytes);
 
         var hex = BitConverter.ToString(bytes).Replace("-", "").ToLowerInvariant();
         return hex;

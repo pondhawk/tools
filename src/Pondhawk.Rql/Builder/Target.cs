@@ -22,6 +22,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+using CommunityToolkit.Diagnostics;
+
 namespace Pondhawk.Rql.Builder
 {
 
@@ -54,7 +56,7 @@ namespace Pondhawk.Rql.Builder
 
         protected bool Equals( Target other )
         {
-            ArgumentNullException.ThrowIfNull(other);
+            Guard.IsNotNull(other);
 
             return string.Equals(Name, other.Name);
 

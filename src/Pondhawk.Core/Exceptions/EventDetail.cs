@@ -24,6 +24,7 @@ SOFTWARE.
 
 using System.ComponentModel;
 using System.Text.Json.Serialization;
+using CommunityToolkit.Diagnostics;
 
 // ReSharper disable UnusedMember.Global
 
@@ -113,20 +114,21 @@ public class EventDetail
 
     public EventDetail WithRuleName( string ruleName )
     {
-        RuleName = ruleName ?? throw new ArgumentNullException(nameof(ruleName));
+        Guard.IsNotNull(ruleName);
+        RuleName = ruleName;
         return this;
     }
 
     public EventDetail WithGroup( string group )
     {
-        Group = group ?? throw new ArgumentNullException(nameof(group));
+        Guard.IsNotNull(group);
+        Group = group;
         return this;
     }
 
     public EventDetail WithSource( object source )
     {
-        if (source is null) 
-            throw new ArgumentNullException(nameof(source));
+        Guard.IsNotNull(source);
 
         Source = source.ToString()??"";
 
@@ -135,7 +137,8 @@ public class EventDetail
 
     public EventDetail WithExplanation( string message )
     {
-        Explanation = message ?? throw new ArgumentNullException(nameof(message));
+        Guard.IsNotNull(message);
+        Explanation = message;
         return this;
     }
 

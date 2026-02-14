@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Threading.Channels;
+using CommunityToolkit.Diagnostics;
 using Pondhawk.Logging;
 using Serilog.Core;
 using Serilog.Events;
@@ -98,9 +99,13 @@ public sealed class WatchSink : ILogEventSink, IDisposable, IAsyncDisposable
         int batchSize = 100,
         TimeSpan? flushInterval = null)
     {
-        _client = client ?? throw new ArgumentNullException(nameof(client));
-        _switchSource = switchSource ?? throw new ArgumentNullException(nameof(switchSource));
-        _domain = domain ?? throw new ArgumentNullException(nameof(domain));
+        Guard.IsNotNull(client);
+        Guard.IsNotNull(switchSource);
+        Guard.IsNotNull(domain);
+
+        _client = client;
+        _switchSource = switchSource;
+        _domain = domain;
         _batchSize = batchSize;
         _flushInterval = flushInterval ?? TimeSpan.FromMilliseconds(100);
 

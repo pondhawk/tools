@@ -1,3 +1,4 @@
+using CommunityToolkit.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 
@@ -9,7 +10,8 @@ public sealed class RuleValidationInterceptor : SaveChangesInterceptor
 
     public RuleValidationInterceptor(IRuleSet ruleSet)
     {
-        _ruleSet = ruleSet ?? throw new ArgumentNullException(nameof(ruleSet));
+        Guard.IsNotNull(ruleSet);
+        _ruleSet = ruleSet;
     }
 
     public override InterceptionResult<int> SavingChanges(

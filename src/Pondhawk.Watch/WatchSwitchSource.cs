@@ -24,6 +24,7 @@ SOFTWARE.
 
 using System.Drawing;
 using System.Net.Http.Json;
+using CommunityToolkit.Diagnostics;
 using Serilog.Events;
 
 namespace Pondhawk.Watch;
@@ -63,8 +64,11 @@ public class WatchSwitchSource : SwitchSource, IAsyncDisposable
     /// <param name="pollInterval">The interval between polls. Default is 30 seconds.</param>
     public WatchSwitchSource(HttpClient client, string domain, TimeSpan? pollInterval = null)
     {
-        _client = client ?? throw new ArgumentNullException(nameof(client));
-        _domain = domain ?? throw new ArgumentNullException(nameof(domain));
+        Guard.IsNotNull(client);
+        Guard.IsNotNull(domain);
+
+        _client = client;
+        _domain = domain;
         _pollInterval = pollInterval ?? TimeSpan.FromSeconds(30);
     }
 

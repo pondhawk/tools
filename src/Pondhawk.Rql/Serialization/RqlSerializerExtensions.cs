@@ -23,6 +23,7 @@ SOFTWARE.
 */
 
 using System.Text;
+using CommunityToolkit.Diagnostics;
 using Pondhawk.Rql.Builder;
 
 namespace Pondhawk.Rql.Serialization
@@ -84,7 +85,7 @@ namespace Pondhawk.Rql.Serialization
         private static string _dateTimeFormatter( object source )
         {
 
-            ArgumentNullException.ThrowIfNull(source);
+            Guard.IsNotNull(source);
 
             if (source is not DateTime time)
                 throw new InvalidOperationException($"Object of type: {source.GetType().FullName} can not be cast to a DateTime");

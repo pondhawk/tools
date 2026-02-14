@@ -22,6 +22,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+using CommunityToolkit.Diagnostics;
+
 namespace Pondhawk.Exceptions;
 
 public abstract class FluentException<TDescendant>: ExternalException where TDescendant: FluentException<TDescendant>
@@ -44,20 +46,23 @@ public abstract class FluentException<TDescendant>: ExternalException where TDes
 
     public TDescendant WithErrorCode( string code )
     {
-        ErrorCode = code ?? throw new ArgumentNullException(nameof(code));
+        Guard.IsNotNull(code);
+        ErrorCode = code;
         return (TDescendant)this;
     }
 
     public TDescendant WithExplanation( string explanation )
     {
-        Explanation = explanation ?? throw new ArgumentNullException(nameof(explanation));
+        Guard.IsNotNull(explanation);
+        Explanation = explanation;
         return (TDescendant)this;
 
     }
 
     public TDescendant WithCorrelationId( string correlationId)
     {
-        CorrelationId = correlationId ?? throw new ArgumentNullException(nameof(correlationId));
+        Guard.IsNotNull(correlationId);
+        CorrelationId = correlationId;
         return (TDescendant)this;
 
     }
@@ -65,7 +70,7 @@ public abstract class FluentException<TDescendant>: ExternalException where TDes
     public TDescendant WithDetail( EventDetail detail)
     {
 
-        ArgumentNullException.ThrowIfNull(detail);
+        Guard.IsNotNull(detail);
 
         Details.Add(detail);
         return (TDescendant)this;
@@ -74,7 +79,7 @@ public abstract class FluentException<TDescendant>: ExternalException where TDes
 
     public TDescendant WithDetails( IEnumerable<EventDetail> details)
     {
-        ArgumentNullException.ThrowIfNull(details);
+        Guard.IsNotNull(details);
 
         foreach (var d in details)
             Details.Add(d);
@@ -86,7 +91,7 @@ public abstract class FluentException<TDescendant>: ExternalException where TDes
     public TDescendant With( IExceptionInfo info )
     {
 
-        ArgumentNullException.ThrowIfNull(info);
+        Guard.IsNotNull(info);
 
         WithKind(info.Kind);
         WithErrorCode(info.ErrorCode);

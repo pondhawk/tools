@@ -23,6 +23,7 @@ SOFTWARE.
 */
 
 using System.Reflection;
+using CommunityToolkit.Diagnostics;
 
 namespace Pondhawk.Rules.Builder;
 
@@ -34,7 +35,7 @@ public class RuleBuilderSource: IRuleBuilderSource
     public void AddTypes( params Assembly[] assemblies )
     {
 
-        ArgumentNullException.ThrowIfNull(assemblies);
+        Guard.IsNotNull(assemblies);
 
         foreach ( var type in assemblies.SelectMany(a=>a.GetTypes()).Where(Predicate) )
             Types.Add(type);
@@ -43,7 +44,7 @@ public class RuleBuilderSource: IRuleBuilderSource
     public void AddTypes( params Type[] types )
     {
 
-        ArgumentNullException.ThrowIfNull(types);
+        Guard.IsNotNull(types);
 
         foreach (var type in types.Where(Predicate))
             Types.Add(type);
@@ -52,7 +53,7 @@ public class RuleBuilderSource: IRuleBuilderSource
     public void AddTypes( IEnumerable<Type> candidates )
     {
 
-        ArgumentNullException.ThrowIfNull(candidates);
+        Guard.IsNotNull(candidates);
 
         foreach (var type in candidates.Where( Predicate ) )
             Types.Add(type);

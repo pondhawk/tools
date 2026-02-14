@@ -23,6 +23,7 @@ SOFTWARE.
 */
 
 using System.Reflection;
+using CommunityToolkit.Diagnostics;
 
 namespace Pondhawk.Utilities.Types;
 
@@ -40,7 +41,7 @@ public class TypeSource
     public void AddTypes( params Assembly[] assemblies )
     {
 
-        ArgumentNullException.ThrowIfNull(assemblies);
+        Guard.IsNotNull(assemblies);
 
         foreach ( var type in assemblies.SelectMany(a=>a.GetTypes()).Where(GetPredicate()) )
             Types.Add(type);
@@ -50,7 +51,7 @@ public class TypeSource
     public void AddTypes( params Type[] types )
     {
 
-        ArgumentNullException.ThrowIfNull(types);
+        Guard.IsNotNull(types);
 
         foreach (var type in types.Where(GetPredicate()))
             Types.Add(type);
@@ -60,7 +61,7 @@ public class TypeSource
     public void AddTypes( IEnumerable<Type> candidates )
     {
 
-        ArgumentNullException.ThrowIfNull(candidates);
+        Guard.IsNotNull(candidates);
 
         foreach (var type in candidates.Where( GetPredicate() ) )
             Types.Add(type);

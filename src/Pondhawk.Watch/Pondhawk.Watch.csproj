@@ -27,6 +27,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Diagnostics" />
     <PackageReference Include="JetBrains.Annotations" />
     <PackageReference Include="MemoryPack" />
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" />

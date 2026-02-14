@@ -42,7 +42,7 @@ public static class AssemblyExtensions
     public static IEnumerable<string> GetResourceNames( this Assembly target, Func<string, bool> filter )
     {
 
-        ArgumentNullException.ThrowIfNull(filter);
+        Guard.IsNotNull(filter);
 
         var results = target.GetManifestResourceNames().Where(filter);
         return results;
@@ -92,7 +92,7 @@ public static class AssemblyExtensions
     public static IEnumerable<Type> GetFilteredTypes( this Assembly target, Func<Type, bool> filter )
     {
 
-        ArgumentNullException.ThrowIfNull(filter);
+        Guard.IsNotNull(filter);
 
 
         return target.GetTypes().Where(filter);
@@ -102,7 +102,7 @@ public static class AssemblyExtensions
     public static IEnumerable<Type> GetImplementations( this Assembly target, Type implements )
     {
 
-        ArgumentNullException.ThrowIfNull(implements);
+        Guard.IsNotNull(implements);
 
 
         bool Filter(Type t) => (t != implements) && (implements.IsAssignableFrom(t));
@@ -115,7 +115,7 @@ public static class AssemblyExtensions
     public static IEnumerable<Type> GetTypesWithAttribute( this Assembly target, Type attribute )
     {
 
-        ArgumentNullException.ThrowIfNull(attribute);
+        Guard.IsNotNull(attribute);
 
         bool Filter(Type t) => t.GetCustomAttributes(attribute, false).Length > 0;
 
@@ -126,8 +126,8 @@ public static class AssemblyExtensions
     public static IEnumerable<Type> GetImplementationsWithAttribute( this Assembly target, Type implements, Type attribute )
     {
 
-        ArgumentNullException.ThrowIfNull(implements);
-        ArgumentNullException.ThrowIfNull(attribute);
+        Guard.IsNotNull(implements);
+        Guard.IsNotNull(attribute);
 
         bool Predicate(Type t) => (t != implements) && (implements.IsAssignableFrom(t)) && (t.GetCustomAttributes(attribute, false).Length > 0);
 

@@ -25,6 +25,7 @@ SOFTWARE.
 using System;
 using System.Drawing;
 using System.Net.Http;
+using CommunityToolkit.Diagnostics;
 using Microsoft.Extensions.Logging;
 using Pondhawk.Watch.Framework.Http;
 using Pondhawk.Watch.Framework.Sink;
@@ -76,7 +77,8 @@ namespace Pondhawk.Watch.Framework
 
         public WatchLoggingBuilder UseSink(IEventSinkProvider sink)
         {
-            _sink = sink ?? throw new ArgumentNullException(nameof(sink));
+            Guard.IsNotNull(sink);
+            _sink = sink;
             return this;
         }
 

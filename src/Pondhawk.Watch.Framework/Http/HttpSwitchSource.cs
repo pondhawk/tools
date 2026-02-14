@@ -27,6 +27,7 @@ using System.Drawing;
 using System.Linq;
 using System.Net.Http;
 using System.Threading;
+using CommunityToolkit.Diagnostics;
 using Newtonsoft.Json;
 using Pondhawk.Watch.Framework.Switching;
 
@@ -46,8 +47,11 @@ namespace Pondhawk.Watch.Framework.Http
 
         public HttpSwitchSource(HttpClient client, string domain, TimeSpan? pollInterval = null)
         {
-            _client = client ?? throw new ArgumentNullException(nameof(client));
-            _domain = domain ?? throw new ArgumentNullException(nameof(domain));
+            Guard.IsNotNull(client);
+            Guard.IsNotNull(domain);
+
+            _client = client;
+            _domain = domain;
             _pollInterval = pollInterval ?? TimeSpan.FromSeconds(30);
         }
 

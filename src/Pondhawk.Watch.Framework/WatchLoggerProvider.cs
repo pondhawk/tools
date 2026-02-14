@@ -26,6 +26,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
+using CommunityToolkit.Diagnostics;
 using Microsoft.Extensions.Logging;
 using Pondhawk.Watch.Framework.Serializers;
 
@@ -51,8 +52,11 @@ namespace Pondhawk.Watch.Framework
             IEventSinkProvider sink,
             IObjectSerializer objectSerializer = null)
         {
-            SwitchSource = switchSource ?? throw new ArgumentNullException(nameof(switchSource));
-            Sink = sink ?? throw new ArgumentNullException(nameof(sink));
+            Guard.IsNotNull(switchSource);
+            Guard.IsNotNull(sink);
+
+            SwitchSource = switchSource;
+            Sink = sink;
             ObjectSerializer = objectSerializer ?? NewtonsoftObjectSerializer.Instance;
 
             SwitchSource.Start();

@@ -1,4 +1,3 @@
-using Pondhawk.Exceptions;
 using Pondhawk.Rules.Factory;
 using Shouldly;
 using Xunit;
@@ -67,7 +66,7 @@ public class MultiFactRuleTests
             new Order { OrderId = 42, CustomerName = "Alice" });
 
         result.Events.Count.ShouldBe(1);
-        result.Events.First().Explanation.ShouldBe("Alice ordered 42");
+        result.Events.First().Message.ShouldBe("Alice ordered 42");
     }
 
     [Fact]
@@ -345,15 +344,15 @@ public class MultiFactRuleTests
         var ruleSet = new RuleSet();
 
         ruleSet.AddRule<Person, Order>("cat")
-            .Fire(EventDetail.EventCategory.Violation, "grp", "Bad order from {0}", (p, o) => p.Name);
+            .Fire(RuleEvent.EventCategory.Violation, "grp", "Bad order from {0}", (p, o) => p.Name);
 
         var result = EvaluateSafe(ruleSet,
             new Person { Name = "Alice" },
             new Order { OrderId = 1, CustomerName = "Alice" });
 
         var evt = result.Events.First();
-        evt.Category.ShouldBe(EventDetail.EventCategory.Violation);
-        evt.Explanation.ShouldBe("Bad order from Alice");
+        evt.Category.ShouldBe(RuleEvent.EventCategory.Violation);
+        evt.Message.ShouldBe("Bad order from Alice");
     }
 
     [Fact]
@@ -369,7 +368,7 @@ public class MultiFactRuleTests
             new Person { Name = "Alice" },
             new Order { OrderId = 1, CustomerName = "Alice" });
 
-        result.Events.First().Explanation.ShouldBe("Alice did not match");
+        result.Events.First().Message.ShouldBe("Alice did not match");
     }
 
     [Fact]
@@ -396,14 +395,14 @@ public class MultiFactRuleTests
 
         ruleSet.AddRule<Person, Order>("ocm")
             .If((p, o) => false)
-            .Otherwise(EventDetail.EventCategory.Violation, "grp", "No match for {0}", (p, o) => p.Name);
+            .Otherwise(RuleEvent.EventCategory.Violation, "grp", "No match for {0}", (p, o) => p.Name);
 
         var result = EvaluateSafe(ruleSet,
             new Person { Name = "Alice" },
             new Order { OrderId = 1, CustomerName = "Alice" });
 
         var evt = result.Events.First();
-        evt.Category.ShouldBe(EventDetail.EventCategory.Violation);
+        evt.Category.ShouldBe(RuleEvent.EventCategory.Violation);
     }
 
     [Fact]
@@ -448,14 +447,14 @@ public class MultiFactRuleTests
 
         ruleSet.AddRule<Person, Order>("tcm")
             .If((p, o) => true)
-            .Then(EventDetail.EventCategory.Warning, "warn", "{0}", (p, o) => p.Name);
+            .Then(RuleEvent.EventCategory.Warning, "warn", "{0}", (p, o) => p.Name);
 
         var result = EvaluateSafe(ruleSet,
             new Person { Name = "Alice" },
             new Order { OrderId = 1, CustomerName = "Alice" });
 
         var evt = result.Events.First();
-        evt.Category.ShouldBe(EventDetail.EventCategory.Warning);
+        evt.Category.ShouldBe(RuleEvent.EventCategory.Warning);
     }
 
 
@@ -550,7 +549,7 @@ public class MultiFactRuleTests
             new Order { OrderId = 42, CustomerName = "Alice" },
             new Account { AccountId = "A1", Balance = 100 });
 
-        result.Events.First().Explanation.ShouldBe("Alice order 42 account A1");
+        result.Events.First().Message.ShouldBe("Alice order 42 account A1");
     }
 
     [Fact]
@@ -716,7 +715,7 @@ public class MultiFactRuleTests
             new Account { AccountId = "A1", Balance = 100 },
             new Policy { PolicyId = "P1", Priority = 1 });
 
-        result.Events.First().Explanation.ShouldBe("Alice 42 A1 P1");
+        result.Events.First().Message.ShouldBe("Alice 42 A1 P1");
     }
 
     [Fact]

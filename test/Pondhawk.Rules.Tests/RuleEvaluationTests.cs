@@ -1,4 +1,3 @@
-using Pondhawk.Exceptions;
 using Pondhawk.Rules.Factory;
 using Shouldly;
 using Xunit;
@@ -310,8 +309,8 @@ public class RuleEvaluationTests
 
         result.Events.Count.ShouldBe(1);
         var evt = result.Events.First();
-        evt.Category.ShouldBe(EventDetail.EventCategory.Info);
-        evt.Explanation.ShouldBe("Person Alice is active");
+        evt.Category.ShouldBe(RuleEvent.EventCategory.Info);
+        evt.Message.ShouldBe("Person Alice is active");
     }
 
     [Fact]

@@ -22,7 +22,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-using Pondhawk.Exceptions;
 using Pondhawk.Rules.Builder;
 
 namespace Pondhawk.Rules.Listeners;
@@ -61,7 +60,7 @@ public sealed class NoopEvaluationListener : IEvaluationListener
     {
     }
 
-    public void EventCreated( EventDetail evalEvent )
+    public void EventCreated( RuleEvent evalEvent )
     {
     }
 

@@ -22,8 +22,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-using Pondhawk.Exceptions;
-
 namespace Pondhawk.Rules;
 
 public sealed class EvaluationResults
@@ -31,7 +29,7 @@ public sealed class EvaluationResults
 
     public EvaluationResults()
     {
-        Events = new HashSet<EventDetail>( new EventDetail.Comparer() );
+        Events = new HashSet<RuleEvent>();
         Shared = new Dictionary<string, object>();
 
         TotalEvaluated = 0;
@@ -55,7 +53,7 @@ public sealed class EvaluationResults
     public int Score => TotalAffirmations - TotalVetos;
 
 
-    public ISet<EventDetail> Events { get;}
+    public ISet<RuleEvent> Events { get;}
 
     public int ViolationCount { get; set; }
 
@@ -85,27 +83,27 @@ public sealed class EvaluationResults
 
     // ===== Result filtering helpers =====
 
-    public IEnumerable<EventDetail> GetViolations()
+    public IEnumerable<RuleEvent> GetViolations()
     {
-        return Events.Where( e => e.Category == EventDetail.EventCategory.Violation );
+        return Events.Where( e => e.Category == RuleEvent.EventCategory.Violation );
     }
 
-    public IEnumerable<EventDetail> GetEventsByCategory( EventDetail.EventCategory category )
+    public IEnumerable<RuleEvent> GetEventsByCategory( RuleEvent.EventCategory category )
     {
         return Events.Where( e => e.Category == category );
     }
 
-    public IEnumerable<EventDetail> GetEventsByGroup( string group )
+    public IEnumerable<RuleEvent> GetEventsByGroup( string group )
     {
         return Events.Where( e => string.Equals( e.Group, group, StringComparison.Ordinal ) );
     }
 
-    public IEnumerable<EventDetail> GetEventsByRule( string ruleName )
+    public IEnumerable<RuleEvent> GetEventsByRule( string ruleName )
     {
         return Events.Where( e => string.Equals( e.RuleName, ruleName, StringComparison.Ordinal ) );
     }
 
-    public IDictionary<string, List<EventDetail>> GetViolationsByGroup()
+    public IDictionary<string, List<RuleEvent>> GetViolationsByGroup()
     {
         return GetViolations()
             .GroupBy( e => e.Group ?? "" )

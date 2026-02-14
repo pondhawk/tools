@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 
 Copyright (c) 2017 The Kampilan Group Inc.
@@ -22,25 +22,23 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-
-
-using Serilog;
-using Serilog.Core;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace Pondhawk.Rules.Listeners;
 
 public sealed class WatchEvaluationListenerFactory: IEvaluationListenerFactory
 {
 
+    public ILoggerFactory LoggerFactory { get; set; } = NullLoggerFactory.Instance;
 
     public string Category { get; set; } = string.Empty;
 
-    
+
     public IEvaluationListener CreateListener()
     {
-        var logger = Log.ForContext(Constants.SourceContextPropertyName, Category );
+        var logger = LoggerFactory.CreateLogger(Category);
         return new WatchEvaluationListener( logger );
     }
 
 }
-

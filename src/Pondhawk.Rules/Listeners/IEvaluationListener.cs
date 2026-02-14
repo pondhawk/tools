@@ -22,7 +22,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-using Pondhawk.Exceptions;
 using Pondhawk.Rules.Builder;
 
 namespace Pondhawk.Rules.Listeners;
@@ -41,7 +40,7 @@ public interface IEvaluationListener
 
     void EndEvaluation();
 
-    void EventCreated( EventDetail evalEvent );
+    void EventCreated( RuleEvent evalEvent );
 
     void Debug( string template, params object[] markers );
     void Warning( string template, params object[] markers );

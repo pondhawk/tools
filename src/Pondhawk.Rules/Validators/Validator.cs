@@ -22,7 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-using Pondhawk.Exceptions;
+using Pondhawk.Rules;
 
 namespace Pondhawk.Rules.Validators;
 
@@ -41,7 +41,7 @@ public interface IValidator<out TFact, out TType>
 
     IValidationRule<TFact> Otherwise( string group, string template, params Func<TFact, object>[] parameters );
 
-    IValidationRule<TFact> Otherwise( EventDetail.EventCategory category, string group, string template, params Func<TFact, object>[] parameters );
+    IValidationRule<TFact> Otherwise( RuleEvent.EventCategory category, string group, string template, params Func<TFact, object>[] parameters );
 
 
 }

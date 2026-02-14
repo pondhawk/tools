@@ -1,8 +1,6 @@
-using Pondhawk.Utilities.Container;
-
 namespace Pondhawk.Utilities.Process;
 
-public class FileSignalController: ISignalController, IRequiresStart, IDisposable
+public class FileSignalController: ISignalController, IDisposable
 {
 
     public enum OwnerType { Host, Appliance }

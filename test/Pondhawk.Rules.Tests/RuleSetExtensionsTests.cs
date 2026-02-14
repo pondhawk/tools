@@ -1,4 +1,3 @@
-using Pondhawk.Exceptions;
 using Pondhawk.Rules.Factory;
 using Shouldly;
 using Xunit;
@@ -138,7 +137,7 @@ public class RuleSetExtensionsTests
 
         valid.ShouldBeFalse();
         violations.ShouldNotBeEmpty();
-        violations[0].Explanation.ShouldBe("Name required");
+        violations[0].Message.ShouldBe("Name required");
     }
 
 

@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 
 Copyright (c) 2017 The Kampilan Group Inc.
@@ -22,20 +22,47 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-using Pondhawk.Utilities.Types;
+using System.Reflection;
 
 namespace Pondhawk.Rules.Builder;
 
-public class RuleBuilderSource: TypeSource, IRuleBuilderSource
+public class RuleBuilderSource: IRuleBuilderSource
 {
 
     private static Func<Type, bool> Predicate { get; } = t => typeof(IBuilder).IsAssignableFrom(t);
 
-    protected override Func<Type, bool> GetPredicate()
+    public void AddTypes( params Assembly[] assemblies )
     {
-        return Predicate;
+
+        ArgumentNullException.ThrowIfNull(assemblies);
+
+        foreach ( var type in assemblies.SelectMany(a=>a.GetTypes()).Where(Predicate) )
+            Types.Add(type);
+    }
+
+    public void AddTypes( params Type[] types )
+    {
+
+        ArgumentNullException.ThrowIfNull(types);
+
+        foreach (var type in types.Where(Predicate))
+            Types.Add(type);
+    }
+
+    public void AddTypes( IEnumerable<Type> candidates )
+    {
+
+        ArgumentNullException.ThrowIfNull(candidates);
+
+        foreach (var type in candidates.Where( Predicate ) )
+            Types.Add(type);
+    }
+
+    private HashSet<Type> Types { get; } = new ();
+
+    public IEnumerable<Type> GetTypes()
+    {
+        return Types;
     }
 
 }
-
-

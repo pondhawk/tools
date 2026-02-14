@@ -24,8 +24,8 @@ SOFTWARE.
 
 using CommunityToolkit.Diagnostics;
 using Pondhawk.Rules.Builder;
-using Pondhawk.Utilities.Types;
-using TypeExtensions = Pondhawk.Utilities.Types.TypeExtensions;
+using Pondhawk.Rules.Util;
+using TypeExtensions = Pondhawk.Rules.Util.TypeExtensions;
 
 namespace Pondhawk.Rules;
 

@@ -1,4 +1,3 @@
-using Pondhawk.Exceptions;
 using Shouldly;
 using Xunit;
 
@@ -136,13 +135,13 @@ public class EvaluationContextTests
     public void Results_HasViolations_WithViolation_ReturnsTrue()
     {
         var results = new EvaluationResults();
-        results.Events.Add(new EventDetail
+        results.Events.Add(new RuleEvent
         {
-            Category = EventDetail.EventCategory.Violation,
-            Explanation = "test violation",
+            Category = RuleEvent.EventCategory.Violation,
+            Message = "test violation",
             Group = "test",
             RuleName = "rule1",
-            Source = "source"
+            MessageTemplate = "source"
         });
         results.ViolationCount++;
 
@@ -153,13 +152,13 @@ public class EvaluationContextTests
     public void Results_HasViolations_WithInfoOnly_ReturnsFalse()
     {
         var results = new EvaluationResults();
-        results.Events.Add(new EventDetail
+        results.Events.Add(new RuleEvent
         {
-            Category = EventDetail.EventCategory.Info,
-            Explanation = "info event",
+            Category = RuleEvent.EventCategory.Info,
+            Message = "info event",
             Group = "test",
             RuleName = "rule1",
-            Source = "source"
+            MessageTemplate = "source"
         });
 
         results.HasViolations.ShouldBeFalse();

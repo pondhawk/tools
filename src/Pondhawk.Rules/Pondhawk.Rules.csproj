@@ -26,10 +26,9 @@
     <PackageReference Include="CommunityToolkit.Diagnostics" />
     <PackageReference Include="Humanizer.Core" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+    <PackageReference Include="Microsoft.Extensions.Logging" />
+    <PackageReference Include="Ulid" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Pondhawk.Core\Pondhawk.Core.csproj" />
-  </ItemGroup>
 
 </Project>

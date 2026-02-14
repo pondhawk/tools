@@ -23,7 +23,6 @@ SOFTWARE.
 */
 
 using CommunityToolkit.Diagnostics;
-using Pondhawk.Exceptions;
 using Pondhawk.Rules.Builder;
 using Pondhawk.Rules.Evaluation;
 
@@ -124,20 +123,20 @@ public class Rule<TFact> : AbstractRule
         
     public Rule<TFact> Then( string template, params Func<TFact, object>[] parameters )
     {
-        Consequence = f => _BuildMessage( f, EventDetail.EventCategory.Info, "", template, parameters );
+        Consequence = f => _BuildMessage( f, RuleEvent.EventCategory.Info, "", template, parameters );
         return this;
     }
 
         
     public Rule<TFact> Then( string group, string template, params Func<TFact, object>[] parameters)
     {
-        Consequence = f => _BuildMessage(f, EventDetail.EventCategory.Info, group, template, parameters);
+        Consequence = f => _BuildMessage(f, RuleEvent.EventCategory.Info, group, template, parameters);
         return this;
     }
 
 
         
-    public Rule<TFact> Then(EventDetail.EventCategory category, string group, string template, params Func<TFact, object>[] parameters )
+    public Rule<TFact> Then(RuleEvent.EventCategory category, string group, string template, params Func<TFact, object>[] parameters )
     {
         Consequence = f => _BuildMessage( f, category, group, template, parameters );
         return this;
@@ -171,7 +170,7 @@ public class Rule<TFact> : AbstractRule
     public Rule<TFact> Fire( string template, params Func<TFact, object>[] parameters )
     {
         Conditions.Add( f => true );
-        Consequence = f => _BuildMessage( f, EventDetail.EventCategory.Info, "", template, parameters );
+        Consequence = f => _BuildMessage( f, RuleEvent.EventCategory.Info, "", template, parameters );
         return this;
     }
 
@@ -179,13 +178,13 @@ public class Rule<TFact> : AbstractRule
     public Rule<TFact> Fire( string group, string template, params Func<TFact, object>[] parameters)
     {
         Conditions.Add(f => true);
-        Consequence = f => _BuildMessage(f, EventDetail.EventCategory.Info, group, template, parameters);
+        Consequence = f => _BuildMessage(f, RuleEvent.EventCategory.Info, group, template, parameters);
         return this;
     }
 
 
         
-    public Rule<TFact> Fire(EventDetail.EventCategory category, string group, string template, params Func<TFact, object>[] parameters )
+    public Rule<TFact> Fire(RuleEvent.EventCategory category, string group, string template, params Func<TFact, object>[] parameters )
     {
         Conditions.Add( f => true );
         Consequence = f => _BuildMessage( f, category, group, template, parameters );
@@ -221,7 +220,7 @@ public class Rule<TFact> : AbstractRule
     public Rule<TFact> Otherwise( string template, params Func<TFact, object>[] parameters )
     {
         Negated = true;
-        Consequence = f => _BuildMessage( f, EventDetail.EventCategory.Info, "", template, parameters );
+        Consequence = f => _BuildMessage( f, RuleEvent.EventCategory.Info, "", template, parameters );
         return this;
     }
 
@@ -229,13 +228,13 @@ public class Rule<TFact> : AbstractRule
     public Rule<TFact> Otherwise( string group, string template, params Func<TFact, object>[] parameters)
     {
         Negated = true;
-        Consequence = f => _BuildMessage(f, EventDetail.EventCategory.Info, group, template, parameters);
+        Consequence = f => _BuildMessage(f, RuleEvent.EventCategory.Info, group, template, parameters);
         return this;
     }
 
 
         
-    public Rule<TFact> Otherwise(EventDetail.EventCategory category, string group, string template, params Func<TFact, object>[] parameters )
+    public Rule<TFact> Otherwise(RuleEvent.EventCategory category, string group, string template, params Func<TFact, object>[] parameters )
     {
         Negated = true;
         Consequence = f => _BuildMessage( f, category, group, template, parameters );
@@ -259,7 +258,7 @@ public class Rule<TFact> : AbstractRule
     }
 
 
-    private void _BuildMessage( TFact fact, EventDetail.EventCategory category, string group, string template,  Func<TFact, object>[] parameters )
+    private void _BuildMessage( TFact fact, RuleEvent.EventCategory category, string group, string template,  Func<TFact, object>[] parameters )
     {
         var len = parameters.Length;
 
@@ -455,20 +454,20 @@ public class Rule<TFact1, TFact2> : AbstractRule
         
     public Rule<TFact1, TFact2> Then( string template, params Func<TFact1, TFact2, object>[] parameters )
     {
-        Consequence = ( f1, f2 ) => _BuildMessage( f1, f2, EventDetail.EventCategory.Info, "", template, parameters );
+        Consequence = ( f1, f2 ) => _BuildMessage( f1, f2, RuleEvent.EventCategory.Info, "", template, parameters );
         return this;
     }
 
         
     public Rule<TFact1, TFact2> Then( string group, string template, params Func<TFact1, TFact2, object>[] parameters)
     {
-        Consequence = (f1, f2) => _BuildMessage(f1, f2, EventDetail.EventCategory.Info, group, template, parameters);
+        Consequence = (f1, f2) => _BuildMessage(f1, f2, RuleEvent.EventCategory.Info, group, template, parameters);
         return this;
     }
 
 
         
-    public Rule<TFact1, TFact2> Then(EventDetail.EventCategory category, string group, string template, params Func<TFact1, TFact2, object>[] parameters )
+    public Rule<TFact1, TFact2> Then(RuleEvent.EventCategory category, string group, string template, params Func<TFact1, TFact2, object>[] parameters )
     {
         Consequence = ( f1, f2 ) => _BuildMessage( f1, f2, category, group, template, parameters );
         return this;
@@ -500,7 +499,7 @@ public class Rule<TFact1, TFact2> : AbstractRule
     public Rule<TFact1, TFact2> Fire( string template, params Func<TFact1, TFact2, object>[] parameters )
     {
         Conditions.Add( ( f1, f2 ) => true );
-        Consequence = ( f1, f2 ) => _BuildMessage( f1, f2, EventDetail.EventCategory.Info, "", template, parameters );
+        Consequence = ( f1, f2 ) => _BuildMessage( f1, f2, RuleEvent.EventCategory.Info, "", template, parameters );
         return this;
     }
 
@@ -508,13 +507,13 @@ public class Rule<TFact1, TFact2> : AbstractRule
     public Rule<TFact1, TFact2> Fire( string group, string template, params Func<TFact1, TFact2, object>[] parameters)
     {
         Conditions.Add((f1, f2) => true);
-        Consequence = (f1, f2) => _BuildMessage(f1, f2, EventDetail.EventCategory.Info, group, template, parameters);
+        Consequence = (f1, f2) => _BuildMessage(f1, f2, RuleEvent.EventCategory.Info, group, template, parameters);
         return this;
     }
 
 
         
-    public Rule<TFact1, TFact2> Fire(EventDetail.EventCategory category, string group, string template, params Func<TFact1, TFact2, object>[] parameters )
+    public Rule<TFact1, TFact2> Fire(RuleEvent.EventCategory category, string group, string template, params Func<TFact1, TFact2, object>[] parameters )
     {
         Conditions.Add( ( f1, f2 ) => true );
         Consequence = ( f1, f2 ) => _BuildMessage( f1, f2, category, group, template, parameters );
@@ -550,7 +549,7 @@ public class Rule<TFact1, TFact2> : AbstractRule
     public Rule<TFact1, TFact2> Otherwise( string template, params Func<TFact1, TFact2, object>[] parameters )
     {
         Negated = true;
-        Consequence = ( f1, f2 ) => _BuildMessage( f1, f2, EventDetail.EventCategory.Info, "", template, parameters );
+        Consequence = ( f1, f2 ) => _BuildMessage( f1, f2, RuleEvent.EventCategory.Info, "", template, parameters );
         return this;
     }
 
@@ -558,12 +557,12 @@ public class Rule<TFact1, TFact2> : AbstractRule
     public Rule<TFact1, TFact2> Otherwise( string group, string template, params Func<TFact1, TFact2, object>[] parameters)
     {
         Negated = true;
-        Consequence = (f1, f2) => _BuildMessage(f1, f2, EventDetail.EventCategory.Info, group, template, parameters);
+        Consequence = (f1, f2) => _BuildMessage(f1, f2, RuleEvent.EventCategory.Info, group, template, parameters);
         return this;
     }
 
         
-    public Rule<TFact1, TFact2> Otherwise(EventDetail.EventCategory category, string group, string template, params Func<TFact1, TFact2, object>[] parameters )
+    public Rule<TFact1, TFact2> Otherwise(RuleEvent.EventCategory category, string group, string template, params Func<TFact1, TFact2, object>[] parameters )
     {
         Negated = true;
         Consequence = ( f1, f2 ) => _BuildMessage( f1, f2, category, group, template, parameters );
@@ -614,7 +613,7 @@ public class Rule<TFact1, TFact2> : AbstractRule
     }
 
 
-    private void _BuildMessage( TFact1 fact1, TFact2 fact2, EventDetail.EventCategory category, string group, string template,  Func<TFact1, TFact2, object>[] parameters )
+    private void _BuildMessage( TFact1 fact1, TFact2 fact2, RuleEvent.EventCategory category, string group, string template,  Func<TFact1, TFact2, object>[] parameters )
     {
         int len = parameters.Length;
 
@@ -776,21 +775,21 @@ public class Rule<TFact1, TFact2, TFact3> : AbstractRule
         
     public Rule<TFact1, TFact2, TFact3> Then( string template, params Func<TFact1, TFact2, TFact3, object>[] parameters )
     {
-        Consequence = ( f1, f2, f3 ) => _BuildMessage( f1, f2, f3, EventDetail.EventCategory.Info, "", template, parameters );
+        Consequence = ( f1, f2, f3 ) => _BuildMessage( f1, f2, f3, RuleEvent.EventCategory.Info, "", template, parameters );
         return this;
     }
 
         
     public Rule<TFact1, TFact2, TFact3> Then( string group, string template, params Func<TFact1, TFact2, TFact3, object>[] parameters)
     {
-        Consequence = (f1, f2, f3) => _BuildMessage(f1, f2, f3, EventDetail.EventCategory.Info, group, template, parameters);
+        Consequence = (f1, f2, f3) => _BuildMessage(f1, f2, f3, RuleEvent.EventCategory.Info, group, template, parameters);
         return this;
     }
 
 
 
         
-    public Rule<TFact1, TFact2, TFact3> Then(EventDetail.EventCategory category, string group, string template, params Func<TFact1, TFact2, TFact3, object>[] parameters )
+    public Rule<TFact1, TFact2, TFact3> Then(RuleEvent.EventCategory category, string group, string template, params Func<TFact1, TFact2, TFact3, object>[] parameters )
     {
         Consequence = ( f1, f2, f3 ) => _BuildMessage( f1, f2, f3, category, group, template, parameters );
         return this;
@@ -822,7 +821,7 @@ public class Rule<TFact1, TFact2, TFact3> : AbstractRule
     public Rule<TFact1, TFact2, TFact3> Fire( string template, params Func<TFact1, TFact2, TFact3, object>[] parameters )
     {
         Conditions.Add( ( f1, f2, f3 ) => true );
-        Consequence = ( f1, f2, f3 ) => _BuildMessage( f1, f2, f3, EventDetail.EventCategory.Info, "", template, parameters );
+        Consequence = ( f1, f2, f3 ) => _BuildMessage( f1, f2, f3, RuleEvent.EventCategory.Info, "", template, parameters );
         return this;
     }
 
@@ -830,13 +829,13 @@ public class Rule<TFact1, TFact2, TFact3> : AbstractRule
     public Rule<TFact1, TFact2, TFact3> Fire( string group, string template, params Func<TFact1, TFact2, TFact3, object>[] parameters)
     {
         Conditions.Add((f1, f2, f3) => true);
-        Consequence = (f1, f2, f3) => _BuildMessage(f1, f2, f3, EventDetail.EventCategory.Info, group, template, parameters);
+        Consequence = (f1, f2, f3) => _BuildMessage(f1, f2, f3, RuleEvent.EventCategory.Info, group, template, parameters);
         return this;
     }
 
 
         
-    public Rule<TFact1, TFact2, TFact3> Fire(EventDetail.EventCategory category, string group, string template, params Func<TFact1, TFact2, TFact3, object>[] parameters )
+    public Rule<TFact1, TFact2, TFact3> Fire(RuleEvent.EventCategory category, string group, string template, params Func<TFact1, TFact2, TFact3, object>[] parameters )
     {
         Conditions.Add( ( f1, f2, f3 ) => true );
         Consequence = ( f1, f2, f3 ) => _BuildMessage( f1, f2, f3, category, group, template, parameters );
@@ -872,7 +871,7 @@ public class Rule<TFact1, TFact2, TFact3> : AbstractRule
     public Rule<TFact1, TFact2, TFact3> Otherwise( string template, params Func<TFact1, TFact2, TFact3, object>[] parameters )
     {
         Negated = true;
-        Consequence = ( f1, f2, f3 ) => _BuildMessage( f1, f2, f3, EventDetail.EventCategory.Info, "", template, parameters );
+        Consequence = ( f1, f2, f3 ) => _BuildMessage( f1, f2, f3, RuleEvent.EventCategory.Info, "", template, parameters );
         return this;
     }
 
@@ -881,13 +880,13 @@ public class Rule<TFact1, TFact2, TFact3> : AbstractRule
     public Rule<TFact1, TFact2, TFact3> Otherwise( string group, string template, params Func<TFact1, TFact2, TFact3, object>[] parameters)
     {
         Negated = true;
-        Consequence = (f1, f2, f3) => _BuildMessage(f1, f2, f3, EventDetail.EventCategory.Info, group, template, parameters);
+        Consequence = (f1, f2, f3) => _BuildMessage(f1, f2, f3, RuleEvent.EventCategory.Info, group, template, parameters);
         return this;
     }
 
 
         
-    public Rule<TFact1, TFact2, TFact3> Otherwise(EventDetail.EventCategory category, string group, string template, params Func<TFact1, TFact2, TFact3, object>[] parameters )
+    public Rule<TFact1, TFact2, TFact3> Otherwise(RuleEvent.EventCategory category, string group, string template, params Func<TFact1, TFact2, TFact3, object>[] parameters )
     {
         Negated = true;
         Consequence = ( f1, f2, f3 ) => _BuildMessage( f1, f2, f3, category, group, template, parameters );
@@ -938,7 +937,7 @@ public class Rule<TFact1, TFact2, TFact3> : AbstractRule
     }
 
 
-    private void _BuildMessage( TFact1 fact1, TFact2 fact2, TFact3 fact3, EventDetail.EventCategory category, string group, string template,  Func<TFact1, TFact2, TFact3, object>[] parameters )
+    private void _BuildMessage( TFact1 fact1, TFact2 fact2, TFact3 fact3, RuleEvent.EventCategory category, string group, string template,  Func<TFact1, TFact2, TFact3, object>[] parameters )
     {
         int len = parameters.Length;
 
@@ -1101,20 +1100,20 @@ public class Rule<TFact1, TFact2, TFact3, TFact4> : AbstractRule
         
     public Rule<TFact1, TFact2, TFact3, TFact4> Then( string template, params Func<TFact1, TFact2, TFact3, TFact4, object>[] parameters )
     {
-        Consequence = ( f1, f2, f3, f4 ) => _BuildMessage( f1, f2, f3, f4, EventDetail.EventCategory.Info, "", template, parameters );
+        Consequence = ( f1, f2, f3, f4 ) => _BuildMessage( f1, f2, f3, f4, RuleEvent.EventCategory.Info, "", template, parameters );
         return this;
     }
 
         
     public Rule<TFact1, TFact2, TFact3, TFact4> Then(string group, string template, params Func<TFact1, TFact2, TFact3, TFact4, object>[] parameters)
     {
-        Consequence = (f1, f2, f3, f4) => _BuildMessage(f1, f2, f3, f4, EventDetail.EventCategory.Info, group, template, parameters);
+        Consequence = (f1, f2, f3, f4) => _BuildMessage(f1, f2, f3, f4, RuleEvent.EventCategory.Info, group, template, parameters);
         return this;
     }
 
 
         
-    public Rule<TFact1, TFact2, TFact3, TFact4> Then(EventDetail.EventCategory category, string group, string template, params Func<TFact1, TFact2, TFact3, TFact4, object>[] parameters )
+    public Rule<TFact1, TFact2, TFact3, TFact4> Then(RuleEvent.EventCategory category, string group, string template, params Func<TFact1, TFact2, TFact3, TFact4, object>[] parameters )
     {
         Consequence = ( f1, f2, f3, f4 ) => _BuildMessage( f1, f2, f3, f4, category, group, template, parameters );
         return this;
@@ -1146,7 +1145,7 @@ public class Rule<TFact1, TFact2, TFact3, TFact4> : AbstractRule
     public Rule<TFact1, TFact2, TFact3, TFact4> Fire( string template, params Func<TFact1, TFact2, TFact3, TFact4, object>[] parameters )
     {
         Conditions.Add( ( f1, f2, f3, f4 ) => true );
-        Consequence = ( f1, f2, f3, f4 ) => _BuildMessage( f1, f2, f3, f4, EventDetail.EventCategory.Info, "", template, parameters );
+        Consequence = ( f1, f2, f3, f4 ) => _BuildMessage( f1, f2, f3, f4, RuleEvent.EventCategory.Info, "", template, parameters );
         return this;
     }
 
@@ -1154,13 +1153,13 @@ public class Rule<TFact1, TFact2, TFact3, TFact4> : AbstractRule
     public Rule<TFact1, TFact2, TFact3, TFact4> Fire( string group, string template, params Func<TFact1, TFact2, TFact3, TFact4, object>[] parameters)
     {
         Conditions.Add((f1, f2, f3, f4) => true);
-        Consequence = (f1, f2, f3, f4) => _BuildMessage(f1, f2, f3, f4, EventDetail.EventCategory.Info, group, template, parameters);
+        Consequence = (f1, f2, f3, f4) => _BuildMessage(f1, f2, f3, f4, RuleEvent.EventCategory.Info, group, template, parameters);
         return this;
     }
 
 
         
-    public Rule<TFact1, TFact2, TFact3, TFact4> Fire(EventDetail.EventCategory category, string group, string template, params Func<TFact1, TFact2, TFact3, TFact4, object>[] parameters )
+    public Rule<TFact1, TFact2, TFact3, TFact4> Fire(RuleEvent.EventCategory category, string group, string template, params Func<TFact1, TFact2, TFact3, TFact4, object>[] parameters )
     {
         Conditions.Add( ( f1, f2, f3, f4 ) => true );
         Consequence = ( f1, f2, f3, f4 ) => _BuildMessage( f1, f2, f3, f4, category, group, template, parameters );
@@ -1196,7 +1195,7 @@ public class Rule<TFact1, TFact2, TFact3, TFact4> : AbstractRule
     public Rule<TFact1, TFact2, TFact3, TFact4> Otherwise( string template, params Func<TFact1, TFact2, TFact3, TFact4, object>[] parameters )
     {
         Negated = true;
-        Consequence = ( f1, f2, f3, f4 ) => _BuildMessage( f1, f2, f3, f4, EventDetail.EventCategory.Info, "", template, parameters );
+        Consequence = ( f1, f2, f3, f4 ) => _BuildMessage( f1, f2, f3, f4, RuleEvent.EventCategory.Info, "", template, parameters );
         return this;
     }
 
@@ -1205,13 +1204,13 @@ public class Rule<TFact1, TFact2, TFact3, TFact4> : AbstractRule
     public Rule<TFact1, TFact2, TFact3, TFact4> Otherwise( string group, string template, params Func<TFact1, TFact2, TFact3, TFact4, object>[] parameters)
     {
         Negated = true;
-        Consequence = (f1, f2, f3, f4) => _BuildMessage(f1, f2, f3, f4, EventDetail.EventCategory.Info, group, template, parameters);
+        Consequence = (f1, f2, f3, f4) => _BuildMessage(f1, f2, f3, f4, RuleEvent.EventCategory.Info, group, template, parameters);
         return this;
     }
 
 
         
-    public Rule<TFact1, TFact2, TFact3, TFact4> Otherwise(EventDetail.EventCategory category, string group, string template, params Func<TFact1, TFact2, TFact3, TFact4, object>[] parameters )
+    public Rule<TFact1, TFact2, TFact3, TFact4> Otherwise(RuleEvent.EventCategory category, string group, string template, params Func<TFact1, TFact2, TFact3, TFact4, object>[] parameters )
     {
         Negated = true;
         Consequence = ( f1, f2, f3, f4 ) => _BuildMessage( f1, f2, f3, f4, category, group, template, parameters );
@@ -1262,7 +1261,7 @@ public class Rule<TFact1, TFact2, TFact3, TFact4> : AbstractRule
     }
 
 
-    private void _BuildMessage( TFact1 fact1, TFact2 fact2, TFact3 fact3, TFact4 fact4, EventDetail.EventCategory category, string group, string template,  Func<TFact1, TFact2, TFact3, TFact4, object>[] parameters )
+    private void _BuildMessage( TFact1 fact1, TFact2 fact2, TFact3 fact3, TFact4 fact4, RuleEvent.EventCategory category, string group, string template,  Func<TFact1, TFact2, TFact3, TFact4, object>[] parameters )
     {
         int len = parameters.Length;
 

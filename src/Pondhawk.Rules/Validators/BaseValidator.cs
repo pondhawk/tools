@@ -22,7 +22,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-using Pondhawk.Exceptions;
 using Pondhawk.Rules.Evaluation;
 
 namespace Pondhawk.Rules.Validators;
@@ -54,24 +53,24 @@ public abstract class BaseValidator<TFact>
 
     public IValidationRule<TFact> Otherwise( string template, params Func<TFact, object>[] parameters )
     {
-        Consequence = f => _BuildMessage( f, EventDetail.EventCategory.Violation, Group, template, parameters );
+        Consequence = f => _BuildMessage( f, RuleEvent.EventCategory.Violation, Group, template, parameters );
         return Rule;
     }
 
     public IValidationRule<TFact> Otherwise( string group, string template, params Func<TFact, object>[] parameters)
     {
-        Consequence = f => _BuildMessage(f, EventDetail.EventCategory.Violation, group, template, parameters);
+        Consequence = f => _BuildMessage(f, RuleEvent.EventCategory.Violation, group, template, parameters);
         return Rule;
     }
 
-    public IValidationRule<TFact> Otherwise( EventDetail.EventCategory category, string group, string template, params Func<TFact, object>[] parameters )
+    public IValidationRule<TFact> Otherwise( RuleEvent.EventCategory category, string group, string template, params Func<TFact, object>[] parameters )
     {
         Consequence = f => _BuildMessage(f, category, group, template, parameters);
         return Rule;
     }
 
 
-    private void _BuildMessage( TFact fact, EventDetail.EventCategory category, string group, string template,  Func<TFact, object>[] parameters )
+    private void _BuildMessage( TFact fact, RuleEvent.EventCategory category, string group, string template,  Func<TFact, object>[] parameters )
     {
         int len = parameters.Length;
 

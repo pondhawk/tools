@@ -1,9 +1,9 @@
-using Pondhawk.Exceptions;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Pondhawk.Rules.Builder;
 using Pondhawk.Rules.Factory;
 using Pondhawk.Rules.Listeners;
 using Shouldly;
-using Serilog;
 using Xunit;
 
 namespace Pondhawk.Rules.Tests;
@@ -27,13 +27,13 @@ public class ListenerTests
         listener.EndEvaluation();
         listener.Debug("test {0}", "value");
         listener.Warning("warn {0}", "value");
-        listener.EventCreated(new EventDetail
+        listener.EventCreated(new RuleEvent
         {
-            Category = EventDetail.EventCategory.Info,
-            Explanation = "test",
+            Category = RuleEvent.EventCategory.Info,
+            Message = "test",
             Group = "",
             RuleName = "",
-            Source = ""
+            MessageTemplate = ""
         });
     }
 
@@ -43,17 +43,9 @@ public class ListenerTests
     [Fact]
     public void WatchListener_CanBeConstructedWithLogger()
     {
-        var logger = new LoggerConfiguration().CreateLogger();
+        var logger = NullLoggerFactory.Instance.CreateLogger("Test");
 
         var listener = new WatchEvaluationListener(logger);
-
-        listener.ShouldNotBeNull();
-    }
-
-    [Fact]
-    public void WatchListener_CanBeConstructedWithCategory()
-    {
-        var listener = new WatchEvaluationListener("TestCategory");
 
         listener.ShouldNotBeNull();
     }
@@ -116,7 +108,7 @@ public class ListenerTests
         ruleSet.AddRule<Person>("test")
             .Fire(p => { });
 
-        var logger = new LoggerConfiguration().CreateLogger();
+        var logger = NullLoggerFactory.Instance.CreateLogger("Test");
 
         var ctx = ruleSet.GetEvaluationContext();
         ctx.ThrowNoRulesException = false;

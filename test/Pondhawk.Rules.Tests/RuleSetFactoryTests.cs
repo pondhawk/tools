@@ -26,7 +26,7 @@ public class RuleSetFactoryTests
 {
 
     [Fact]
-    public async Task RuleSetFactory_Start_LoadsBuilders()
+    public void RuleSetFactory_Start_LoadsBuilders()
     {
         var factory = new RuleSetFactory();
 
@@ -35,7 +35,7 @@ public class RuleSetFactoryTests
 
         factory.AddSources(source);
 
-        await factory.StartAsync();
+        factory.Start();
 
         var ruleSet = factory.GetRuleSet();
         var adult = new Person { Name = "Alice", Age = 25 };
@@ -45,7 +45,7 @@ public class RuleSetFactoryTests
     }
 
     [Fact]
-    public async Task RuleSetFactory_Stop_ClearsRules()
+    public void RuleSetFactory_Stop_ClearsRules()
     {
         var factory = new RuleSetFactory();
 
@@ -54,7 +54,7 @@ public class RuleSetFactoryTests
 
         factory.AddSources(source);
 
-        await factory.StartAsync();
+        factory.Start();
 
         factory.Stop();
 
@@ -65,7 +65,7 @@ public class RuleSetFactoryTests
     }
 
     [Fact]
-    public async Task RuleSetFactory_GetRuleSetWithNamespaces_FiltersRules()
+    public void RuleSetFactory_GetRuleSetWithNamespaces_FiltersRules()
     {
         var factory = new RuleSetFactory();
 
@@ -74,7 +74,7 @@ public class RuleSetFactoryTests
 
         factory.AddSources(source);
 
-        await factory.StartAsync();
+        factory.Start();
 
         // Get ruleset with a non-matching namespace
         var ruleSet = factory.GetRuleSet("some.other.namespace");
@@ -84,7 +84,7 @@ public class RuleSetFactoryTests
     }
 
     [Fact]
-    public async Task RuleSetFactory_StartAsync_Idempotent()
+    public void RuleSetFactory_Start_Idempotent()
     {
         var factory = new RuleSetFactory();
 
@@ -93,8 +93,8 @@ public class RuleSetFactoryTests
 
         factory.AddSources(source);
 
-        await factory.StartAsync();
-        await factory.StartAsync(); // second call should be no-op
+        factory.Start();
+        factory.Start(); // second call should be no-op
 
         var ruleSet = factory.GetRuleSet();
         var result = ruleSet.Evaluate(new Person { Name = "Test", Age = 25 });

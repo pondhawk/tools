@@ -1,4 +1,3 @@
-using Pondhawk.Exceptions;
 using Pondhawk.Rules.Factory;
 using Shouldly;
 using Xunit;
@@ -92,7 +91,7 @@ public class ForeachRuleAdvancedTests
         var result = EvaluateSafe(ruleSet, order);
 
         result.Events.Count.ShouldBe(1);
-        result.Events.First().Explanation.ShouldBe("Gadget has no quantity");
+        result.Events.First().Message.ShouldBe("Gadget has no quantity");
     }
 
     [Fact]
@@ -122,7 +121,7 @@ public class ForeachRuleAdvancedTests
 
         ruleSet.AddRule<Order, OrderItem>("oth-cat", o => o.Items)
             .If(item => item.Quantity > 0)
-            .Otherwise(EventDetail.EventCategory.Violation, "items", "{0} invalid", item => item.Product);
+            .Otherwise(RuleEvent.EventCategory.Violation, "items", "{0} invalid", item => item.Product);
 
         var order = new Order
         {
@@ -132,7 +131,7 @@ public class ForeachRuleAdvancedTests
 
         var result = EvaluateSafe(ruleSet, order);
 
-        result.Events.First().Category.ShouldBe(EventDetail.EventCategory.Violation);
+        result.Events.First().Category.ShouldBe(RuleEvent.EventCategory.Violation);
     }
 
 
@@ -295,7 +294,7 @@ public class ForeachRuleAdvancedTests
 
         var result = EvaluateSafe(ruleSet, order);
 
-        result.Events.First().Explanation.ShouldBe("Processed Widget");
+        result.Events.First().Message.ShouldBe("Processed Widget");
     }
 
     [Fact]
@@ -325,7 +324,7 @@ public class ForeachRuleAdvancedTests
 
         ruleSet.AddRule<Order, OrderItem>("cat", o => o.Items)
             .If(item => item.Quantity > 0)
-            .Then(EventDetail.EventCategory.Warning, "trace", "Item {0}", item => item.Product);
+            .Then(RuleEvent.EventCategory.Warning, "trace", "Item {0}", item => item.Product);
 
         var order = new Order
         {
@@ -335,7 +334,7 @@ public class ForeachRuleAdvancedTests
 
         var result = EvaluateSafe(ruleSet, order);
 
-        result.Events.First().Category.ShouldBe(EventDetail.EventCategory.Warning);
+        result.Events.First().Category.ShouldBe(RuleEvent.EventCategory.Warning);
     }
 
 
@@ -357,7 +356,7 @@ public class ForeachRuleAdvancedTests
 
         var result = EvaluateSafe(ruleSet, order);
 
-        result.Events.First().Explanation.ShouldBe("Item: Widget");
+        result.Events.First().Message.ShouldBe("Item: Widget");
     }
 
     [Fact]
@@ -385,7 +384,7 @@ public class ForeachRuleAdvancedTests
         var ruleSet = new RuleSet();
 
         ruleSet.AddRule<Order, OrderItem>("fire-cat", o => o.Items)
-            .Fire(EventDetail.EventCategory.Violation, "bad", "Bad: {0}", item => item.Product);
+            .Fire(RuleEvent.EventCategory.Violation, "bad", "Bad: {0}", item => item.Product);
 
         var order = new Order
         {
@@ -395,7 +394,7 @@ public class ForeachRuleAdvancedTests
 
         var result = EvaluateSafe(ruleSet, order);
 
-        result.Events.First().Category.ShouldBe(EventDetail.EventCategory.Violation);
+        result.Events.First().Category.ShouldBe(RuleEvent.EventCategory.Violation);
     }
 
 
@@ -417,7 +416,7 @@ public class ForeachRuleAdvancedTests
 
         var result = EvaluateSafe(ruleSet, order);
 
-        result.Events.First().Explanation.ShouldBe("Value: null");
+        result.Events.First().Message.ShouldBe("Value: null");
     }
 
 

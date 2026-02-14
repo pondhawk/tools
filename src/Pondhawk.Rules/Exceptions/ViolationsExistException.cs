@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 
 Copyright (c) 2017 The Kampilan Group Inc.
@@ -22,35 +22,21 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-
-
-using Pondhawk.Exceptions;
-
 namespace Pondhawk.Rules.Exceptions;
 
-public sealed class ViolationsExistException : FluentException<ViolationsExistException>
+public sealed class ViolationsExistException : Exception
 {
 
-
-    public ViolationsExistException(  EvaluationResults result ) : base( "Violation events occurred during evaluation" )
+    public ViolationsExistException( EvaluationResults result ) : base( "Violation events occurred during evaluation" )
     {
         Result = result;
-
-        WithKind(ErrorKind.Predicate);
-        WithDetails(result.Events);
-
     }
-
 
     public EvaluationResults Result { get; }
 
-
-    
-    public IEnumerable<EventDetail> Violations
+    public IEnumerable<RuleEvent> Violations
     {
-        get { return Result.Events.Where( e => e.Category == EventDetail.EventCategory.Violation ); }
+        get { return Result.Events.Where( e => e.Category == RuleEvent.EventCategory.Violation ); }
     }
 
-
 }
-

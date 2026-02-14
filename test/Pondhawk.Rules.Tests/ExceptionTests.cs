@@ -1,4 +1,3 @@
-using Pondhawk.Exceptions;
 using Pondhawk.Rules.Exceptions;
 using Pondhawk.Rules.Factory;
 using Shouldly;
@@ -116,7 +115,7 @@ public class ExceptionTests
         var ex = Should.Throw<ViolationsExistException>(() => ruleSet.Evaluate(ctx));
 
         ex.Violations.ShouldNotBeNull();
-        ex.Violations.All(v => v.Category == EventDetail.EventCategory.Violation).ShouldBeTrue();
+        ex.Violations.All(v => v.Category == RuleEvent.EventCategory.Violation).ShouldBeTrue();
     }
 
     [Fact]

@@ -1,4 +1,3 @@
-using Pondhawk.Exceptions;
 using Pondhawk.Rules.Factory;
 using Pondhawk.Rules.Validators;
 using Shouldly;
@@ -57,7 +56,7 @@ public class ValidationTests
 
         result.HasViolations.ShouldBeTrue();
         result.Events.Count.ShouldBe(1);
-        result.Events.First().Explanation.ShouldBe("Name is required");
+        result.Events.First().Message.ShouldBe("Name is required");
     }
 
     [Fact]
@@ -136,7 +135,7 @@ public class ValidationTests
 
         valid.ShouldBeFalse();
         violations.Count.ShouldBe(1);
-        violations[0].Explanation.ShouldBe("Name is required");
+        violations[0].Message.ShouldBe("Name is required");
     }
 
 

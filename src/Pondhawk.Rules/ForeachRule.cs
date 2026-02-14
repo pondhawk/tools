@@ -22,7 +22,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-using Pondhawk.Exceptions;
 using Pondhawk.Rules.Builder;
 using Pondhawk.Rules.Evaluation;
 
@@ -118,20 +117,20 @@ public class ForeachRule<TParent,TFact>: AbstractRule
     
     public ForeachRule<TParent, TFact> Then( string template, params Func<TFact, object>[] parameters )
     {
-        Consequence = f => _BuildMessage( f, EventDetail.EventCategory.Info, "", template, parameters );
+        Consequence = f => _BuildMessage( f, RuleEvent.EventCategory.Info, "", template, parameters );
         return this;
     }
 
     
     public ForeachRule<TParent, TFact> Then( string group, string template, params Func<TFact, object>[] parameters)
     {
-        Consequence = f => _BuildMessage(f, EventDetail.EventCategory.Info, group, template, parameters);
+        Consequence = f => _BuildMessage(f, RuleEvent.EventCategory.Info, group, template, parameters);
         return this;
     }
 
 
     
-    public ForeachRule<TParent, TFact> Then( EventDetail.EventCategory category, string group, string template, params Func<TFact, object>[] parameters )
+    public ForeachRule<TParent, TFact> Then( RuleEvent.EventCategory category, string group, string template, params Func<TFact, object>[] parameters )
     {
         Consequence = f => _BuildMessage( f, category, group, template, parameters );
         return this;
@@ -164,7 +163,7 @@ public class ForeachRule<TParent,TFact>: AbstractRule
     public ForeachRule<TParent, TFact> Fire( string template, params Func<TFact, object>[] parameters )
     {
         Conditions.Add( f => true );
-        Consequence = f => _BuildMessage( f, EventDetail.EventCategory.Info, "", template, parameters );
+        Consequence = f => _BuildMessage( f, RuleEvent.EventCategory.Info, "", template, parameters );
         return this;
     }
 
@@ -172,12 +171,12 @@ public class ForeachRule<TParent,TFact>: AbstractRule
     public ForeachRule<TParent, TFact> Fire( string group, string template, params Func<TFact, object>[] parameters)
     {
         Conditions.Add(f => true);
-        Consequence = f => _BuildMessage(f, EventDetail.EventCategory.Info, group, template, parameters);
+        Consequence = f => _BuildMessage(f, RuleEvent.EventCategory.Info, group, template, parameters);
         return this;
     }
 
     
-    public ForeachRule<TParent, TFact> Fire( EventDetail.EventCategory category, string group, string template, params Func<TFact, object>[] parameters )
+    public ForeachRule<TParent, TFact> Fire( RuleEvent.EventCategory category, string group, string template, params Func<TFact, object>[] parameters )
     {
         Conditions.Add( f => true );
         Consequence = f => _BuildMessage( f, category, group, template, parameters );
@@ -213,7 +212,7 @@ public class ForeachRule<TParent,TFact>: AbstractRule
     public ForeachRule<TParent, TFact> Otherwise( string template, params Func<TFact, object>[] parameters )
     {
         Negated = true;
-        Consequence = f => _BuildMessage( f, EventDetail.EventCategory.Info, "", template, parameters );
+        Consequence = f => _BuildMessage( f, RuleEvent.EventCategory.Info, "", template, parameters );
         return this;
     }
 
@@ -221,12 +220,12 @@ public class ForeachRule<TParent,TFact>: AbstractRule
     public ForeachRule<TParent, TFact> Otherwise( string group, string template, params Func<TFact, object>[] parameters)
     {
         Negated = true;
-        Consequence = f => _BuildMessage(f, EventDetail.EventCategory.Info, group, template, parameters);
+        Consequence = f => _BuildMessage(f, RuleEvent.EventCategory.Info, group, template, parameters);
         return this;
     }
 
     
-    public ForeachRule<TParent, TFact> Otherwise(EventDetail.EventCategory category, string group, string template, params Func<TFact, object>[] parameters )
+    public ForeachRule<TParent, TFact> Otherwise(RuleEvent.EventCategory category, string group, string template, params Func<TFact, object>[] parameters )
     {
         Negated = true;
         Consequence = f => _BuildMessage( f, category, group, template, parameters );
@@ -263,7 +262,7 @@ public class ForeachRule<TParent,TFact>: AbstractRule
     }
 
 
-    private void _BuildMessage( TFact fact, EventDetail.EventCategory category, string group, string template,  Func<TFact, object>[] parameters )
+    private void _BuildMessage( TFact fact, RuleEvent.EventCategory category, string group, string template,  Func<TFact, object>[] parameters )
     {
         int len = parameters.Length;
 

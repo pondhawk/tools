@@ -22,7 +22,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-using Pondhawk.Exceptions;
 using Pondhawk.Rules.Evaluation;
 using Pondhawk.Rules.Tree;
 
@@ -78,12 +77,12 @@ public abstract class AbstractRuleBuilder
 
     protected void Info( string group, string template, params object[] markers )
     {
-        RuleThreadLocalStorage.CurrentContext.Event( EventDetail.EventCategory.Info, group, template, markers );
+        RuleThreadLocalStorage.CurrentContext.Event( RuleEvent.EventCategory.Info, group, template, markers );
     }
 
     protected void Violation( string group, string template, params object[] markers )
     {
-        RuleThreadLocalStorage.CurrentContext.Event( EventDetail.EventCategory.Violation, group, template, markers );
+        RuleThreadLocalStorage.CurrentContext.Event( RuleEvent.EventCategory.Violation, group, template, markers );
     }
 
     protected void Affirm( int amount )

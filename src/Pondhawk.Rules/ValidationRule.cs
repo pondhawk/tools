@@ -27,7 +27,7 @@ using CommunityToolkit.Diagnostics;
 using Pondhawk.Rules.Builder;
 using Pondhawk.Rules.Evaluation;
 using Pondhawk.Rules.Validators;
-using Pondhawk.Utilities.Types;
+using Pondhawk.Rules.Util;
 
 namespace Pondhawk.Rules;
 

@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 
 Copyright (c) 2017 The Kampilan Group Inc.
@@ -22,13 +22,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-using Pondhawk.Exceptions;
-using Pondhawk.Logging;
+using Microsoft.Extensions.Logging;
 using Pondhawk.Rules.Builder;
 using Pondhawk.Rules.Evaluation;
-using Serilog;
-using Serilog.Core;
-using Serilog.Events;
 
 namespace Pondhawk.Rules.Listeners;
 
@@ -41,11 +37,6 @@ public sealed class WatchEvaluationListener: IEvaluationListener
         Logger = logger;
     }
 
-    public WatchEvaluationListener(  string category )
-    {
-        Logger =  Log.ForContext(Constants.SourceContextPropertyName, category);
-    }
-
 
     private ILogger Logger { get; }
 
@@ -53,28 +44,28 @@ public sealed class WatchEvaluationListener: IEvaluationListener
     public void BeginEvaluation()
     {
 
-        
-        if( !Logger.IsEnabled( LogEventLevel.Debug ) )
+
+        if( !Logger.IsEnabled( LogLevel.Debug ) )
             return;
 
-        var context = RuleThreadLocalStorage.CurrentContext;            
+        var context = RuleThreadLocalStorage.CurrentContext;
 
-        Logger.Debug( "Begin Evaluation - ({ContextDescription})", context.Description );
+        Logger.LogDebug( "Begin Evaluation - ({ContextDescription})", context.Description );
 
-        Logger.LogObject( "Context", context );
+        Logger.LogDebug( "Context: {@Context}", context );
 
     }
 
     public void BeginTupleEvaluation( object[] facts )
     {
 
-        if (!Logger.IsEnabled(LogEventLevel.Debug))
+        if (!Logger.IsEnabled(LogLevel.Debug))
             return;
 
-        Logger.Debug( "Begin Tuple Evaluation" );
+        Logger.LogDebug( "Begin Tuple Evaluation" );
 
         for (int i = 0; i < facts.Length; i++)
-            Logger.LogObject($"{facts[i].GetType().FullName}[{i}]", facts[i]);
+            Logger.LogDebug("{FactType}[{Index}]: {@Fact}", facts[i].GetType().FullName, i, facts[i]);
 
 
     }
@@ -82,76 +73,75 @@ public sealed class WatchEvaluationListener: IEvaluationListener
     public void FiringRule( IRule rule )
     {
 
-        if (!Logger.IsEnabled(LogEventLevel.Debug))
+        if (!Logger.IsEnabled(LogLevel.Debug))
             return;
 
-        Logger.LogObject($"Rule Firing ({rule.Name})", rule );
+        Logger.LogDebug("Rule Firing ({RuleName}): {@Rule}", rule.Name, rule);
 
     }
 
     public void FiredRule( IRule rule, bool modified )
     {
 
-        if (!Logger.IsEnabled(LogEventLevel.Debug))
+        if (!Logger.IsEnabled(LogLevel.Debug))
             return;
 
-        Logger.Debug( "Rule Fired ({0}). Modified fact? {1}", rule.Name, modified );
+        Logger.LogDebug( "Rule Fired ({RuleName}). Modified fact? {Modified}", rule.Name, modified );
 
     }
 
     public void EndTupleEvaluation( object[] facts )
     {
 
-        if (!Logger.IsEnabled(LogEventLevel.Debug))
+        if (!Logger.IsEnabled(LogLevel.Debug))
             return;
 
-        Logger.Debug( "End Tuple Evaluation" );
+        Logger.LogDebug( "End Tuple Evaluation" );
 
     }
 
     public void EndEvaluation()
     {
 
-        if (!Logger.IsEnabled(LogEventLevel.Debug))
+        if (!Logger.IsEnabled(LogLevel.Debug))
             return;
 
-        var context = RuleThreadLocalStorage.CurrentContext;                                    
+        var context = RuleThreadLocalStorage.CurrentContext;
 
-        Logger.LogObject( "Results", context.Results );
+        Logger.LogDebug( "Results: {@Results}", context.Results );
 
-        Logger.Debug( "End Evaluation - ({context.Description})", context.Description );
+        Logger.LogDebug( "End Evaluation - ({ContextDescription})", context.Description );
 
     }
 
-    public void EventCreated( EventDetail evalEvent )
+    public void EventCreated( RuleEvent evalEvent )
     {
 
-        if (!Logger.IsEnabled(LogEventLevel.Debug))
+        if (!Logger.IsEnabled(LogLevel.Debug))
             return;
 
-        Logger.LogObject( "Evaluation Event Created", evalEvent );
+        Logger.LogDebug( "Evaluation Event Created: {@EvalEvent}", evalEvent );
 
     }
 
     public void Debug( string template, params object[] markers )
     {
 
-        if (!Logger.IsEnabled(LogEventLevel.Debug))
+        if (!Logger.IsEnabled(LogLevel.Debug))
             return;
 
-        Logger.Debug( template, markers );
+        Logger.LogDebug( template, markers );
 
     }
 
     public void Warning( string template, params object[] markers )
     {
 
-        if (!Logger.IsEnabled(LogEventLevel.Warning))
+        if (!Logger.IsEnabled(LogLevel.Warning))
             return;
-        
-        Logger.Warning( template, markers );
+
+        Logger.LogWarning( template, markers );
 
     }
 
 }
-

@@ -1,4 +1,3 @@
-using Pondhawk.Exceptions;
 using Pondhawk.Rules.Factory;
 using Pondhawk.Rules.Validators;
 using Shouldly;

@@ -1,4 +1,3 @@
-using Pondhawk.Exceptions;
 using Pondhawk.Rules.Factory;
 using Shouldly;
 using Xunit;
@@ -134,7 +133,7 @@ public class RuleAdvancedTests
         var result = EvaluateSafe(ruleSet, new Person { Name = "Alice", Age = 25 });
 
         result.Events.Count.ShouldBe(1);
-        result.Events.First().Explanation.ShouldBe("Alice is not centenarian");
+        result.Events.First().Message.ShouldBe("Alice is not centenarian");
     }
 
     [Fact]
@@ -158,12 +157,12 @@ public class RuleAdvancedTests
 
         ruleSet.AddRule<Person>("ocm")
             .If(p => p.Age >= 100)
-            .Otherwise(EventDetail.EventCategory.Violation, "grp", "Too young: {0}", p => p.Name);
+            .Otherwise(RuleEvent.EventCategory.Violation, "grp", "Too young: {0}", p => p.Name);
 
         var result = EvaluateSafe(ruleSet, new Person { Name = "Alice", Age = 25 });
 
         var evt = result.Events.First();
-        evt.Category.ShouldBe(EventDetail.EventCategory.Violation);
+        evt.Category.ShouldBe(RuleEvent.EventCategory.Violation);
     }
 
 
@@ -175,12 +174,12 @@ public class RuleAdvancedTests
         var ruleSet = new RuleSet();
 
         ruleSet.AddRule<Person>("violation")
-            .Fire(EventDetail.EventCategory.Violation, "security", "Unauthorized: {0}", p => p.Name);
+            .Fire(RuleEvent.EventCategory.Violation, "security", "Unauthorized: {0}", p => p.Name);
 
         var result = EvaluateSafe(ruleSet, new Person { Name = "Alice" });
 
         var evt = result.Events.First();
-        evt.Category.ShouldBe(EventDetail.EventCategory.Violation);
+        evt.Category.ShouldBe(RuleEvent.EventCategory.Violation);
         evt.Group.ShouldBe("security");
     }
 
@@ -190,11 +189,11 @@ public class RuleAdvancedTests
         var ruleSet = new RuleSet();
 
         ruleSet.AddRule<Person>("warning")
-            .Fire(EventDetail.EventCategory.Warning, "trace", "Processing {0}", p => p.Name);
+            .Fire(RuleEvent.EventCategory.Warning, "trace", "Processing {0}", p => p.Name);
 
         var result = EvaluateSafe(ruleSet, new Person { Name = "Alice" });
 
-        result.Events.First().Category.ShouldBe(EventDetail.EventCategory.Warning);
+        result.Events.First().Category.ShouldBe(RuleEvent.EventCategory.Warning);
     }
 
 
@@ -207,12 +206,12 @@ public class RuleAdvancedTests
 
         ruleSet.AddRule<Person>("cat")
             .If(p => p.Age >= 18)
-            .Then(EventDetail.EventCategory.Warning, "age", "Adult: {0}", p => p.Name);
+            .Then(RuleEvent.EventCategory.Warning, "age", "Adult: {0}", p => p.Name);
 
         var result = EvaluateSafe(ruleSet, new Person { Name = "Alice", Age = 25 });
 
         var evt = result.Events.First();
-        evt.Category.ShouldBe(EventDetail.EventCategory.Warning);
+        evt.Category.ShouldBe(RuleEvent.EventCategory.Warning);
     }
 
 
@@ -286,7 +285,7 @@ public class RuleAdvancedTests
 
         var result = EvaluateSafe(ruleSet, new Person { Name = "Test" });
 
-        result.Events.First().Explanation.ShouldBe("Value is null");
+        result.Events.First().Message.ShouldBe("Value is null");
     }
 
 }

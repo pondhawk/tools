@@ -1,5 +1,5 @@
 ﻿using Humanizer;
-using Pondhawk.Exceptions;
+using Pondhawk.Rules;
 
 namespace Pondhawk.Rules.Validators;
 public interface ICollectionValidator<out TFact, out TType>
@@ -16,7 +16,7 @@ public interface ICollectionValidator<out TFact, out TType>
 
     IValidationRule<TFact> Otherwise(string group, string template, params Func<TFact, object>[] parameters);
 
-    IValidationRule<TFact> Otherwise( EventDetail.EventCategory category, string group, string template, params Func<TFact, object>[] parameters);
+    IValidationRule<TFact> Otherwise( RuleEvent.EventCategory category, string group, string template, params Func<TFact, object>[] parameters);
 
 }
 

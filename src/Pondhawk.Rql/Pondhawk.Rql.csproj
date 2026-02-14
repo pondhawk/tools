@@ -29,8 +29,5 @@
 	  <PackageReference Include="Sprache" />
 	</ItemGroup>
 
-	<ItemGroup>
-	  <ProjectReference Include="..\Pondhawk.Core\Pondhawk.Core.csproj" />
-	</ItemGroup>
 
 </Project>

@@ -1,7 +1,5 @@
 ﻿
 
-using Pondhawk.Exceptions;
-using Pondhawk.Logging;
 
 namespace Pondhawk.Rules;
 
@@ -10,22 +8,20 @@ public sealed class ValidationResult
 {
     public bool IsValid { get; init; }
     public EvaluationResults Results { get; init; }
-    public IReadOnlyList<EventDetail> Violations { get; init; }
-    public IReadOnlyDictionary<string, List<EventDetail>> ViolationsByGroup { get; init; }
+    public IReadOnlyList<RuleEvent> Violations { get; init; }
+    public IReadOnlyDictionary<string, List<RuleEvent>> ViolationsByGroup { get; init; }
 }
 
 
 public static class RuleSetExtensions
 {
 
-    private static readonly List<EventDetail> EmptyDetails = [];
-    private static readonly Dictionary<string, List<EventDetail>> EmptyGrouped = new();
+    private static readonly List<RuleEvent> EmptyDetails = [];
+    private static readonly Dictionary<string, List<RuleEvent>> EmptyGrouped = new();
 
 
     public static EvaluationResults Evaluate( this IRuleSet rules, params object[] facts )
     {
-
-        var logger = rules.GetLogger();
 
         var ec = rules.GetEvaluationContext();
         ec.ThrowNoRulesException = false;
@@ -33,11 +29,7 @@ public static class RuleSetExtensions
 
         ec.AddAllFacts(facts);
 
-        var er = rules.Evaluate(ec);
-
-        logger.LogObject(nameof(er), er);
-
-        return er;
+        return rules.Evaluate(ec);
 
     }
 
@@ -45,31 +37,21 @@ public static class RuleSetExtensions
     public static EvaluationResults Evaluate( this IRuleSet rules, IEnumerable<object> fact )
     {
 
-        var logger = rules.GetLogger();
-
         var ec = rules.GetEvaluationContext();
         ec.ThrowNoRulesException = false;
         ec.ThrowValidationException = false;
 
         ec.AddAllFacts(fact);
 
-        var er = rules.Evaluate(ec);
-
-        logger.LogObject(nameof(er), er);
-
-        return er;
+        return rules.Evaluate(ec);
 
     }
 
 
-    public static bool TryValidate(this IRuleSet rules, object subject, out List<EventDetail> violations)
+    public static bool TryValidate(this IRuleSet rules, object subject, out List<RuleEvent> violations)
     {
 
-        var logger = rules.GetLogger();
-
-
         violations = EmptyDetails;
-
 
         var ec = rules.GetEvaluationContext();
         ec.ThrowNoRulesException = false;
@@ -78,9 +60,6 @@ public static class RuleSetExtensions
         ec.AddFacts(subject);
 
         var vr = rules.Evaluate(ec);
-
-        logger.LogObject(nameof(vr), vr);
-
 
         if( !vr.HasViolations )
             return true;
@@ -92,14 +71,10 @@ public static class RuleSetExtensions
     }
 
 
-    public static bool TryValidate(this IRuleSet rules, IEnumerable<object> subjects, out List<EventDetail> violations)
+    public static bool TryValidate(this IRuleSet rules, IEnumerable<object> subjects, out List<RuleEvent> violations)
     {
 
-        var logger = rules.GetLogger();
-
-
         violations = EmptyDetails;
-
 
         var ec = rules.GetEvaluationContext();
         ec.ThrowNoRulesException = false;
@@ -108,9 +83,6 @@ public static class RuleSetExtensions
         ec.AddAllFacts(subjects);
 
         var vr = rules.Evaluate(ec);
-
-        logger.LogObject(nameof(vr), vr);
-
 
         if (!vr.HasViolations)
             return true;

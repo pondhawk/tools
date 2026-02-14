@@ -22,17 +22,22 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-using Pondhawk.Logging;
 using Pondhawk.Rules.Builder;
 using Pondhawk.Rules.Evaluation;
 using Pondhawk.Rules.Listeners;
 using Pondhawk.Rules.Tree;
-using Pondhawk.Utilities.Container;
-
 namespace Pondhawk.Rules.Factory;
 
-public sealed class RuleSetFactory : IRequiresStart
+public sealed class RuleSetFactory
 {
+
+
+    private readonly Lazy<bool> _initialized;
+
+    public RuleSetFactory()
+    {
+        _initialized = new Lazy<bool>(() => { DoStart(); return true; });
+    }
 
 
     public IEvaluationContextFactory ContextFactory { get; set; }
@@ -42,7 +47,7 @@ public sealed class RuleSetFactory : IRequiresStart
 
     public void RegisterCompositeNamespace(string name, IEnumerable<string> namespaces)
     {
-        if (!Started)
+        if (!_initialized.IsValueCreated)
             CompositeNamespaces[name] = namespaces;
     }
 
@@ -66,41 +71,23 @@ public sealed class RuleSetFactory : IRequiresStart
 
     internal IRuleBase RuleBase => Tree;
 
-    private bool Started { get; set; }
 
+    public void Start() => _ = _initialized.Value;
 
-    public Task StartAsync()
+    private void DoStart()
     {
-
-        using var logger = this.EnterMethod();
-
-        logger.Inspect(nameof(Started), Started);
-
-        if (Started)
-            return Task.CompletedTask;
-
-        Started = true;
 
         var builders = Sources.SelectMany(s => s.GetTypes()).Select(t => Activator.CreateInstance(t) as IBuilder);
 
         foreach (var b in builders.Where(b => b is not null))
             b.LoadRules(Tree);
 
-
-        return Task.CompletedTask;
-
-
     }
 
     public void Stop()
     {
 
-        using var logger = this.EnterMethod();
-
-
         Tree.Clear();
-
-        Started = false;
 
     }
 

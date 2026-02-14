@@ -23,7 +23,6 @@ SOFTWARE.
 */
 
 using CommunityToolkit.Diagnostics;
-using Pondhawk.Exceptions;
 using Pondhawk.Rules.Evaluation;
 using Pondhawk.Rules.Listeners;
 
@@ -221,29 +220,25 @@ public sealed class EvaluationContext
     }
 
     
-    internal void Event( EventDetail.EventCategory category, string group,  string template, params object[] parameters )
+    internal void Event( RuleEvent.EventCategory category, string group,  string template, params object[] parameters )
     {
 
-            
+
         Guard.IsNotNullOrWhiteSpace(template);
 
+        var message = parameters.Length == 0 ? template : string.Format( template, parameters );
 
-        var source = "";
-        if (CurrentTuple.Length > 0)
-            source = CurrentTuple[0].ToString();
-
-
-        var theEvent = new EventDetail
+        var theEvent = new RuleEvent
         {
-            Category    = category,
-            Source      = source,
-            Group       = group,
-            RuleName    = CurrentRuleName,
-            Explanation = parameters.Length == 0 ? template : string.Format( template, parameters )
+            Category        = category,
+            Group           = group,
+            RuleName        = CurrentRuleName,
+            MessageTemplate = template,
+            Message         = message
         };
 
         Results.Events.Add( theEvent );
-        if (category == EventDetail.EventCategory.Violation)
+        if (category == RuleEvent.EventCategory.Violation)
             Results.ViolationCount++;
 
     }

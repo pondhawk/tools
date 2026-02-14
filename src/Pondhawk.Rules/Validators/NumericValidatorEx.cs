@@ -184,6 +184,75 @@ public static class NumericValidatorEx
         return v;
     }
 
+    // ===== Numeric shortcuts =====
+
+    public static IValidator<TFact, TType> IsPositive<TFact, TType>(this IValidator<TFact, TType> validator)
+        where TFact : class where TType : struct, IComparable<TType>
+    {
+        var v = validator.Is((f, value) => value.CompareTo(default) > 0);
+        var propName = validator.PropertyName.Humanize(LetterCasing.Title);
+        v.Otherwise($"{propName} must be positive");
+        return v;
+    }
+
+    public static IValidator<TFact, TType> IsNegative<TFact, TType>(this IValidator<TFact, TType> validator)
+        where TFact : class where TType : struct, IComparable<TType>
+    {
+        var v = validator.Is((f, value) => value.CompareTo(default) < 0);
+        var propName = validator.PropertyName.Humanize(LetterCasing.Title);
+        v.Otherwise($"{propName} must be negative");
+        return v;
+    }
+
+    public static IValidator<TFact, TType> IsNonNegative<TFact, TType>(this IValidator<TFact, TType> validator)
+        where TFact : class where TType : struct, IComparable<TType>
+    {
+        var v = validator.Is((f, value) => value.CompareTo(default) >= 0);
+        var propName = validator.PropertyName.Humanize(LetterCasing.Title);
+        v.Otherwise($"{propName} must not be negative");
+        return v;
+    }
+
+    public static IValidator<TFact, TType> IsNonPositive<TFact, TType>(this IValidator<TFact, TType> validator)
+        where TFact : class where TType : struct, IComparable<TType>
+    {
+        var v = validator.Is((f, value) => value.CompareTo(default) <= 0);
+        var propName = validator.PropertyName.Humanize(LetterCasing.Title);
+        v.Otherwise($"{propName} must not be positive");
+        return v;
+    }
+
+
+    // ===== Nullable type support =====
+
+    public static IValidator<TFact, TType?> IsNull<TFact, TType>(this IValidator<TFact, TType?> validator)
+        where TFact : class where TType : struct
+    {
+        var v = validator.Is((f, value) => !value.HasValue);
+        var propName = validator.PropertyName.Humanize(LetterCasing.Title);
+        v.Otherwise($"{propName} must be null");
+        return v;
+    }
+
+    public static IValidator<TFact, TType?> IsNotNull<TFact, TType>(this IValidator<TFact, TType?> validator)
+        where TFact : class where TType : struct
+    {
+        var v = validator.Is((f, value) => value.HasValue);
+        var propName = validator.PropertyName.Humanize(LetterCasing.Title);
+        v.Otherwise($"{propName} must not be null");
+        return v;
+    }
+
+    public static IValidator<TFact, TType?> HasValue<TFact, TType>(this IValidator<TFact, TType?> validator)
+        where TFact : class where TType : struct
+    {
+        var v = validator.Is((f, value) => value.HasValue);
+        var propName = validator.PropertyName.Humanize(LetterCasing.Title);
+        v.Otherwise($"{propName} must have a value");
+        return v;
+    }
+
+
     // ===== Float-specific overloads (epsilon-based equality) =====
 
     private const float FloatTolerance = 1e-6f;

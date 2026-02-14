@@ -225,6 +225,8 @@ public abstract class RuleBuilder<TFact1, TFact2> : AbstractRuleBuilder, IBuilde
         return rule;
     }
 
+    public virtual Rule<TFact1, TFact2> Rule( string ruleName ) => AddRule( ruleName );
+
 }
 
 
@@ -289,6 +291,8 @@ public abstract class RuleBuilder<TFact1, TFact2, TFact3> : AbstractRuleBuilder,
 
         return rule;
     }
+
+    public virtual Rule<TFact1, TFact2, TFact3> Rule( string ruleName ) => AddRule( ruleName );
 }
 
 
@@ -357,5 +361,7 @@ public abstract class RuleBuilder<TFact1, TFact2, TFact3, TFact4> : AbstractRule
 
         return rule;
     }
-    
+
+    public virtual Rule<TFact1, TFact2, TFact3, TFact4> Rule( string ruleName ) => AddRule( ruleName );
+
 }

@@ -192,5 +192,45 @@ public static class DateTimeValidatorEx
         return v;
     }
 
+    public static IValidator<TFact, DateTime> IsToday<TFact>(this IValidator<TFact, DateTime> validator) where TFact : class
+    {
+        var v = validator.Is((_, value) => value.Date == DateTime.Today);
+        var propName = validator.PropertyName.Humanize(LetterCasing.Title);
+        v.Otherwise($"{propName} must be today");
+        return v;
+    }
+
+    public static IValidator<TFact, DateTime> IsSameDay<TFact>(this IValidator<TFact, DateTime> validator, DateTime test) where TFact : class
+    {
+        var v = validator.Is((_, value) => value.Date == test.Date);
+        var propName = validator.PropertyName.Humanize(LetterCasing.Title);
+        v.Otherwise($"{propName} must be on the same day as {test:yyyy-MM-dd}");
+        return v;
+    }
+
+    public static IValidator<TFact, DateTime> IsSameDay<TFact>(this IValidator<TFact, DateTime> validator, Func<TFact, DateTime> extractor) where TFact : class
+    {
+        var v = validator.Is((f, value) => value.Date == extractor(f).Date);
+        var propName = validator.PropertyName.Humanize(LetterCasing.Title);
+        v.Otherwise($"{propName} must be on the same day as the specified date");
+        return v;
+    }
+
+    public static IValidator<TFact, DateTime> IsWithin<TFact>(this IValidator<TFact, DateTime> validator, TimeSpan span) where TFact : class
+    {
+        var v = validator.Is((_, value) => Math.Abs((DateTime.Now - value).TotalMilliseconds) <= span.TotalMilliseconds);
+        var propName = validator.PropertyName.Humanize(LetterCasing.Title);
+        v.Otherwise($"{propName} must be within {span} of now");
+        return v;
+    }
+
+    public static IValidator<TFact, DateTime> IsWithin<TFact>(this IValidator<TFact, DateTime> validator, DateTime reference, TimeSpan span) where TFact : class
+    {
+        var v = validator.Is((_, value) => Math.Abs((reference - value).TotalMilliseconds) <= span.TotalMilliseconds);
+        var propName = validator.PropertyName.Humanize(LetterCasing.Title);
+        v.Otherwise($"{propName} must be within {span} of {reference:yyyy-MM-dd HH:mm:ss}");
+        return v;
+    }
+
 
 }

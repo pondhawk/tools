@@ -74,7 +74,7 @@ public static class EnumerableValidatorEx
 
     public static IEnumerableValidator<TFact, TType> HasExactly<TFact, TType>(this IEnumerableValidator<TFact, TType> validator, Func<TType, bool> predicate, int count) where TFact : class where TType : class
     {
-        var v = validator.Is((_, value) => value.Where(predicate).Count() == count);
+        var v = validator.Is((_, value) => value.Where(predicate).Take(count + 1).Count() == count);
         var propName = validator.PropertyName.Humanize(LetterCasing.Title);
         v.Otherwise($"{propName} must contain exactly {count} matching item{(count != 1 ? "s" : "")}");
         return v;
@@ -82,7 +82,7 @@ public static class EnumerableValidatorEx
 
     public static IEnumerableValidator<TFact, TType> HasOnlyOne<TFact, TType>(this IEnumerableValidator<TFact, TType> validator, Func<TType, bool> predicate) where TFact : class where TType : class
     {
-        var v = validator.Is((_, value) => value.Where(predicate).Count() == 1);
+        var v = validator.Is((_, value) => value.Where(predicate).Take(2).Count() == 1);
         var propName = validator.PropertyName.Humanize(LetterCasing.Title);
         v.Otherwise($"{propName} must contain exactly one matching item");
         return v;
@@ -90,7 +90,7 @@ public static class EnumerableValidatorEx
 
     public static IEnumerableValidator<TFact, TType> HasAtMostOne<TFact, TType>(this IEnumerableValidator<TFact, TType> validator, Func<TType, bool> predicate) where TFact : class where TType : class
     {
-        var v = validator.Is((_, value) => value.Where(predicate).Count() <= 1);
+        var v = validator.Is((_, value) => value.Where(predicate).Take(2).Count() <= 1);
         var propName = validator.PropertyName.Humanize(LetterCasing.Title);
         v.Otherwise($"{propName} must contain at most one matching item");
         return v;
@@ -98,7 +98,7 @@ public static class EnumerableValidatorEx
 
     public static IEnumerableValidator<TFact, TType> HasAtLeast<TFact, TType>(this IEnumerableValidator<TFact, TType> validator, Func<TType, bool> predicate, int count) where TFact : class where TType : class
     {
-        var v = validator.Is((_, value) => value.Where(predicate).Count() >= count);
+        var v = validator.Is((_, value) => value.Where(predicate).Take(count).Count() >= count);
         var propName = validator.PropertyName.Humanize(LetterCasing.Title);
         v.Otherwise($"{propName} must contain at least {count} matching item{(count != 1 ? "s" : "")}");
         return v;
@@ -106,9 +106,44 @@ public static class EnumerableValidatorEx
 
     public static IEnumerableValidator<TFact, TType> HasAtMost<TFact, TType>(this IEnumerableValidator<TFact, TType> validator, Func<TType, bool> predicate, int count) where TFact : class where TType : class
     {
-        var v = validator.Is((_, value) => value.Where(predicate).Count() <= count);
+        var v = validator.Is((_, value) => value.Where(predicate).Take(count + 1).Count() <= count);
         var propName = validator.PropertyName.Humanize(LetterCasing.Title);
         v.Otherwise($"{propName} must contain at most {count} matching item{(count != 1 ? "s" : "")}");
+        return v;
+    }
+
+
+    // ===== Count-based assertions =====
+
+    public static IEnumerableValidator<TFact, TType> HasCount<TFact, TType>(this IEnumerableValidator<TFact, TType> validator, int count) where TFact : class where TType : class
+    {
+        var v = validator.Is((_, value) => value.Take(count + 1).Count() == count);
+        var propName = validator.PropertyName.Humanize(LetterCasing.Title);
+        v.Otherwise($"{propName} must contain exactly {count} item{(count != 1 ? "s" : "")}");
+        return v;
+    }
+
+    public static IEnumerableValidator<TFact, TType> HasCountGreaterThan<TFact, TType>(this IEnumerableValidator<TFact, TType> validator, int count) where TFact : class where TType : class
+    {
+        var v = validator.Is((_, value) => value.Take(count + 1).Count() > count);
+        var propName = validator.PropertyName.Humanize(LetterCasing.Title);
+        v.Otherwise($"{propName} must contain more than {count} item{(count != 1 ? "s" : "")}");
+        return v;
+    }
+
+    public static IEnumerableValidator<TFact, TType> HasCountLessThan<TFact, TType>(this IEnumerableValidator<TFact, TType> validator, int count) where TFact : class where TType : class
+    {
+        var v = validator.Is((_, value) => value.Take(count).Count() < count);
+        var propName = validator.PropertyName.Humanize(LetterCasing.Title);
+        v.Otherwise($"{propName} must contain fewer than {count} item{(count != 1 ? "s" : "")}");
+        return v;
+    }
+
+    public static IEnumerableValidator<TFact, TType> HasCountBetween<TFact, TType>(this IEnumerableValidator<TFact, TType> validator, int minimum, int maximum) where TFact : class where TType : class
+    {
+        var v = validator.Is((_, value) => { var c = value.Take(maximum + 1).Count(); return c >= minimum && c <= maximum; });
+        var propName = validator.PropertyName.Humanize(LetterCasing.Title);
+        v.Otherwise($"{propName} must contain between {minimum} and {maximum} items");
         return v;
     }
 

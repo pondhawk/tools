@@ -57,7 +57,14 @@ public class ForeachRule<TParent,TFact>: AbstractRule
     }
 
 
-    
+    public ForeachRule<TParent, TFact> InMutex( string name )
+    {
+        Mutex = name;
+        return this;
+    }
+
+
+
     public ForeachRule<TParent, TFact> WithInception( DateTime inception )
     {
         Inception = inception;
@@ -249,10 +256,22 @@ public class ForeachRule<TParent,TFact>: AbstractRule
         return this;
     }
 
+    public ForeachRule<TParent, TFact> Modifies( Func<TParent, object> modifyFunc )
+    {
+        ModifyFunc = modifyFunc;
+        return this;
+    }
+
 
     private void _BuildMessage( TFact fact, EventDetail.EventCategory category, string group, string template,  Func<TFact, object>[] parameters )
     {
         int len = parameters.Length;
+
+        if (len == 0)
+        {
+            RuleThreadLocalStorage.CurrentContext.Event( category, group, template, fact );
+            return;
+        }
 
         var markers = new object[len];
         for (int i = 0; i < len; i++)
@@ -297,7 +316,7 @@ public class ForeachRule<TParent,TFact>: AbstractRule
                 Name = Name,
                 Inception = Inception,
                 Expiration = Expiration,
-                Mutex = "",
+                Mutex = Mutex,
                 OnlyFiresOnce = OnlyFiresOnce,
                 Salience = Salience
             };

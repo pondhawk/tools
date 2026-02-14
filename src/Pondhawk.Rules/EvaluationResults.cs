@@ -82,5 +82,35 @@ public sealed class EvaluationResults
         TotalVetos += amount;
     }
 
+
+    // ===== Result filtering helpers =====
+
+    public IEnumerable<EventDetail> GetViolations()
+    {
+        return Events.Where( e => e.Category == EventDetail.EventCategory.Violation );
+    }
+
+    public IEnumerable<EventDetail> GetEventsByCategory( EventDetail.EventCategory category )
+    {
+        return Events.Where( e => e.Category == category );
+    }
+
+    public IEnumerable<EventDetail> GetEventsByGroup( string group )
+    {
+        return Events.Where( e => string.Equals( e.Group, group, StringComparison.Ordinal ) );
+    }
+
+    public IEnumerable<EventDetail> GetEventsByRule( string ruleName )
+    {
+        return Events.Where( e => string.Equals( e.RuleName, ruleName, StringComparison.Ordinal ) );
+    }
+
+    public IDictionary<string, List<EventDetail>> GetViolationsByGroup()
+    {
+        return GetViolations()
+            .GroupBy( e => e.Group ?? "" )
+            .ToDictionary( g => g.Key, g => g.ToList() );
+    }
+
 }
 

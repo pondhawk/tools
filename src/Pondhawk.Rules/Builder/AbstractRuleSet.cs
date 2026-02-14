@@ -53,4 +53,6 @@ public abstract class AbstractRuleSet : AbstractEvaluator, IRuleSet
 
     public abstract EvaluationContext GetEvaluationContext();
 
+    public IEnumerable<string> GetNamespaceFilters() => GetNamespaces();
+
 }

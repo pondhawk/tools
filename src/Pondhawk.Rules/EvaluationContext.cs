@@ -261,4 +261,56 @@ public sealed class EvaluationContext
     }
 
 
+    // ===== Fluent configuration API =====
+
+    public EvaluationContext WithMaxEvaluations( int max )
+    {
+        MaxEvaluations = max;
+        return this;
+    }
+
+    public EvaluationContext WithMaxDuration( long milliseconds )
+    {
+        MaxDuration = milliseconds;
+        return this;
+    }
+
+    public EvaluationContext WithMaxViolations( int max )
+    {
+        MaxViolations = max;
+        return this;
+    }
+
+    public EvaluationContext WithDescription( string description )
+    {
+        Description = description;
+        return this;
+    }
+
+    public EvaluationContext WithListener( IEvaluationListener listener )
+    {
+        Listener = listener;
+        return this;
+    }
+
+    public EvaluationContext SuppressExceptions()
+    {
+        ThrowValidationException = false;
+        ThrowNoRulesException = false;
+        return this;
+    }
+
+    public EvaluationContext SuppressValidationException()
+    {
+        ThrowValidationException = false;
+        return this;
+    }
+
+    public EvaluationContext SuppressNoRulesException()
+    {
+        ThrowNoRulesException = false;
+        return this;
+    }
+
+
 }

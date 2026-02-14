@@ -30,6 +30,8 @@ internal class TupleEvaluator( ISet<IRule> rules )
 {
     private ISet<IRule> Rules { get; } = rules;
 
+    private readonly List<IRule> _fireableBuffer = new( rules.Count );
+
     private EvaluationContext Context => RuleThreadLocalStorage.CurrentContext;
 
     public void Evaluate( object[] tuple )
@@ -128,15 +130,15 @@ internal class TupleEvaluator( ISet<IRule> rules )
 
     private List<IRule> _GetFireableRules( object[] facts )
     {
-        var fireable = new List<IRule>( Rules.Count );
+        _fireableBuffer.Clear();
         foreach( var rule in Rules )
         {
             var filtered = _Filter( rule, facts );
             if( filtered is not null )
-                fireable.Add( filtered );
+                _fireableBuffer.Add( filtered );
         }
-        fireable.Sort( static (a, b) => a.Salience.CompareTo( b.Salience ) );
-        return fireable;
+        _fireableBuffer.Sort( static (a, b) => a.Salience.CompareTo( b.Salience ) );
+        return _fireableBuffer;
     }
 
     private IRule _Filter(  IRule rule, object[] facts )

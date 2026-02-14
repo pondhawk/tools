@@ -30,11 +30,13 @@ public interface IRuleSet : IEvaluator
 {
 
     EvaluationContext GetEvaluationContext();
-        
+
     int DecisionThreshold { get; set; }
     Func<object, bool> Predicate { get; }
 
     bool Decide( params object[] facts );
     bool Decide( int threshold, params object[] facts );
+
+    IEnumerable<string> GetNamespaceFilters();
 
 }

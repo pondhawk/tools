@@ -263,6 +263,12 @@ public class Rule<TFact> : AbstractRule
     {
         var len = parameters.Length;
 
+        if (len == 0)
+        {
+            RuleThreadLocalStorage.CurrentContext.Event( category, group, template, fact );
+            return;
+        }
+
         var markers = new object[len];
         for( int i = 0; i < len; i++ )
         {
@@ -366,6 +372,7 @@ public class Rule<TFact1, TFact2> : AbstractRule
 
     public bool Negated { get; private set; }
 
+    private Action<TFact1, TFact2> CascadeAction { get; set; }
 
     protected List<Func<TFact1, TFact2, bool>> Conditions { get; set; }
     protected Action<TFact1, TFact2> Consequence { get; set; }
@@ -430,7 +437,15 @@ public class Rule<TFact1, TFact2> : AbstractRule
     }
 
 
-        
+
+    public Rule<TFact1, TFact2> NoConsequence()
+    {
+        Consequence = (f1, f2) => { };
+        return this;
+    }
+
+
+
     public Rule<TFact1, TFact2> Then( Action<TFact1, TFact2> oConsequence )
     {
         Consequence = oConsequence;
@@ -572,9 +587,42 @@ public class Rule<TFact1, TFact2> : AbstractRule
     }
 
 
+    public Rule<TFact1, TFact2> Modifies( Func<TFact1, TFact2, object> modifyFunc )
+    {
+        ModifyFunc = modifyFunc;
+        return this;
+    }
+
+
+    public void Cascade<TRef>( Func<TFact1, TFact2, TRef> extractor ) where TRef : class
+    {
+        Guard.IsNotNull(extractor);
+        CascadeAction = (f1, f2) => RuleThreadLocalStorage.CurrentContext.InsertFact( extractor( f1, f2 ) );
+    }
+
+
+    public void CascadeAll<TChild>( Func<TFact1, TFact2, IEnumerable<TChild>> extractor ) where TChild : class
+    {
+        Guard.IsNotNull(extractor);
+        CascadeAction = (f1, f2) => _CascadeCollection( extractor( f1, f2 ) );
+    }
+
+    private void _CascadeCollection( IEnumerable<object> children )
+    {
+        foreach (object o in children)
+            RuleThreadLocalStorage.CurrentContext.InsertFact( o );
+    }
+
+
     private void _BuildMessage( TFact1 fact1, TFact2 fact2, EventDetail.EventCategory category, string group, string template,  Func<TFact1, TFact2, object>[] parameters )
     {
         int len = parameters.Length;
+
+        if (len == 0)
+        {
+            RuleThreadLocalStorage.CurrentContext.Event( category, group, template );
+            return;
+        }
 
         var markers = new object[len];
         for( int i = 0; i < len; i++ )
@@ -588,16 +636,11 @@ public class Rule<TFact1, TFact2> : AbstractRule
     }
 
 
-        
-    public Rule<TFact1, TFact2> Modifies( Func<TFact1, TFact2, object> modifyFunc )
-    {
-        ModifyFunc = modifyFunc;
-        return this;
-    }
-
-
     protected override IRule InternalEvaluate(  object[] offered )
     {
+
+        if( CascadeAction is not null )
+            return this;
 
         base.InternalEvaluate( offered );
 
@@ -617,10 +660,17 @@ public class Rule<TFact1, TFact2> : AbstractRule
 
     protected override void InternalFire(  object[] offered )
     {
-        base.InternalFire( offered );
 
         var fact1 = (TFact1)offered[0];
         var fact2 = (TFact2)offered[1];
+
+        if( CascadeAction is not null )
+        {
+            CascadeAction(fact1, fact2);
+            return;
+        }
+
+        base.InternalFire( offered );
 
         Consequence( fact1, fact2 );
 
@@ -643,6 +693,7 @@ public class Rule<TFact1, TFact2, TFact3> : AbstractRule
 
     public bool Negated { get; private set; }
 
+    private Action<TFact1, TFact2, TFact3> CascadeAction { get; set; }
 
     protected List<Func<TFact1, TFact2, TFact3, bool>> Conditions { get; set; }
     protected Action<TFact1, TFact2, TFact3> Consequence { get; set; }
@@ -707,7 +758,15 @@ public class Rule<TFact1, TFact2, TFact3> : AbstractRule
     }
 
 
-        
+
+    public Rule<TFact1, TFact2, TFact3> NoConsequence()
+    {
+        Consequence = (f1, f2, f3) => { };
+        return this;
+    }
+
+
+
     public Rule<TFact1, TFact2, TFact3> Then( Action<TFact1, TFact2, TFact3> oConsequence )
     {
         Consequence = oConsequence;
@@ -852,9 +911,42 @@ public class Rule<TFact1, TFact2, TFact3> : AbstractRule
     }
 
 
+    public Rule<TFact1, TFact2, TFact3> Modifies( Func<TFact1, TFact2, TFact3, object> modifyFunc )
+    {
+        ModifyFunc = modifyFunc;
+        return this;
+    }
+
+
+    public void Cascade<TRef>( Func<TFact1, TFact2, TFact3, TRef> extractor ) where TRef : class
+    {
+        Guard.IsNotNull(extractor);
+        CascadeAction = (f1, f2, f3) => RuleThreadLocalStorage.CurrentContext.InsertFact( extractor( f1, f2, f3 ) );
+    }
+
+
+    public void CascadeAll<TChild>( Func<TFact1, TFact2, TFact3, IEnumerable<TChild>> extractor ) where TChild : class
+    {
+        Guard.IsNotNull(extractor);
+        CascadeAction = (f1, f2, f3) => _CascadeCollection( extractor( f1, f2, f3 ) );
+    }
+
+    private void _CascadeCollection( IEnumerable<object> children )
+    {
+        foreach (object o in children)
+            RuleThreadLocalStorage.CurrentContext.InsertFact( o );
+    }
+
+
     private void _BuildMessage( TFact1 fact1, TFact2 fact2, TFact3 fact3, EventDetail.EventCategory category, string group, string template,  Func<TFact1, TFact2, TFact3, object>[] parameters )
     {
         int len = parameters.Length;
+
+        if (len == 0)
+        {
+            RuleThreadLocalStorage.CurrentContext.Event( category, group, template );
+            return;
+        }
 
         var markers = new object[len];
         for( int i = 0; i < len; i++ )
@@ -868,16 +960,12 @@ public class Rule<TFact1, TFact2, TFact3> : AbstractRule
     }
 
 
-        
-    public Rule<TFact1, TFact2, TFact3> Modifies( Func<TFact1, TFact2, TFact3, object> modifyFunc )
-    {
-        ModifyFunc = modifyFunc;
-        return this;
-    }
-
-
     protected override IRule InternalEvaluate(  object[] offered )
     {
+
+        if( CascadeAction is not null )
+            return this;
+
         base.InternalEvaluate( offered );
 
         var fact1 = (TFact1)offered[0];
@@ -897,11 +985,18 @@ public class Rule<TFact1, TFact2, TFact3> : AbstractRule
 
     protected override void InternalFire(  object[] offered )
     {
-        base.InternalFire( offered );
 
         var fact1 = (TFact1)offered[0];
         var fact2 = (TFact2)offered[1];
         var fact3 = (TFact3)offered[2];
+
+        if( CascadeAction is not null )
+        {
+            CascadeAction(fact1, fact2, fact3);
+            return;
+        }
+
+        base.InternalFire( offered );
 
         Consequence( fact1, fact2, fact3 );
 
@@ -923,6 +1018,7 @@ public class Rule<TFact1, TFact2, TFact3, TFact4> : AbstractRule
 
     public bool Negated { get; private set; }
 
+    private Action<TFact1, TFact2, TFact3, TFact4> CascadeAction { get; set; }
 
     protected List<Func<TFact1, TFact2, TFact3, TFact4, bool>> Conditions { get; set; }
     protected Action<TFact1, TFact2, TFact3, TFact4> Consequence { get; set; }
@@ -987,7 +1083,15 @@ public class Rule<TFact1, TFact2, TFact3, TFact4> : AbstractRule
     }
 
 
-        
+
+    public Rule<TFact1, TFact2, TFact3, TFact4> NoConsequence()
+    {
+        Consequence = (f1, f2, f3, f4) => { };
+        return this;
+    }
+
+
+
     public Rule<TFact1, TFact2, TFact3, TFact4> Then( Action<TFact1, TFact2, TFact3, TFact4> oConsequence )
     {
         Consequence = oConsequence;
@@ -1131,9 +1235,42 @@ public class Rule<TFact1, TFact2, TFact3, TFact4> : AbstractRule
     }
 
 
+    public Rule<TFact1, TFact2, TFact3, TFact4> Modifies( Func<TFact1, TFact2, TFact3, TFact4, object> modifyFunc )
+    {
+        ModifyFunc = modifyFunc;
+        return this;
+    }
+
+
+    public void Cascade<TRef>( Func<TFact1, TFact2, TFact3, TFact4, TRef> extractor ) where TRef : class
+    {
+        Guard.IsNotNull(extractor);
+        CascadeAction = (f1, f2, f3, f4) => RuleThreadLocalStorage.CurrentContext.InsertFact( extractor( f1, f2, f3, f4 ) );
+    }
+
+
+    public void CascadeAll<TChild>( Func<TFact1, TFact2, TFact3, TFact4, IEnumerable<TChild>> extractor ) where TChild : class
+    {
+        Guard.IsNotNull(extractor);
+        CascadeAction = (f1, f2, f3, f4) => _CascadeCollection( extractor( f1, f2, f3, f4 ) );
+    }
+
+    private void _CascadeCollection( IEnumerable<object> children )
+    {
+        foreach (object o in children)
+            RuleThreadLocalStorage.CurrentContext.InsertFact( o );
+    }
+
+
     private void _BuildMessage( TFact1 fact1, TFact2 fact2, TFact3 fact3, TFact4 fact4, EventDetail.EventCategory category, string group, string template,  Func<TFact1, TFact2, TFact3, TFact4, object>[] parameters )
     {
         int len = parameters.Length;
+
+        if (len == 0)
+        {
+            RuleThreadLocalStorage.CurrentContext.Event( category, group, template );
+            return;
+        }
 
         var markers = new object[len];
         for( int i = 0; i < len; i++ )
@@ -1147,16 +1284,12 @@ public class Rule<TFact1, TFact2, TFact3, TFact4> : AbstractRule
     }
 
 
-        
-    public Rule<TFact1, TFact2, TFact3, TFact4> Modifies( Func<TFact1, TFact2, TFact3, TFact4, object> modifyFunc )
-    {
-        ModifyFunc = modifyFunc;
-        return this;
-    }
-
-
     protected override IRule InternalEvaluate(  object[] offered )
     {
+
+        if( CascadeAction is not null )
+            return this;
+
         base.InternalEvaluate( offered );
 
         var fact1 = (TFact1)offered[0];
@@ -1177,13 +1310,19 @@ public class Rule<TFact1, TFact2, TFact3, TFact4> : AbstractRule
 
     protected override void InternalFire(  object[] offered )
     {
-        base.InternalFire( offered );
 
         var fact1 = (TFact1)offered[0];
         var fact2 = (TFact2)offered[1];
         var fact3 = (TFact3)offered[2];
         var fact4 = (TFact4)offered[3];
 
+        if( CascadeAction is not null )
+        {
+            CascadeAction(fact1, fact2, fact3, fact4);
+            return;
+        }
+
+        base.InternalFire( offered );
 
         Consequence( fact1, fact2, fact3, fact4 );
 

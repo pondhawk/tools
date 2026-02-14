@@ -23,22 +23,12 @@ jobs:
         with:
           dotnet-version: '10.0.x'
 
-      - name: Determine version
-        id: version
-        run: |
-          if [ "${{ github.ref }}" = "refs/heads/main" ]; then
-            echo "version=1.0.${{ github.run_number }}" >> "$GITHUB_OUTPUT"
-          else
-            SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
-            echo "version=0.0.${{ github.run_number }}-pr.${SHORT_SHA}" >> "$GITHUB_OUTPUT"
-          fi
-
       - name: Build and Test
-        run: dotnet run --project build/Build.csproj -- --target=Test --package-version=${{ steps.version.outputs.version }}
+        run: dotnet run --project build/Build.csproj -- --target=Test --build-number=${{ github.run_number }}
 
       - name: Pack
         if: github.ref == 'refs/heads/main'
-        run: dotnet run --project build/Build.csproj -- --target=Pack --exclusive --package-version=${{ steps.version.outputs.version }}
+        run: dotnet run --project build/Build.csproj -- --target=Pack --exclusive --build-number=${{ github.run_number }}
 
       - name: Push
         if: github.ref == 'refs/heads/main'

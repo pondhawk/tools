@@ -1,5 +1,6 @@
 #nullable enable
 
+using System.Text.Json;
 using Cake.Common;
 using Cake.Common.IO;
 using Cake.Common.Tools.DotNet;
@@ -23,7 +24,8 @@ public class BuildContext : FrostingContext
 {
     public new string Configuration { get; }
     public string Solution { get; }
-    public string PackageVersion { get; }
+    public string BuildNumber { get; }
+    public string? VersionSuffix { get; }
     public DirectoryPath Artifacts { get; }
     public string? NuGetSource { get; }
     public string? NuGetApiKey { get; }
@@ -43,13 +45,31 @@ public class BuildContext : FrostingContext
     {
         Configuration = context.Argument("configuration", "Release");
         Solution = context.Argument("solution", "pondhawk-tools.slnx");
-        PackageVersion = context.Argument("package-version",
-            context.Environment.GetEnvironmentVariable("PACKAGE_VERSION") ?? "0.0.0-local");
+        BuildNumber = context.Argument("build-number",
+            context.Environment.GetEnvironmentVariable("BUILD_NUMBER") ?? "0");
+        VersionSuffix = context.Argument<string?>("version-suffix", null)
+            ?? context.Environment.GetEnvironmentVariable("VERSION_SUFFIX");
+        if (BuildNumber == "0" && VersionSuffix is null)
+            VersionSuffix = "local";
         Artifacts = context.Argument("artifacts", "artifacts");
         NuGetSource = context.Argument<string?>("nuget-source", null)
             ?? context.Environment.GetEnvironmentVariable("NUGET_SOURCE");
         NuGetApiKey = context.Argument<string?>("nuget-api-key", null)
             ?? context.Environment.GetEnvironmentVariable("NUGET_API_KEY");
+    }
+
+    public string GetProjectVersion(string projectPath)
+    {
+        var projectDir = System.IO.Path.GetDirectoryName(projectPath)!;
+        var versionFile = System.IO.Path.Combine(projectDir, "version.json");
+        var json = System.IO.File.ReadAllText(versionFile);
+        var doc = JsonDocument.Parse(json);
+        var majorMinor = doc.RootElement.GetProperty("version").GetString()
+            ?? throw new System.InvalidOperationException($"Missing 'version' in {versionFile}");
+        var version = $"{majorMinor}.{BuildNumber}";
+        if (VersionSuffix is not null)
+            version = $"{version}-{VersionSuffix}";
+        return version;
     }
 }
 
@@ -114,6 +134,9 @@ public sealed class PackTask : FrostingTask<BuildContext>
     {
         foreach (var project in context.SourceProjects)
         {
+            var version = context.GetProjectVersion(project);
+            context.Log.Write(Verbosity.Normal, LogLevel.Information,
+                "Packing {0} with version {1}", project, version);
             context.DotNetPack(project, new DotNetPackSettings
             {
                 Configuration = context.Configuration,
@@ -121,8 +144,8 @@ public sealed class PackTask : FrostingTask<BuildContext>
                 NoRestore = true,
                 OutputDirectory = context.Artifacts.FullPath,
                 MSBuildSettings = new DotNetMSBuildSettings()
-                    .WithProperty("PackageVersion", context.PackageVersion)
-                    .WithProperty("Version", context.PackageVersion)
+                    .WithProperty("PackageVersion", version)
+                    .WithProperty("Version", version)
             });
         }
     }

@@ -142,7 +142,7 @@ namespace Pondhawk.Rql.Serialization
                     // ReSharper disable once ConvertIfStatementToConditionalTernaryExpression
                     if (typeSpec.NeedsQuotes)
                         parts.Add(
-                            $"{kindSpec.Operation}({op.Target.Name},{typeSpec.Prefix}'{typeSpec.Formatter(op.Values[0])}')");
+                            $"{kindSpec.Operation}({op.Target.Name},{typeSpec.Prefix}'{EscapeQuotes(typeSpec.Formatter(op.Values[0]))}')");
                     else
                         parts.Add(
                             $"{kindSpec.Operation}({op.Target.Name},{typeSpec.Prefix}{typeSpec.Formatter(op.Values[0])})");
@@ -154,7 +154,7 @@ namespace Pondhawk.Rql.Serialization
 
                     // ReSharper disable once ConvertIfStatementToConditionalTernaryExpression
                     if (typeSpec.NeedsQuotes)
-                        values.AddRange(op.Values.Select(v => $"{typeSpec.Prefix}'{typeSpec.Formatter(v)}'"));
+                        values.AddRange(op.Values.Select(v => $"{typeSpec.Prefix}'{EscapeQuotes(typeSpec.Formatter(v))}'"));
                     else
                         values.AddRange(op.Values.Select(v => $"{typeSpec.Prefix}{typeSpec.Formatter(v)}"));
 
@@ -170,6 +170,8 @@ namespace Pondhawk.Rql.Serialization
 
         }
 
+
+        private static string EscapeQuotes(string value) => value.Replace("'", "''");
 
         #endregion
 

@@ -106,22 +106,28 @@ public class RqlLanguageParser
         foreach( var v in raw )
         {
 
+            if (v.Length == 0)
+            {
+                dataType ??= typeof(string);
+                typed.Add(v);
+                continue;
+            }
+
             var indicator = v[0];
-            if( indicator == '@' && DateTime.TryParse(v.Substring(1), CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out var date) )
+            if( indicator == '@' && v.Length > 1 && DateTime.TryParse(v.Substring(1), CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out var date) )
             {
                 dataType ??= typeof(DateTime);
                 typed.Add(date);
             }
-            else if (indicator == '#' && decimal.TryParse(v.Substring(1), NumberStyles.AllowLeadingSign | NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out var decm) )
+            else if (indicator == '#' && v.Length > 1 && decimal.TryParse(v.Substring(1), NumberStyles.AllowLeadingSign | NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out var decm) )
             {
                 dataType ??= typeof(decimal);
                 typed.Add(decm);
             }
-            else if (indicator == '\''  )
+            else if (indicator == '\'' && v.Length >= 2 && v[^1] == '\'')
             {
                 dataType ??= typeof(string);
-                var len = v.Length - 2;
-                var s = v.Substring(1, len);
+                var s = v.Substring(1, v.Length - 2).Replace("''", "'");
                 typed.Add(s);
             }
             else if( int.TryParse(v, out var iv) )

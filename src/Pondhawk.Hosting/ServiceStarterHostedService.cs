@@ -36,8 +36,15 @@ internal sealed partial class ServiceStarterHostedService : IHostedService
             }
 
             LogServiceStarting(serviceName);
-            await descriptor.StartAction(service, cancellationToken);
-            LogServiceStarted(serviceName);
+            try
+            {
+                await descriptor.StartAction(service, cancellationToken);
+                LogServiceStarted(serviceName);
+            }
+            catch (Exception ex)
+            {
+                LogServiceStartFailed(serviceName, ex);
+            }
         }
 
         LogStarted(descriptors.Count);
@@ -57,8 +64,15 @@ internal sealed partial class ServiceStarterHostedService : IHostedService
                 continue;
 
             LogServiceStopping(serviceName);
-            await descriptor.StopAction(service, cancellationToken);
-            LogServiceStopped(serviceName);
+            try
+            {
+                await descriptor.StopAction(service, cancellationToken);
+                LogServiceStopped(serviceName);
+            }
+            catch (Exception ex)
+            {
+                LogServiceStopFailed(serviceName, ex);
+            }
         }
 
         LogStopped(descriptors.Count);
@@ -87,6 +101,12 @@ internal sealed partial class ServiceStarterHostedService : IHostedService
 
     [LoggerMessage(Level = LogLevel.Information, Message = "Stopped service {ServiceName}")]
     private partial void LogServiceStopped(string serviceName);
+
+    [LoggerMessage(Level = LogLevel.Error, Message = "Service {ServiceName} failed to start")]
+    private partial void LogServiceStartFailed(string serviceName, Exception ex);
+
+    [LoggerMessage(Level = LogLevel.Error, Message = "Service {ServiceName} failed to stop")]
+    private partial void LogServiceStopFailed(string serviceName, Exception ex);
 
     [LoggerMessage(Level = LogLevel.Information, Message = "Stopped {Count} registered service(s)")]
     private partial void LogStopped(int count);

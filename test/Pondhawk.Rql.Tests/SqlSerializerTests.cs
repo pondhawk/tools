@@ -217,38 +217,46 @@ public class SqlSerializerTests
     }
 
     [Fact]
-    public void ToSqlWhere_In_InlineValues_Strings()
+    public void ToSqlWhere_In_Parameterized_Strings()
     {
         var builder = RqlFilterBuilder<TestProduct>
             .Where(p => p.Status).In("Active", "Pending");
 
         var (sql, parameters) = builder.ToSqlWhere();
 
-        sql.ShouldBe("Status in ('Active','Pending')");
-        parameters.ShouldBeEmpty();
+        sql.ShouldBe("Status in ({0},{1})");
+        parameters.Length.ShouldBe(2);
+        parameters[0].ShouldBe("Active");
+        parameters[1].ShouldBe("Pending");
     }
 
     [Fact]
-    public void ToSqlWhere_In_InlineValues_Ints()
+    public void ToSqlWhere_In_Parameterized_Ints()
     {
         var builder = RqlFilterBuilder<TestProduct>
             .Where(p => p.Quantity).In(1, 2, 3);
 
         var (sql, parameters) = builder.ToSqlWhere();
 
-        sql.ShouldBe("Quantity in (1,2,3)");
-        parameters.ShouldBeEmpty();
+        sql.ShouldBe("Quantity in ({0},{1},{2})");
+        parameters.Length.ShouldBe(3);
+        parameters[0].ShouldBe(1);
+        parameters[1].ShouldBe(2);
+        parameters[2].ShouldBe(3);
     }
 
     [Fact]
-    public void ToSqlWhere_NotIn_InlineValues()
+    public void ToSqlWhere_NotIn_Parameterized()
     {
         var builder = RqlFilterBuilder<TestProduct>
             .Where(p => p.Status).NotIn("Inactive", "Deleted");
 
-        var (sql, _) = builder.ToSqlWhere();
+        var (sql, parameters) = builder.ToSqlWhere();
 
-        sql.ShouldBe("Status not in ('Inactive','Deleted')");
+        sql.ShouldBe("Status not in ({0},{1})");
+        parameters.Length.ShouldBe(2);
+        parameters[0].ShouldBe("Inactive");
+        parameters[1].ShouldBe("Deleted");
     }
 
 
@@ -372,31 +380,35 @@ public class SqlSerializerTests
     }
 
     [Fact]
-    public void ToSqlWhere_In_Decimals_InlineValues()
+    public void ToSqlWhere_In_Decimals_Parameterized()
     {
         var builder = RqlFilterBuilder<TestProduct>
             .Where(p => p.Price).In(9.99m, 19.99m);
 
         var (sql, parameters) = builder.ToSqlWhere();
 
-        sql.ShouldBe("Price in (9.99,19.99)");
-        parameters.ShouldBeEmpty();
+        sql.ShouldBe("Price in ({0},{1})");
+        parameters.Length.ShouldBe(2);
+        parameters[0].ShouldBe(9.99m);
+        parameters[1].ShouldBe(19.99m);
     }
 
     [Fact]
-    public void ToSqlWhere_NotIn_Longs_InlineValues()
+    public void ToSqlWhere_NotIn_Longs_Parameterized()
     {
         var builder = RqlFilterBuilder<TestProduct>
             .Where(p => p.Sku).NotIn(100L, 200L);
 
         var (sql, parameters) = builder.ToSqlWhere();
 
-        sql.ShouldBe("Sku not in (100,200)");
-        parameters.ShouldBeEmpty();
+        sql.ShouldBe("Sku not in ({0},{1})");
+        parameters.Length.ShouldBe(2);
+        parameters[0].ShouldBe(100L);
+        parameters[1].ShouldBe(200L);
     }
 
     [Fact]
-    public void ToSqlWhere_In_DateTime_InlineValues()
+    public void ToSqlWhere_In_DateTime_Parameterized()
     {
         var d1 = new DateTime(2024, 1, 15, 0, 0, 0, DateTimeKind.Utc);
         var d2 = new DateTime(2024, 6, 15, 0, 0, 0, DateTimeKind.Utc);
@@ -405,9 +417,10 @@ public class SqlSerializerTests
 
         var (sql, parameters) = builder.ToSqlWhere();
 
-        sql.ShouldContain("Created in (");
-        sql.ShouldContain("2024-01-15");
-        parameters.ShouldBeEmpty();
+        sql.ShouldBe("Created in ({0},{1})");
+        parameters.Length.ShouldBe(2);
+        parameters[0].ShouldBeOfType<DateTime>();
+        parameters[1].ShouldBeOfType<DateTime>();
     }
 
 }

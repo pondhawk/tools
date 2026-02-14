@@ -227,6 +227,9 @@ public static class SqlSerializerExtensions
             else if (kindSpec.Style == ValueStyle.Pair)
             {
 
+                if (op.Values.Count < 2)
+                    throw new RqlException($"Between operator on '{op.Target}' requires exactly 2 values but found {op.Values.Count}");
+
                 var value1 = kindSpec.Formatter(op.Values[0]);
                 var actValue1 = value1;
                 if (value1 is IConvertible convertible1)
@@ -247,15 +250,20 @@ public static class SqlSerializerExtensions
             else
             {
 
-                var values = new List<string>();
+                var placeholders = new List<string>();
 
-                // ReSharper disable once ConvertIfStatementToConditionalTernaryExpression
-                if (typeSpec.NeedsQuotes)
-                    values.AddRange(op.Values.Select(v => $"'{typeSpec.Formatter(kindSpec.Formatter(v))}'"));
-                else
-                    values.AddRange(op.Values.Select(v => typeSpec.Formatter(kindSpec.Formatter(v))));
+                foreach (var v in op.Values)
+                {
+                    var value = kindSpec.Formatter(v);
+                    var actValue = value;
+                    if (value is IConvertible convertible)
+                        actValue = convertible.ToType(op.DataType, CultureInfo.CurrentCulture);
 
-                parts.Add(string.Format(kindSpec.Operation, op.Target, string.Join(",", values)));
+                    parameters.Add(actValue);
+                    placeholders.Add(Build(parameters.Count - 1));
+                }
+
+                parts.Add(string.Format(kindSpec.Operation, op.Target, string.Join(",", placeholders)));
 
 
             }

@@ -36,7 +36,7 @@ public sealed class WatchSink : ILogEventSink, IDisposable, IAsyncDisposable
     private readonly Channel<SerilogEvent> _channel;
     private readonly Task _flushTask;
     private readonly TaskCompletionSource _flushCompleted = new(TaskCreationOptions.RunContinuationsAsynchronously);
-    private bool _disposed;
+    private int _disposed;
 
     // Circuit breaker state
     private int _consecutiveFailures;
@@ -118,7 +118,7 @@ public sealed class WatchSink : ILogEventSink, IDisposable, IAsyncDisposable
     /// </summary>
     public void Emit(SerilogEvent logEvent)
     {
-        if (_disposed)
+        if (Volatile.Read(ref _disposed) != 0)
             return;
 
         _channel.Writer.TryWrite(logEvent);
@@ -405,10 +405,8 @@ public sealed class WatchSink : ILogEventSink, IDisposable, IAsyncDisposable
 
     public void Dispose()
     {
-        if (_disposed)
+        if (Interlocked.Exchange(ref _disposed, 1) != 0)
             return;
-
-        _disposed = true;
 
         _channel.Writer.Complete();
 
@@ -426,10 +424,8 @@ public sealed class WatchSink : ILogEventSink, IDisposable, IAsyncDisposable
 
     public async ValueTask DisposeAsync()
     {
-        if (_disposed)
+        if (Interlocked.Exchange(ref _disposed, 1) != 0)
             return;
-
-        _disposed = true;
 
         _channel.Writer.Complete();
 

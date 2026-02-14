@@ -23,6 +23,7 @@ SOFTWARE.
 */
 
 using System.Reflection;
+using CommunityToolkit.Diagnostics;
 
 namespace Pondhawk.Utilities.Types;
 
@@ -32,7 +33,7 @@ public static class AssemblyExtensions
     public static Stream? GetResource( this Assembly target, string name )
     {
 
-        ArgumentException.ThrowIfNullOrEmpty(nameof(name));
+        Guard.IsNotNullOrEmpty(name);
 
         return target.GetManifestResourceStream(name);
 
@@ -51,7 +52,7 @@ public static class AssemblyExtensions
     public static IEnumerable<string> GetResourceNamesByPath( this Assembly target, string path )
     {
 
-        ArgumentException.ThrowIfNullOrEmpty(nameof(path));
+        Guard.IsNotNullOrEmpty(path);
 
 
         bool Filter(string r) => r.StartsWith(path);
@@ -64,7 +65,7 @@ public static class AssemblyExtensions
     public static IEnumerable<string> GetResourceNamesByExt( this Assembly target, string extension )
     {
 
-        ArgumentException.ThrowIfNullOrEmpty(nameof(extension));
+        Guard.IsNotNullOrEmpty(extension);
 
         bool Filter(string r) => r.EndsWith(extension);
 
@@ -77,8 +78,8 @@ public static class AssemblyExtensions
     public static IEnumerable<string> GetResourceNamesByPathAndExt( this Assembly target, string path, string extension )
     {
 
-        ArgumentException.ThrowIfNullOrEmpty(nameof(path));
-        ArgumentException.ThrowIfNullOrEmpty(nameof(extension));
+        Guard.IsNotNullOrEmpty(path);
+        Guard.IsNotNullOrEmpty(extension);
 
         bool Filter(string r) => r.StartsWith(path) && r.EndsWith(extension);
 

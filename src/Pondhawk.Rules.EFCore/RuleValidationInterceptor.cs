@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace Pondhawk.Rules.EFCore;
 
-public class RuleValidationInterceptor : SaveChangesInterceptor
+public sealed class RuleValidationInterceptor : SaveChangesInterceptor
 {
     private readonly IRuleSet _ruleSet;
 

@@ -161,6 +161,9 @@ namespace Pondhawk.Rql.Serialization
         private static Expression BuildBetween(Expression running, Expression entity, IRqlPredicate predicate)
         {
 
+            if (predicate.Values.Count < 2)
+                throw new RqlException($"Between operator on '{predicate.Target.Name}' requires exactly 2 values but found {predicate.Values.Count}");
+
             var (leftFrom, rightFrom) = BuildOperands(entity, predicate.Target.Name, predicate.DataType, predicate.Values[0]);
 
             var from = Expression.GreaterThanOrEqual(leftFrom, rightFrom);

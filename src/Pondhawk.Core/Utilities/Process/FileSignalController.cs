@@ -53,6 +53,7 @@ public class FileSignalController: ISignalController, IDisposable
 
     private ManualResetEvent EndWatchEvent { get; }
 
+    private Task _watchTask = Task.CompletedTask;
 
     protected virtual void CreateSignal( SignalTypes type )
     {
@@ -192,10 +193,9 @@ public class FileSignalController: ISignalController, IDisposable
 
     public Task StartAsync()
     {
-        if (Owner == OwnerType.Host)
-            Task.Run(WatchHost);
-        else
-            Task.Run(WatchAppliance);
+        _watchTask = Owner == OwnerType.Host
+            ? Task.Run(WatchHost)
+            : Task.Run(WatchAppliance);
 
         return Task.CompletedTask;
     }
@@ -203,6 +203,12 @@ public class FileSignalController: ISignalController, IDisposable
     public void Dispose()
     {
         EndWatchEvent.Set();
+        _watchTask.Wait(TimeSpan.FromSeconds(5));
+
+        StartedEvent.Dispose();
+        MustStopEvent.Dispose();
+        StoppedEvent.Dispose();
+        EndWatchEvent.Dispose();
     }
 
 }

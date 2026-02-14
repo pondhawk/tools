@@ -2,7 +2,7 @@ using Pondhawk.Rules;
 
 namespace Pondhawk.Rules.EFCore;
 
-public class EntityValidationException : Exception
+public sealed class EntityValidationException : Exception
 {
     public ValidationResult ValidationResult { get; }
 

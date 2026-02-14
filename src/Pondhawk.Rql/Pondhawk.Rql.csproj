@@ -1,0 +1,33 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <Title>Pondhawk.Rql</Title>
+    <Authors>Pond Hawk Technologies Inc.</Authors>
+    <Company>Pond Hawk Technologies Inc.</Company>
+    <Description>Implementation of RQL with AST and various serializers</Description>
+    <Copyright>Pond Hawk Technologies Inc. (c) 2025</Copyright>
+    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+	<LangVersion>latestmajor</LangVersion>
+  </PropertyGroup>
+
+
+	<PropertyGroup>
+		<PackageIcon>smithy.png</PackageIcon>
+	</PropertyGroup>
+
+
+	<ItemGroup>
+		<None Include="smithy.png" Pack="true" PackagePath="\" />
+	</ItemGroup>
+
+
+	<ItemGroup>
+	  <PackageReference Include="CommunityToolkit.Diagnostics" />
+	  <PackageReference Include="Sprache" />
+	</ItemGroup>
+
+
+</Project>

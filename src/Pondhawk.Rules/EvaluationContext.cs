@@ -1,0 +1,311 @@
+﻿/*
+The MIT License (MIT)
+
+Copyright (c) 2017 The Kampilan Group Inc.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+
+using CommunityToolkit.Diagnostics;
+using Pondhawk.Rules.Evaluation;
+using Pondhawk.Rules.Listeners;
+
+namespace Pondhawk.Rules;
+
+public sealed class EvaluationContext
+{
+    public EvaluationContext()
+    {
+        ThrowValidationException = true;
+        ThrowNoRulesException = true;
+
+        Listener = new NoopEvaluationListener();
+
+        Space = new();
+
+        Tables = new();
+
+        Results = new();
+
+        CurrentRuleName = "";
+        ModificationsOccurred = false;
+        InsertionsOccurred = false;
+
+        Description = "";
+
+        MaxEvaluations = 500000;
+        MaxDuration = 10_000;
+
+        MaxViolations = int.MaxValue;
+
+        Mutexed = [];
+        FireOnceRules = new();
+
+    }
+
+
+    internal FactSpace Space { get; }
+
+    internal string CurrentRuleName { get; set; }
+
+    internal long CurrentIdentity { get; set; }
+    internal long CurrentSelector { get; set; }
+    internal object[] CurrentTuple { get; set; }
+
+    internal readonly int[] SelectorBuffer = new int[4];
+    internal readonly int[] IdentityBuffer = new int[4];
+    internal readonly object[][] TupleBuffers = [new object[1], new object[2], new object[3], new object[4]];
+    internal int CurrentArity { get; set; }
+
+
+    internal bool ModificationsOccurred { get; private set; }
+    internal bool InsertionsOccurred { get; private set; }
+
+    internal HashSet<string> Mutexed { get; }
+    internal Dictionary<object, ISet<long>> FireOnceRules { get; set; }
+
+
+    internal long StartedTick { get; set; } = Environment.TickCount64;
+
+    internal bool IsExhausted => (Results.TotalEvaluated > MaxEvaluations) || ((Environment.TickCount64 - StartedTick) > MaxDuration);
+
+
+    public string Description { get; set; }
+
+    public bool ThrowValidationException { get; set; }
+    public bool ThrowNoRulesException { get; set; }
+
+    public IEvaluationListener Listener { get; set; }
+    public EvaluationResults Results { get; }
+
+    public int MaxEvaluations { get; set; }
+    public long MaxDuration { get; set; }
+
+
+    public int MaxViolations { get; set; }
+
+    internal bool ViolationsExceeded => Results.ViolationCount >= MaxViolations;
+
+
+
+    private Dictionary<string, IDictionary<object, object>> Tables { get; }
+
+    public void AddLookup<TMember>(Func<TMember,object> keyExtractor, IEnumerable<TMember> members )
+    {
+        var name = typeof(TMember).FullName;
+        AddLookup( name, keyExtractor, members );
+    }
+
+    public void AddLookup<TMember>( string name, Func<TMember, object> keyExtractor,  IEnumerable<TMember> members )
+    {
+
+        Dictionary<object,object> table = new();
+
+        foreach( var m in members )
+        {
+            object key = keyExtractor( m );
+            table[key] = m;
+        }
+
+        Tables[name] = table;
+
+    }
+
+    public void AddLookup( string name, IDictionary<object, object> table )
+    {
+        Tables[name] = table;            
+    }
+
+
+
+    public TMember Lookup<TMember>( object key )
+    {
+        var name = typeof( TMember ).FullName;
+        return Lookup<TMember>( name, key );
+    }
+
+        
+    public TMember Lookup<TMember>( string name, object key )
+    {
+        if( !Tables.TryGetValue( name, out var table ) )
+            throw new InvalidOperationException($"Could not find lookup table with the name {name}");
+
+        if( !table.TryGetValue( key, out var member ) )
+            throw new InvalidOperationException($"Could not find member using key {key} from table {name}");
+
+        if( member is not TMember )
+            throw new InvalidOperationException( $"Could not cast member to type {typeof (TMember).FullName} using key {key} from table {name}" );
+
+        return (TMember)member;
+
+    }
+
+
+
+    public IDictionary<string, object> Shared => Results.Shared;
+
+    internal void InsertFact(  object fact )
+    {
+        Guard.IsNotNull(fact);
+
+        int index = _SelectorFromFact( fact );
+        if( index == 0 )
+        {
+            Space.InsertFact( fact );
+            InsertionsOccurred = true;
+        }
+    }
+
+
+    internal void ModifyFact(  object fact )
+    {
+        Guard.IsNotNull(fact);
+
+        int index = _SelectorFromFact( fact );
+        if( index > 0 )
+        {
+            Space.ModifyFact( index );
+            ModificationsOccurred = true;
+        }
+    }
+
+
+    internal void RetractFact(  object fact )
+    {
+        Guard.IsNotNull(fact);
+
+        int index = _SelectorFromFact( fact );
+        if( index > 0 )
+        {
+            Space.RetractFact( index );
+            ModificationsOccurred = true;
+        }
+    }
+
+    private int _SelectorFromFact( object fact )
+    {
+        for( var i = 0; i < CurrentArity; i++ )
+            if( fact == CurrentTuple[i] )
+                return SelectorBuffer[i];
+
+        return 0;
+    }
+
+    internal void ResetBetweenTuples()
+    {
+        InsertionsOccurred = false;
+    }
+
+
+    internal void ResetBetweenRules()
+    {
+        CurrentRuleName = "";
+        ModificationsOccurred = false;
+    }
+
+    
+    internal void Event( RuleEvent.EventCategory category, string group,  string template, params object[] parameters )
+    {
+
+
+        Guard.IsNotNullOrWhiteSpace(template);
+
+        var message = parameters.Length == 0 ? template : string.Format( template, parameters );
+
+        var theEvent = new RuleEvent
+        {
+            Category        = category,
+            Group           = group,
+            RuleName        = CurrentRuleName,
+            MessageTemplate = template,
+            Message         = message
+        };
+
+        Results.Events.Add( theEvent );
+        if (category == RuleEvent.EventCategory.Violation)
+            Results.ViolationCount++;
+
+    }
+
+
+    public void AddFacts( params object[] facts )
+    {
+        Space.Add( facts );
+    }
+
+
+    public void AddAllFacts( IEnumerable<object> facts )
+    {
+        Space.AddAll( facts );
+    }
+
+
+    // ===== Fluent configuration API =====
+
+    public EvaluationContext WithMaxEvaluations( int max )
+    {
+        MaxEvaluations = max;
+        return this;
+    }
+
+    public EvaluationContext WithMaxDuration( long milliseconds )
+    {
+        MaxDuration = milliseconds;
+        return this;
+    }
+
+    public EvaluationContext WithMaxViolations( int max )
+    {
+        MaxViolations = max;
+        return this;
+    }
+
+    public EvaluationContext WithDescription( string description )
+    {
+        Description = description;
+        return this;
+    }
+
+    public EvaluationContext WithListener( IEvaluationListener listener )
+    {
+        Listener = listener;
+        return this;
+    }
+
+    public EvaluationContext SuppressExceptions()
+    {
+        ThrowValidationException = false;
+        ThrowNoRulesException = false;
+        return this;
+    }
+
+    public EvaluationContext SuppressValidationException()
+    {
+        ThrowValidationException = false;
+        return this;
+    }
+
+    public EvaluationContext SuppressNoRulesException()
+    {
+        ThrowNoRulesException = false;
+        return this;
+    }
+
+
+}

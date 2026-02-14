@@ -1,0 +1,60 @@
+using System.Diagnostics;
+using System.Text;
+
+namespace Pondhawk.Utilities.Process;
+
+public static class LaunchRequstExtensions
+{
+
+    public static LaunchResult Run( this ILaunchRequest request )
+    {
+
+        var capture = request.CaptureOutput && !request.UseShellExecute;
+        var startInfo = new ProcessStartInfo
+        {
+            FileName               = request.ExecutablePath,
+            Arguments              = request.Arguments,
+            WorkingDirectory       = request.WorkingDirectory,
+            UseShellExecute        = request.UseShellExecute,
+            CreateNoWindow         = !request.ShowWindow,
+            RedirectStandardOutput = capture,
+            RedirectStandardError  = capture
+        };
+
+        var process = new System.Diagnostics.Process
+        {
+            EnableRaisingEvents = capture,
+            StartInfo           = startInfo
+        };
+
+        var result = new LaunchResult(process);
+        var output = new StringBuilder();
+        var error  = new StringBuilder();
+
+        if( capture )
+        {
+            process.OutputDataReceived += (s, e) => output.AppendLine(e.Data);
+            process.ErrorDataReceived  += (s, e) => error.AppendLine(e.Data);
+        }
+
+        process.Start();
+
+        if( capture )
+        {
+            process.BeginOutputReadLine();
+            process.BeginErrorReadLine();
+        }
+
+        if( request.WaitForExit )
+        {
+            process.WaitForExit();
+        }
+
+        result.Output = output.ToString();
+        result.Error  = error.ToString();
+
+        return result;
+
+    }
+
+}

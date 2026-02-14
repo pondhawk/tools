@@ -1,0 +1,1331 @@
+﻿/*
+The MIT License (MIT)
+
+Copyright (c) 2017 The Kampilan Group Inc.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+
+using CommunityToolkit.Diagnostics;
+using Pondhawk.Rules.Builder;
+using Pondhawk.Rules.Evaluation;
+
+namespace Pondhawk.Rules;
+
+public class Rule<TFact> : AbstractRule
+{
+    public Rule( string setName, string ruleName ) : base( setName, ruleName )
+    {
+        Negated = false;
+
+        Conditions = [];
+        Consequence = null;
+    }
+
+    public bool Negated { get; private set; }
+
+    private Action<TFact> CascadeAction { get; set; }
+
+    protected List<Func<TFact, bool>> Conditions { get; set; }
+    protected Action<TFact> Consequence { get; set; }
+    protected Func<TFact, object> ModifyFunc { get; set; }
+
+        
+    public Rule<TFact> WithSalience( int value )
+    {
+        Salience = value;
+        return this;
+    }
+
+        
+    public Rule<TFact> InMutex( string name )
+    {
+        Mutex = name;
+        return this;
+    }
+
+
+        
+    public Rule<TFact> WithInception( DateTime inception )
+    {
+        Inception = inception;
+        return this;
+    }
+
+        
+    public Rule<TFact> WithExpiration( DateTime expiration )
+    {
+        Expiration = expiration;
+        return this;
+    }
+
+        
+    public Rule<TFact> FireOnce()
+    {
+        OnlyFiresOnce = true;
+        return this;
+    }
+
+        
+    public Rule<TFact> FireAlways()
+    {
+        OnlyFiresOnce = false;
+        return this;
+    }
+
+
+        
+    public Rule<TFact> If( Func<TFact, bool> oCondition )
+    {
+        Conditions.Add( oCondition );
+        return this;
+    }
+
+        
+    public Rule<TFact> And( Func<TFact, bool> oCondition )
+    {
+        Conditions.Add( oCondition );
+        return this;
+    }
+
+
+        
+    public Rule<TFact> NoConsequence()
+    {
+        Consequence = f => { };
+        return this;
+    }
+
+
+        
+    public Rule<TFact> Then( Action<TFact> oConsequence )
+    {
+        Consequence = oConsequence;
+        return this;
+    }
+
+        
+    public Rule<TFact> Then( string template, params Func<TFact, object>[] parameters )
+    {
+        Consequence = f => _BuildMessage( f, RuleEvent.EventCategory.Info, "", template, parameters );
+        return this;
+    }
+
+        
+    public Rule<TFact> Then( string group, string template, params Func<TFact, object>[] parameters)
+    {
+        Consequence = f => _BuildMessage(f, RuleEvent.EventCategory.Info, group, template, parameters);
+        return this;
+    }
+
+
+        
+    public Rule<TFact> Then(RuleEvent.EventCategory category, string group, string template, params Func<TFact, object>[] parameters )
+    {
+        Consequence = f => _BuildMessage( f, category, group, template, parameters );
+        return this;
+    }
+
+        
+    public Rule<TFact> ThenAffirm( int weight )
+    {
+        Consequence = f => HandleAffirm( weight );
+        return this;
+    }
+
+
+    public Rule<TFact> ThenVeto( int weight )
+    {
+        Consequence = s => HandleVeto( weight );
+        return this;
+    }
+
+
+        
+    public Rule<TFact> Fire( Action<TFact> oConsequence )
+    {
+        Conditions.Add( f => true );
+        Consequence = oConsequence;
+        return this;
+    }
+
+
+        
+    public Rule<TFact> Fire( string template, params Func<TFact, object>[] parameters )
+    {
+        Conditions.Add( f => true );
+        Consequence = f => _BuildMessage( f, RuleEvent.EventCategory.Info, "", template, parameters );
+        return this;
+    }
+
+        
+    public Rule<TFact> Fire( string group, string template, params Func<TFact, object>[] parameters)
+    {
+        Conditions.Add(f => true);
+        Consequence = f => _BuildMessage(f, RuleEvent.EventCategory.Info, group, template, parameters);
+        return this;
+    }
+
+
+        
+    public Rule<TFact> Fire(RuleEvent.EventCategory category, string group, string template, params Func<TFact, object>[] parameters )
+    {
+        Conditions.Add( f => true );
+        Consequence = f => _BuildMessage( f, category, group, template, parameters );
+        return this;
+    }
+
+        
+    public Rule<TFact> FireAffirm( int weight )
+    {
+        Conditions.Add( f => true );
+        Consequence = f => HandleAffirm( weight );
+        return this;
+    }
+
+
+    public Rule<TFact> FireVeto( int weight )
+    {
+        Conditions.Add( f => true );
+        Consequence = f => HandleVeto( weight );
+        return this;
+    }
+
+
+
+    public Rule<TFact> Otherwise( Action<TFact> oConsequence )
+    {
+        Negated = true;
+        Consequence = oConsequence;
+        return this;
+    }
+
+        
+    public Rule<TFact> Otherwise( string template, params Func<TFact, object>[] parameters )
+    {
+        Negated = true;
+        Consequence = f => _BuildMessage( f, RuleEvent.EventCategory.Info, "", template, parameters );
+        return this;
+    }
+
+        
+    public Rule<TFact> Otherwise( string group, string template, params Func<TFact, object>[] parameters)
+    {
+        Negated = true;
+        Consequence = f => _BuildMessage(f, RuleEvent.EventCategory.Info, group, template, parameters);
+        return this;
+    }
+
+
+        
+    public Rule<TFact> Otherwise(RuleEvent.EventCategory category, string group, string template, params Func<TFact, object>[] parameters )
+    {
+        Negated = true;
+        Consequence = f => _BuildMessage( f, category, group, template, parameters );
+        return this;
+    }
+
+        
+    public Rule<TFact> OtherwiseAffirm( int weight )
+    {
+        Negated = true;
+        Consequence = f => HandleAffirm( weight );
+        return this;
+    }
+
+
+    public Rule<TFact> OtherwiseVeto( int weight )
+    {
+        Negated = true;
+        Consequence = f => HandleVeto( weight );
+        return this;
+    }
+
+
+    private void _BuildMessage( TFact fact, RuleEvent.EventCategory category, string group, string template,  Func<TFact, object>[] parameters )
+    {
+        var len = parameters.Length;
+
+        if (len == 0)
+        {
+            RuleThreadLocalStorage.CurrentContext.Event( category, group, template, fact );
+            return;
+        }
+
+        var markers = new object[len];
+        for( int i = 0; i < len; i++ )
+        {
+            var o = parameters[i]( fact ) ?? "null";
+            markers[i] = o;
+        }
+
+        var desc = string.Format( template, markers );
+        RuleThreadLocalStorage.CurrentContext.Event( category, group, desc, fact );
+    }
+
+
+        
+    public Rule<TFact> Modifies( Func<TFact, object> modifyFunc )
+    {
+        ModifyFunc = modifyFunc;
+        return this;
+    }
+
+
+    public void Cascade<TRef>(  Func<TFact, TRef> extractor ) where TRef : class
+    {
+        Guard.IsNotNull(extractor);
+
+        CascadeAction = f => RuleThreadLocalStorage.CurrentContext.InsertFact( extractor( f ) );
+
+    }
+
+
+    public void CascadeAll<TChild>(  Func<TFact, IEnumerable<TChild>> extractor ) where TChild : class
+    {
+        Guard.IsNotNull(extractor);
+
+        CascadeAction = f => _CascadeCollection( extractor( f ) );
+    }
+
+    private void _CascadeCollection(  IEnumerable<object> children )
+    {
+        foreach (object o in children)
+            RuleThreadLocalStorage.CurrentContext.InsertFact( o );
+    }
+
+
+    protected override IRule InternalEvaluate( object[] offered  )
+    {
+
+        if( CascadeAction is not null )
+            return this;
+
+            
+        base.InternalEvaluate( offered );
+
+        var fact = (TFact)offered[0];
+
+
+
+        foreach( var result in Conditions.Select( cond => cond( fact ) ) )
+        {
+            if( result == Negated )
+                return null;
+        }
+
+        return this;
+
+    }
+
+
+    protected override void InternalFire(  object[] offered )
+    {
+
+        var fact = (TFact)offered[0];
+
+        if( CascadeAction is not null )
+        {
+            CascadeAction(fact);
+            return;
+        }
+            
+        base.InternalFire( offered );
+
+        Consequence( fact );
+
+        if( ModifyFunc is not null )
+            DispatchModify( ModifyFunc( fact ) );
+
+    }
+
+}
+
+
+public class Rule<TFact1, TFact2> : AbstractRule
+{
+
+    public Rule( string setName, string ruleName ): base( setName, ruleName )
+    {
+        Negated = false;
+
+        Conditions = [];
+        Consequence = null;
+    }
+
+    public bool Negated { get; private set; }
+
+    private Action<TFact1, TFact2> CascadeAction { get; set; }
+
+    protected List<Func<TFact1, TFact2, bool>> Conditions { get; set; }
+    protected Action<TFact1, TFact2> Consequence { get; set; }
+    protected Func<TFact1, TFact2, object> ModifyFunc { get; set; }
+
+        
+    public Rule<TFact1, TFact2> WithSalience( int value )
+    {
+        Salience = value;
+        return this;
+    }
+
+        
+    public Rule<TFact1, TFact2> InMutex( string name )
+    {
+        Mutex = name;
+        return this;
+    }
+
+
+        
+    public Rule<TFact1, TFact2> WithInception( DateTime inception )
+    {
+        Inception = inception;
+        return this;
+    }
+
+        
+    public Rule<TFact1, TFact2> WithExpiration( DateTime expiration )
+    {
+        Expiration = expiration;
+        return this;
+    }
+
+        
+    public Rule<TFact1, TFact2> FireOnce()
+    {
+        OnlyFiresOnce = true;
+        return this;
+    }
+
+        
+    public Rule<TFact1, TFact2> FireAlways()
+    {
+        OnlyFiresOnce = false;
+        return this;
+    }
+
+
+        
+    public Rule<TFact1, TFact2> If( Func<TFact1, TFact2, bool> oCondition )
+    {
+        Conditions.Add( oCondition );
+        return this;
+    }
+
+        
+    public Rule<TFact1, TFact2> And( Func<TFact1, TFact2, bool> oCondition )
+    {
+        Conditions.Add( oCondition );
+        return this;
+    }
+
+
+
+    public Rule<TFact1, TFact2> NoConsequence()
+    {
+        Consequence = (f1, f2) => { };
+        return this;
+    }
+
+
+
+    public Rule<TFact1, TFact2> Then( Action<TFact1, TFact2> oConsequence )
+    {
+        Consequence = oConsequence;
+        return this;
+    }
+
+        
+    public Rule<TFact1, TFact2> Then( string template, params Func<TFact1, TFact2, object>[] parameters )
+    {
+        Consequence = ( f1, f2 ) => _BuildMessage( f1, f2, RuleEvent.EventCategory.Info, "", template, parameters );
+        return this;
+    }
+
+        
+    public Rule<TFact1, TFact2> Then( string group, string template, params Func<TFact1, TFact2, object>[] parameters)
+    {
+        Consequence = (f1, f2) => _BuildMessage(f1, f2, RuleEvent.EventCategory.Info, group, template, parameters);
+        return this;
+    }
+
+
+        
+    public Rule<TFact1, TFact2> Then(RuleEvent.EventCategory category, string group, string template, params Func<TFact1, TFact2, object>[] parameters )
+    {
+        Consequence = ( f1, f2 ) => _BuildMessage( f1, f2, category, group, template, parameters );
+        return this;
+    }
+
+        
+    public Rule<TFact1, TFact2> ThenAffirm( int weight )
+    {
+        Consequence = ( f1, f2 ) => HandleAffirm( weight );
+        return this;
+    }
+
+
+    public Rule<TFact1, TFact2> ThenVeto( int weight )
+    {
+        Consequence = ( f1, f2 ) => HandleVeto( weight );
+        return this;
+    }
+
+        
+    public Rule<TFact1, TFact2> Fire( Action<TFact1, TFact2> oConsequence )
+    {
+        Conditions.Add( ( f1, f2 ) => true );
+        Consequence = oConsequence;
+        return this;
+    }
+
+        
+    public Rule<TFact1, TFact2> Fire( string template, params Func<TFact1, TFact2, object>[] parameters )
+    {
+        Conditions.Add( ( f1, f2 ) => true );
+        Consequence = ( f1, f2 ) => _BuildMessage( f1, f2, RuleEvent.EventCategory.Info, "", template, parameters );
+        return this;
+    }
+
+        
+    public Rule<TFact1, TFact2> Fire( string group, string template, params Func<TFact1, TFact2, object>[] parameters)
+    {
+        Conditions.Add((f1, f2) => true);
+        Consequence = (f1, f2) => _BuildMessage(f1, f2, RuleEvent.EventCategory.Info, group, template, parameters);
+        return this;
+    }
+
+
+        
+    public Rule<TFact1, TFact2> Fire(RuleEvent.EventCategory category, string group, string template, params Func<TFact1, TFact2, object>[] parameters )
+    {
+        Conditions.Add( ( f1, f2 ) => true );
+        Consequence = ( f1, f2 ) => _BuildMessage( f1, f2, category, group, template, parameters );
+        return this;
+    }
+
+        
+    public Rule<TFact1, TFact2> FireAffirm( int weight )
+    {
+        Conditions.Add( ( f1, f2 ) => true );
+        Consequence = ( f1, f2 ) => HandleAffirm( weight );
+        return this;
+    }
+
+
+    public Rule<TFact1, TFact2> FireVeto( int weight )
+    {
+        Conditions.Add( ( f1, f2 ) => true );
+        Consequence = ( f1, f2 ) => HandleVeto( weight );
+        return this;
+    }
+
+
+
+    public Rule<TFact1, TFact2> Otherwise( Action<TFact1, TFact2> oConsequence )
+    {
+        Negated = true;
+        Consequence = oConsequence;
+        return this;
+    }
+
+        
+    public Rule<TFact1, TFact2> Otherwise( string template, params Func<TFact1, TFact2, object>[] parameters )
+    {
+        Negated = true;
+        Consequence = ( f1, f2 ) => _BuildMessage( f1, f2, RuleEvent.EventCategory.Info, "", template, parameters );
+        return this;
+    }
+
+        
+    public Rule<TFact1, TFact2> Otherwise( string group, string template, params Func<TFact1, TFact2, object>[] parameters)
+    {
+        Negated = true;
+        Consequence = (f1, f2) => _BuildMessage(f1, f2, RuleEvent.EventCategory.Info, group, template, parameters);
+        return this;
+    }
+
+        
+    public Rule<TFact1, TFact2> Otherwise(RuleEvent.EventCategory category, string group, string template, params Func<TFact1, TFact2, object>[] parameters )
+    {
+        Negated = true;
+        Consequence = ( f1, f2 ) => _BuildMessage( f1, f2, category, group, template, parameters );
+        return this;
+    }
+
+        
+    public Rule<TFact1, TFact2> OtherwiseAffirm( int weight )
+    {
+        Negated = true;
+        Consequence = ( f1, f2 ) => HandleAffirm( weight );
+        return this;
+    }
+
+
+    public Rule<TFact1, TFact2> OtherwiseVeto( int weight )
+    {
+        Negated = true;
+        Consequence = ( f1, f2 ) => HandleVeto( weight );
+        return this;
+    }
+
+
+    public Rule<TFact1, TFact2> Modifies( Func<TFact1, TFact2, object> modifyFunc )
+    {
+        ModifyFunc = modifyFunc;
+        return this;
+    }
+
+
+    public void Cascade<TRef>( Func<TFact1, TFact2, TRef> extractor ) where TRef : class
+    {
+        Guard.IsNotNull(extractor);
+        CascadeAction = (f1, f2) => RuleThreadLocalStorage.CurrentContext.InsertFact( extractor( f1, f2 ) );
+    }
+
+
+    public void CascadeAll<TChild>( Func<TFact1, TFact2, IEnumerable<TChild>> extractor ) where TChild : class
+    {
+        Guard.IsNotNull(extractor);
+        CascadeAction = (f1, f2) => _CascadeCollection( extractor( f1, f2 ) );
+    }
+
+    private void _CascadeCollection( IEnumerable<object> children )
+    {
+        foreach (object o in children)
+            RuleThreadLocalStorage.CurrentContext.InsertFact( o );
+    }
+
+
+    private void _BuildMessage( TFact1 fact1, TFact2 fact2, RuleEvent.EventCategory category, string group, string template,  Func<TFact1, TFact2, object>[] parameters )
+    {
+        int len = parameters.Length;
+
+        if (len == 0)
+        {
+            RuleThreadLocalStorage.CurrentContext.Event( category, group, template );
+            return;
+        }
+
+        var markers = new object[len];
+        for( int i = 0; i < len; i++ )
+        {
+            object o = parameters[i]( fact1, fact2 ) ?? "null";
+            markers[i] = o;
+        }
+
+        string desc = string.Format( template, markers );
+        RuleThreadLocalStorage.CurrentContext.Event( category, group, desc );
+    }
+
+
+    protected override IRule InternalEvaluate(  object[] offered )
+    {
+
+        if( CascadeAction is not null )
+            return this;
+
+        base.InternalEvaluate( offered );
+
+        var fact1 = (TFact1)offered[0];
+        var fact2 = (TFact2)offered[1];
+
+        foreach( var cond in Conditions )
+        {
+            if( cond( fact1, fact2 ) == Negated )
+                return null;
+        }
+
+        return this;
+
+    }
+
+
+    protected override void InternalFire(  object[] offered )
+    {
+
+        var fact1 = (TFact1)offered[0];
+        var fact2 = (TFact2)offered[1];
+
+        if( CascadeAction is not null )
+        {
+            CascadeAction(fact1, fact2);
+            return;
+        }
+
+        base.InternalFire( offered );
+
+        Consequence( fact1, fact2 );
+
+        if( ModifyFunc is not null )
+            DispatchModify( ModifyFunc( fact1, fact2 ) );
+    }
+}
+
+
+public class Rule<TFact1, TFact2, TFact3> : AbstractRule
+{
+    public Rule( string setName, string ruleName )
+        : base( setName, ruleName )
+    {
+        Negated = false;
+
+        Conditions = [];
+        Consequence = null;
+    }
+
+    public bool Negated { get; private set; }
+
+    private Action<TFact1, TFact2, TFact3> CascadeAction { get; set; }
+
+    protected List<Func<TFact1, TFact2, TFact3, bool>> Conditions { get; set; }
+    protected Action<TFact1, TFact2, TFact3> Consequence { get; set; }
+    protected Func<TFact1, TFact2, TFact3, object> ModifyFunc { get; set; }
+
+        
+    public Rule<TFact1, TFact2, TFact3> WithSalience( int value )
+    {
+        Salience = value;
+        return this;
+    }
+
+        
+    public Rule<TFact1, TFact2, TFact3> InMutex( string name )
+    {
+        Mutex = name;
+        return this;
+    }
+
+
+        
+    public Rule<TFact1, TFact2, TFact3> WithInception( DateTime inception )
+    {
+        Inception = inception;
+        return this;
+    }
+
+        
+    public Rule<TFact1, TFact2, TFact3> WithExpiration( DateTime expiration )
+    {
+        Expiration = expiration;
+        return this;
+    }
+
+        
+    public Rule<TFact1, TFact2, TFact3> FireOnce()
+    {
+        OnlyFiresOnce = true;
+        return this;
+    }
+
+        
+    public Rule<TFact1, TFact2, TFact3> FireAlways()
+    {
+        OnlyFiresOnce = false;
+        return this;
+    }
+
+
+        
+    public Rule<TFact1, TFact2, TFact3> If( Func<TFact1, TFact2, TFact3, bool> oCondition )
+    {
+        Conditions.Add( oCondition );
+        return this;
+    }
+
+        
+    public Rule<TFact1, TFact2, TFact3> And( Func<TFact1, TFact2, TFact3, bool> oCondition )
+    {
+        Conditions.Add( oCondition );
+        return this;
+    }
+
+
+
+    public Rule<TFact1, TFact2, TFact3> NoConsequence()
+    {
+        Consequence = (f1, f2, f3) => { };
+        return this;
+    }
+
+
+
+    public Rule<TFact1, TFact2, TFact3> Then( Action<TFact1, TFact2, TFact3> oConsequence )
+    {
+        Consequence = oConsequence;
+        return this;
+    }
+
+        
+    public Rule<TFact1, TFact2, TFact3> Then( string template, params Func<TFact1, TFact2, TFact3, object>[] parameters )
+    {
+        Consequence = ( f1, f2, f3 ) => _BuildMessage( f1, f2, f3, RuleEvent.EventCategory.Info, "", template, parameters );
+        return this;
+    }
+
+        
+    public Rule<TFact1, TFact2, TFact3> Then( string group, string template, params Func<TFact1, TFact2, TFact3, object>[] parameters)
+    {
+        Consequence = (f1, f2, f3) => _BuildMessage(f1, f2, f3, RuleEvent.EventCategory.Info, group, template, parameters);
+        return this;
+    }
+
+
+
+        
+    public Rule<TFact1, TFact2, TFact3> Then(RuleEvent.EventCategory category, string group, string template, params Func<TFact1, TFact2, TFact3, object>[] parameters )
+    {
+        Consequence = ( f1, f2, f3 ) => _BuildMessage( f1, f2, f3, category, group, template, parameters );
+        return this;
+    }
+
+        
+    public Rule<TFact1, TFact2, TFact3> ThenAffirm( int weight )
+    {
+        Consequence = ( f1, f2, f3 ) => HandleAffirm( weight );
+        return this;
+    }
+
+
+    public Rule<TFact1, TFact2, TFact3> ThenVeto( int weight )
+    {
+        Consequence = ( f1, f2, f3 ) => HandleVeto( weight );
+        return this;
+    }
+
+        
+    public Rule<TFact1, TFact2, TFact3> Fire( Action<TFact1, TFact2, TFact3> oConsequence )
+    {
+        Conditions.Add( ( f1, f2, f3 ) => true );
+        Consequence = oConsequence;
+        return this;
+    }
+
+        
+    public Rule<TFact1, TFact2, TFact3> Fire( string template, params Func<TFact1, TFact2, TFact3, object>[] parameters )
+    {
+        Conditions.Add( ( f1, f2, f3 ) => true );
+        Consequence = ( f1, f2, f3 ) => _BuildMessage( f1, f2, f3, RuleEvent.EventCategory.Info, "", template, parameters );
+        return this;
+    }
+
+        
+    public Rule<TFact1, TFact2, TFact3> Fire( string group, string template, params Func<TFact1, TFact2, TFact3, object>[] parameters)
+    {
+        Conditions.Add((f1, f2, f3) => true);
+        Consequence = (f1, f2, f3) => _BuildMessage(f1, f2, f3, RuleEvent.EventCategory.Info, group, template, parameters);
+        return this;
+    }
+
+
+        
+    public Rule<TFact1, TFact2, TFact3> Fire(RuleEvent.EventCategory category, string group, string template, params Func<TFact1, TFact2, TFact3, object>[] parameters )
+    {
+        Conditions.Add( ( f1, f2, f3 ) => true );
+        Consequence = ( f1, f2, f3 ) => _BuildMessage( f1, f2, f3, category, group, template, parameters );
+        return this;
+    }
+
+        
+    public Rule<TFact1, TFact2, TFact3> FireAffirm( int weight )
+    {
+        Conditions.Add( ( f1, f2, f3 ) => true );
+        Consequence = ( f1, f2, f3 ) => HandleAffirm( weight );
+        return this;
+    }
+
+
+    public Rule<TFact1, TFact2, TFact3> FireVeto( int weight )
+    {
+        Conditions.Add( ( f1, f2, f3 ) => true );
+        Consequence = ( f1, f2, f3 ) => HandleVeto( weight );
+        return this;
+    }
+
+
+
+    public Rule<TFact1, TFact2, TFact3> Otherwise( Action<TFact1, TFact2, TFact3> oConsequence )
+    {
+        Negated = true;
+        Consequence = oConsequence;
+        return this;
+    }
+
+        
+    public Rule<TFact1, TFact2, TFact3> Otherwise( string template, params Func<TFact1, TFact2, TFact3, object>[] parameters )
+    {
+        Negated = true;
+        Consequence = ( f1, f2, f3 ) => _BuildMessage( f1, f2, f3, RuleEvent.EventCategory.Info, "", template, parameters );
+        return this;
+    }
+
+
+        
+    public Rule<TFact1, TFact2, TFact3> Otherwise( string group, string template, params Func<TFact1, TFact2, TFact3, object>[] parameters)
+    {
+        Negated = true;
+        Consequence = (f1, f2, f3) => _BuildMessage(f1, f2, f3, RuleEvent.EventCategory.Info, group, template, parameters);
+        return this;
+    }
+
+
+        
+    public Rule<TFact1, TFact2, TFact3> Otherwise(RuleEvent.EventCategory category, string group, string template, params Func<TFact1, TFact2, TFact3, object>[] parameters )
+    {
+        Negated = true;
+        Consequence = ( f1, f2, f3 ) => _BuildMessage( f1, f2, f3, category, group, template, parameters );
+        return this;
+    }
+
+        
+    public Rule<TFact1, TFact2, TFact3> OtherwiseAffirm( int weight )
+    {
+        Negated = true;
+        Consequence = ( f1, f2, f3 ) => HandleAffirm( weight );
+        return this;
+    }
+
+
+    public Rule<TFact1, TFact2, TFact3> OtherwiseVeto( int weight )
+    {
+        Negated = true;
+        Consequence = ( f1, f2, f3 ) => HandleVeto( weight );
+        return this;
+    }
+
+
+    public Rule<TFact1, TFact2, TFact3> Modifies( Func<TFact1, TFact2, TFact3, object> modifyFunc )
+    {
+        ModifyFunc = modifyFunc;
+        return this;
+    }
+
+
+    public void Cascade<TRef>( Func<TFact1, TFact2, TFact3, TRef> extractor ) where TRef : class
+    {
+        Guard.IsNotNull(extractor);
+        CascadeAction = (f1, f2, f3) => RuleThreadLocalStorage.CurrentContext.InsertFact( extractor( f1, f2, f3 ) );
+    }
+
+
+    public void CascadeAll<TChild>( Func<TFact1, TFact2, TFact3, IEnumerable<TChild>> extractor ) where TChild : class
+    {
+        Guard.IsNotNull(extractor);
+        CascadeAction = (f1, f2, f3) => _CascadeCollection( extractor( f1, f2, f3 ) );
+    }
+
+    private void _CascadeCollection( IEnumerable<object> children )
+    {
+        foreach (object o in children)
+            RuleThreadLocalStorage.CurrentContext.InsertFact( o );
+    }
+
+
+    private void _BuildMessage( TFact1 fact1, TFact2 fact2, TFact3 fact3, RuleEvent.EventCategory category, string group, string template,  Func<TFact1, TFact2, TFact3, object>[] parameters )
+    {
+        int len = parameters.Length;
+
+        if (len == 0)
+        {
+            RuleThreadLocalStorage.CurrentContext.Event( category, group, template );
+            return;
+        }
+
+        var markers = new object[len];
+        for( int i = 0; i < len; i++ )
+        {
+            object o = parameters[i]( fact1, fact2, fact3 ) ?? "null";
+            markers[i] = o;
+        }
+
+        string desc = string.Format( template, markers );
+        RuleThreadLocalStorage.CurrentContext.Event( category, group, desc );
+    }
+
+
+    protected override IRule InternalEvaluate(  object[] offered )
+    {
+
+        if( CascadeAction is not null )
+            return this;
+
+        base.InternalEvaluate( offered );
+
+        var fact1 = (TFact1)offered[0];
+        var fact2 = (TFact2)offered[1];
+        var fact3 = (TFact3)offered[2];
+
+        foreach( var cond in Conditions )
+        {
+            if( cond( fact1, fact2, fact3 ) == Negated )
+                return null;
+        }
+
+        return this;
+
+    }
+
+
+    protected override void InternalFire(  object[] offered )
+    {
+
+        var fact1 = (TFact1)offered[0];
+        var fact2 = (TFact2)offered[1];
+        var fact3 = (TFact3)offered[2];
+
+        if( CascadeAction is not null )
+        {
+            CascadeAction(fact1, fact2, fact3);
+            return;
+        }
+
+        base.InternalFire( offered );
+
+        Consequence( fact1, fact2, fact3 );
+
+        if( ModifyFunc is not null )
+            DispatchModify( ModifyFunc( fact1, fact2, fact3 ) );
+    }
+}
+
+
+public class Rule<TFact1, TFact2, TFact3, TFact4> : AbstractRule
+{
+    public Rule( string setName, string ruleName ) : base( setName, ruleName )
+    {
+        Negated = false;
+
+        Conditions = [];
+        Consequence = null;
+    }
+
+    public bool Negated { get; private set; }
+
+    private Action<TFact1, TFact2, TFact3, TFact4> CascadeAction { get; set; }
+
+    protected List<Func<TFact1, TFact2, TFact3, TFact4, bool>> Conditions { get; set; }
+    protected Action<TFact1, TFact2, TFact3, TFact4> Consequence { get; set; }
+    protected Func<TFact1, TFact2, TFact3, TFact4, object> ModifyFunc { get; set; }
+
+        
+    public Rule<TFact1, TFact2, TFact3, TFact4> WithSalience( int value )
+    {
+        Salience = value;
+        return this;
+    }
+
+        
+    public Rule<TFact1, TFact2, TFact3, TFact4> InMutex( string name )
+    {
+        Mutex = name;
+        return this;
+    }
+
+
+        
+    public Rule<TFact1, TFact2, TFact3, TFact4> WithInception( DateTime inception )
+    {
+        Inception = inception;
+        return this;
+    }
+
+        
+    public Rule<TFact1, TFact2, TFact3, TFact4> WithExpiration( DateTime expiration )
+    {
+        Expiration = expiration;
+        return this;
+    }
+
+        
+    public Rule<TFact1, TFact2, TFact3, TFact4> FireOnce()
+    {
+        OnlyFiresOnce = true;
+        return this;
+    }
+
+        
+    public Rule<TFact1, TFact2, TFact3, TFact4> FireAlways()
+    {
+        OnlyFiresOnce = false;
+        return this;
+    }
+
+
+        
+    public Rule<TFact1, TFact2, TFact3, TFact4> If( Func<TFact1, TFact2, TFact3, TFact4, bool> oCondition )
+    {
+        Conditions.Add( oCondition );
+        return this;
+    }
+
+        
+    public Rule<TFact1, TFact2, TFact3, TFact4> And( Func<TFact1, TFact2, TFact3, TFact4, bool> oCondition )
+    {
+        Conditions.Add( oCondition );
+        return this;
+    }
+
+
+
+    public Rule<TFact1, TFact2, TFact3, TFact4> NoConsequence()
+    {
+        Consequence = (f1, f2, f3, f4) => { };
+        return this;
+    }
+
+
+
+    public Rule<TFact1, TFact2, TFact3, TFact4> Then( Action<TFact1, TFact2, TFact3, TFact4> oConsequence )
+    {
+        Consequence = oConsequence;
+        return this;
+    }
+
+        
+    public Rule<TFact1, TFact2, TFact3, TFact4> Then( string template, params Func<TFact1, TFact2, TFact3, TFact4, object>[] parameters )
+    {
+        Consequence = ( f1, f2, f3, f4 ) => _BuildMessage( f1, f2, f3, f4, RuleEvent.EventCategory.Info, "", template, parameters );
+        return this;
+    }
+
+        
+    public Rule<TFact1, TFact2, TFact3, TFact4> Then(string group, string template, params Func<TFact1, TFact2, TFact3, TFact4, object>[] parameters)
+    {
+        Consequence = (f1, f2, f3, f4) => _BuildMessage(f1, f2, f3, f4, RuleEvent.EventCategory.Info, group, template, parameters);
+        return this;
+    }
+
+
+        
+    public Rule<TFact1, TFact2, TFact3, TFact4> Then(RuleEvent.EventCategory category, string group, string template, params Func<TFact1, TFact2, TFact3, TFact4, object>[] parameters )
+    {
+        Consequence = ( f1, f2, f3, f4 ) => _BuildMessage( f1, f2, f3, f4, category, group, template, parameters );
+        return this;
+    }
+
+        
+    public Rule<TFact1, TFact2, TFact3, TFact4> ThenAffirm( int weight )
+    {
+        Consequence = ( f1, f2, f3, f4 ) => HandleAffirm( weight );
+        return this;
+    }
+
+
+    public Rule<TFact1, TFact2, TFact3, TFact4> ThenVeto( int weight )
+    {
+        Consequence = ( f1, f2, f3, f4 ) => HandleVeto( weight );
+        return this;
+    }
+
+        
+    public Rule<TFact1, TFact2, TFact3, TFact4> Fire( Action<TFact1, TFact2, TFact3, TFact4> oConsequence )
+    {
+        Conditions.Add( ( f1, f2, f3, f4 ) => true );
+        Consequence = oConsequence;
+        return this;
+    }
+
+        
+    public Rule<TFact1, TFact2, TFact3, TFact4> Fire( string template, params Func<TFact1, TFact2, TFact3, TFact4, object>[] parameters )
+    {
+        Conditions.Add( ( f1, f2, f3, f4 ) => true );
+        Consequence = ( f1, f2, f3, f4 ) => _BuildMessage( f1, f2, f3, f4, RuleEvent.EventCategory.Info, "", template, parameters );
+        return this;
+    }
+
+        
+    public Rule<TFact1, TFact2, TFact3, TFact4> Fire( string group, string template, params Func<TFact1, TFact2, TFact3, TFact4, object>[] parameters)
+    {
+        Conditions.Add((f1, f2, f3, f4) => true);
+        Consequence = (f1, f2, f3, f4) => _BuildMessage(f1, f2, f3, f4, RuleEvent.EventCategory.Info, group, template, parameters);
+        return this;
+    }
+
+
+        
+    public Rule<TFact1, TFact2, TFact3, TFact4> Fire(RuleEvent.EventCategory category, string group, string template, params Func<TFact1, TFact2, TFact3, TFact4, object>[] parameters )
+    {
+        Conditions.Add( ( f1, f2, f3, f4 ) => true );
+        Consequence = ( f1, f2, f3, f4 ) => _BuildMessage( f1, f2, f3, f4, category, group, template, parameters );
+        return this;
+    }
+
+        
+    public Rule<TFact1, TFact2, TFact3, TFact4> FireAffirm( int weight )
+    {
+        Conditions.Add( ( f1, f2, f3, f4 ) => true );
+        Consequence = ( f1, f2, f3, f4 ) => HandleAffirm( weight );
+        return this;
+    }
+
+
+    public Rule<TFact1, TFact2, TFact3, TFact4> FireVeto( int weight )
+    {
+        Conditions.Add( ( f1, f2, f3, f4 ) => true );
+        Consequence = ( f1, f2, f3, f4 ) => HandleVeto( weight );
+        return this;
+    }
+
+
+
+    public Rule<TFact1, TFact2, TFact3, TFact4> Otherwise( Action<TFact1, TFact2, TFact3, TFact4> oConsequence )
+    {
+        Negated = true;
+        Consequence = oConsequence;
+        return this;
+    }
+
+        
+    public Rule<TFact1, TFact2, TFact3, TFact4> Otherwise( string template, params Func<TFact1, TFact2, TFact3, TFact4, object>[] parameters )
+    {
+        Negated = true;
+        Consequence = ( f1, f2, f3, f4 ) => _BuildMessage( f1, f2, f3, f4, RuleEvent.EventCategory.Info, "", template, parameters );
+        return this;
+    }
+
+
+        
+    public Rule<TFact1, TFact2, TFact3, TFact4> Otherwise( string group, string template, params Func<TFact1, TFact2, TFact3, TFact4, object>[] parameters)
+    {
+        Negated = true;
+        Consequence = (f1, f2, f3, f4) => _BuildMessage(f1, f2, f3, f4, RuleEvent.EventCategory.Info, group, template, parameters);
+        return this;
+    }
+
+
+        
+    public Rule<TFact1, TFact2, TFact3, TFact4> Otherwise(RuleEvent.EventCategory category, string group, string template, params Func<TFact1, TFact2, TFact3, TFact4, object>[] parameters )
+    {
+        Negated = true;
+        Consequence = ( f1, f2, f3, f4 ) => _BuildMessage( f1, f2, f3, f4, category, group, template, parameters );
+        return this;
+    }
+
+        
+    public Rule<TFact1, TFact2, TFact3, TFact4> OtherwiseAffirm( int weight )
+    {
+        Negated = true;
+        Consequence = ( f1, f2, f3, f4 ) => HandleAffirm( weight );
+        return this;
+    }
+
+
+    public Rule<TFact1, TFact2, TFact3, TFact4> OtherwiseVeto( int weight )
+    {
+        Negated = true;
+        Consequence = ( f1, f2, f3, f4 ) => HandleVeto( weight );
+        return this;
+    }
+
+
+    public Rule<TFact1, TFact2, TFact3, TFact4> Modifies( Func<TFact1, TFact2, TFact3, TFact4, object> modifyFunc )
+    {
+        ModifyFunc = modifyFunc;
+        return this;
+    }
+
+
+    public void Cascade<TRef>( Func<TFact1, TFact2, TFact3, TFact4, TRef> extractor ) where TRef : class
+    {
+        Guard.IsNotNull(extractor);
+        CascadeAction = (f1, f2, f3, f4) => RuleThreadLocalStorage.CurrentContext.InsertFact( extractor( f1, f2, f3, f4 ) );
+    }
+
+
+    public void CascadeAll<TChild>( Func<TFact1, TFact2, TFact3, TFact4, IEnumerable<TChild>> extractor ) where TChild : class
+    {
+        Guard.IsNotNull(extractor);
+        CascadeAction = (f1, f2, f3, f4) => _CascadeCollection( extractor( f1, f2, f3, f4 ) );
+    }
+
+    private void _CascadeCollection( IEnumerable<object> children )
+    {
+        foreach (object o in children)
+            RuleThreadLocalStorage.CurrentContext.InsertFact( o );
+    }
+
+
+    private void _BuildMessage( TFact1 fact1, TFact2 fact2, TFact3 fact3, TFact4 fact4, RuleEvent.EventCategory category, string group, string template,  Func<TFact1, TFact2, TFact3, TFact4, object>[] parameters )
+    {
+        int len = parameters.Length;
+
+        if (len == 0)
+        {
+            RuleThreadLocalStorage.CurrentContext.Event( category, group, template );
+            return;
+        }
+
+        var markers = new object[len];
+        for( int i = 0; i < len; i++ )
+        {
+            object o = parameters[i]( fact1, fact2, fact3, fact4 ) ?? "null";
+            markers[i] = o;
+        }
+
+        string desc = string.Format( template, markers );
+        RuleThreadLocalStorage.CurrentContext.Event( category, group, desc );
+    }
+
+
+    protected override IRule InternalEvaluate(  object[] offered )
+    {
+
+        if( CascadeAction is not null )
+            return this;
+
+        base.InternalEvaluate( offered );
+
+        var fact1 = (TFact1)offered[0];
+        var fact2 = (TFact2)offered[1];
+        var fact3 = (TFact3)offered[2];
+        var fact4 = (TFact4)offered[3];
+
+        foreach( var cond in Conditions )
+        {
+            if( cond( fact1, fact2, fact3, fact4 ) == Negated )
+                return null;
+        }
+
+        return this;
+
+    }
+
+
+    protected override void InternalFire(  object[] offered )
+    {
+
+        var fact1 = (TFact1)offered[0];
+        var fact2 = (TFact2)offered[1];
+        var fact3 = (TFact3)offered[2];
+        var fact4 = (TFact4)offered[3];
+
+        if( CascadeAction is not null )
+        {
+            CascadeAction(fact1, fact2, fact3, fact4);
+            return;
+        }
+
+        base.InternalFire( offered );
+
+        Consequence( fact1, fact2, fact3, fact4 );
+
+        if( ModifyFunc is not null )
+            DispatchModify( ModifyFunc( fact1, fact2, fact3, fact4 ) );
+    }
+}

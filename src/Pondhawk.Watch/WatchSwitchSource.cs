@@ -1,0 +1,180 @@
+/*
+The MIT License (MIT)
+
+Copyright (c) 2024 Pond Hawk Technologies Inc.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+
+using System.Drawing;
+using System.Net.Http.Json;
+using CommunityToolkit.Diagnostics;
+using Serilog.Events;
+
+namespace Pondhawk.Watch;
+
+/// <summary>
+/// A SwitchSource that fetches switch configuration from a Watch Server.
+/// </summary>
+/// <remarks>
+/// <para>
+/// Periodically polls GET /api/switches?domain={domain} to fetch switch configuration.
+/// When switches are fetched, Update() is called which increments Version.
+/// </para>
+/// <para>
+/// Thread-safety: All operations are thread-safe. Polling runs on a background task.
+/// </para>
+/// </remarks>
+public class WatchSwitchSource : SwitchSource, IAsyncDisposable
+{
+    private readonly HttpClient _client;
+    private readonly string _domain;
+    private readonly TimeSpan _pollInterval;
+    private readonly CancellationTokenSource _cts = new();
+    private readonly object _startLock = new();
+    private Task? _pollTask;
+    private bool _started;
+
+    /// <summary>
+    /// Gets or sets whether polling is enabled. Default is true.
+    /// </summary>
+    public bool PollingEnabled { get; set; } = true;
+
+    /// <summary>
+    /// Creates a new WatchSwitchSource.
+    /// </summary>
+    /// <param name="client">The HTTP client to use for requests.</param>
+    /// <param name="domain">The domain name to fetch switches for.</param>
+    /// <param name="pollInterval">The interval between polls. Default is 30 seconds.</param>
+    public WatchSwitchSource(HttpClient client, string domain, TimeSpan? pollInterval = null)
+    {
+        Guard.IsNotNull(client);
+        Guard.IsNotNull(domain);
+
+        _client = client;
+        _domain = domain;
+        _pollInterval = pollInterval ?? TimeSpan.FromSeconds(30);
+    }
+
+    /// <summary>
+    /// Starts polling for switch updates.
+    /// </summary>
+    /// <remarks>
+    /// This method is idempotent - calling it multiple times has no additional effect.
+    /// The initial fetch is performed asynchronously in the poll loop.
+    /// </remarks>
+    public override void Start()
+    {
+        lock (_startLock)
+        {
+            if (_started)
+                return;
+            _started = true;
+        }
+
+        _pollTask = Task.Run(() => PollLoopAsync(_cts.Token));
+    }
+
+    /// <summary>
+    /// Stops polling.
+    /// </summary>
+    public override void Stop()
+    {
+        _cts.Cancel();
+    }
+
+    /// <summary>
+    /// Fetches switches from the server and updates the configuration.
+    /// </summary>
+    public override async Task UpdateAsync(CancellationToken ct = default)
+    {
+        try
+        {
+            var url = $"api/switches?domain={Uri.EscapeDataString(_domain)}";
+            var response = await _client.GetFromJsonAsync<SwitchesResponse>(url, ct);
+
+            if (response?.Switches is not null)
+            {
+                var defs = response.Switches.Select(s => new SwitchDef
+                {
+                    Pattern = s.Pattern,
+                    Tag = s.Tag,
+                    Level = s.Level > (int)LogEventLevel.Fatal ? LogEventLevel.Fatal : (LogEventLevel)s.Level,
+                    IsQuiet = s.Level > (int)LogEventLevel.Fatal,
+                    Color = Color.FromArgb(s.Color)
+                }).ToList();
+
+                Update(defs);
+            }
+        }
+        catch
+        {
+            // Silently ignore failures - we'll try again next poll
+            // In production, you might want to log this to a fallback logger
+        }
+    }
+
+    private async Task PollLoopAsync(CancellationToken ct)
+    {
+        // Initial fetch (primer)
+        await UpdateAsync(ct);
+
+        if (!PollingEnabled)
+            return;
+
+        while (!ct.IsCancellationRequested)
+        {
+            try
+            {
+                await Task.Delay(_pollInterval, ct);
+                await UpdateAsync(ct);
+            }
+            catch (OperationCanceledException) when (ct.IsCancellationRequested)
+            {
+                break;
+            }
+            catch
+            {
+                // Continue polling even on failure
+            }
+        }
+    }
+
+    /// <summary>
+    /// Disposes the switch source.
+    /// </summary>
+    public async ValueTask DisposeAsync()
+    {
+        Stop();
+
+        if (_pollTask is not null)
+        {
+            try
+            {
+                await _pollTask;
+            }
+            catch (OperationCanceledException)
+            {
+                // Expected on shutdown
+            }
+        }
+
+        _cts.Dispose();
+    }
+}

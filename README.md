@@ -1,0 +1,448 @@
+<p align="center">
+  <img src="pht-small-logo.png" alt="Pondhawk Tools" width="120" />
+</p>
+
+<h1 align="center">Pondhawk Tools</h1>
+
+<p align="center">
+  A modular .NET toolkit for rule evaluation, resource querying, structured logging, and service lifecycle management.
+</p>
+
+<p align="center">
+  <a href="https://github.com/pondhawk/tools/actions/workflows/build.yml"><img src="https://github.com/pondhawk/tools/actions/workflows/build.yml/badge.svg" alt="Build" /></a>
+  <img src="https://img.shields.io/badge/.NET-10.0-512bd4" alt=".NET 10" />
+  <img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT License" />
+</p>
+
+---
+
+## Overview
+
+Pondhawk Tools is a collection of class libraries built by [Pond Hawk Technologies](https://github.com/pondhawk). Each package is independently versioned and can be adopted on its own.
+
+| Package | Description |
+|---------|-------------|
+| **Pondhawk.Rules** | Forward-chaining rule engine with type-based fact matching, scoring, and validation |
+| **Pondhawk.Rules.EFCore** | EF Core `SaveChangesInterceptor` that validates entities through Rules before save |
+| **Pondhawk.Rql** | Resource Query Language — filtering DSL with fluent builder, parser, and SQL/LINQ serialization |
+| **Pondhawk.Core** | Shared foundation — Serilog logging extensions, pipeline infrastructure, utilities |
+| **Pondhawk.Watch** | Serilog sink with Channel-based batching and circuit-breaker resilience |
+| **Pondhawk.Watch.Framework** | Shared Watch types, sinks, and switch infrastructure (targets `netstandard2.0`) |
+| **Pondhawk.Hosting** | `AddSingletonWithStart<T>()` pattern for co-locating service registration with startup logic |
+
+## Getting Started
+
+### Prerequisites
+
+- [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0) (10.0.103 or later)
+
+### Installation
+
+Packages are published to GitHub Packages. Add the feed to your NuGet configuration:
+
+```xml
+<PackageSource>
+  <add key="pondhawk" value="https://nuget.pkg.github.com/kampilan/index.json" />
+</PackageSource>
+```
+
+Then reference the packages you need:
+
+```xml
+<PackageReference Include="Pondhawk.Rules" />
+<PackageReference Include="Pondhawk.Rql" />
+```
+
+### Building from Source
+
+```bash
+dotnet build pondhawk-tools.slnx
+dotnet test pondhawk-tools.slnx
+```
+
+---
+
+## Pondhawk.Rules
+
+A forward-chaining rule engine with fluent rule definition, multi-fact matching, validation, and decision scoring.
+
+### Defining Rules
+
+Rules are created with a `RuleSet` using the fluent `If()` / `And()` / `Then()` API:
+
+```csharp
+var rules = new RuleSet();
+
+rules.AddRule<Order>("HighValueOrder")
+    .If(o => o.Total > 1000)
+    .Then("Pricing", "Order {Total} exceeds high-value threshold", o => o.Total);
+
+rules.AddRule<Order>("DiscountEligible")
+    .If(o => o.Total > 500)
+    .And(o => o.Customer.IsLoyaltyMember)
+    .Then(o => o.DiscountPct = 0.10m);
+
+rules.Build();
+```
+
+### Multi-Fact Rules
+
+Rules can match across 2, 3, or 4 fact types simultaneously:
+
+```csharp
+rules.AddRule<Order, Customer>("LoyaltyBonus")
+    .If((order, customer) => order.Total > 200 && customer.Tier == "Gold")
+    .Then((order, customer) => order.DiscountPct += 0.05m);
+```
+
+### Validation
+
+`ValidationRule<T>` provides property-level assertions with the `Assert<T>().Is().Otherwise()` pattern:
+
+```csharp
+rules.AddValidation<Customer>("CustomerValidation")
+    .Assert<string>(c => c.Name)
+        .IsNot((c, name) => string.IsNullOrWhiteSpace(name))
+        .Otherwise("Customer name is required")
+    .Assert<string>(c => c.Email)
+        .Is((c, email) => email.Contains('@'))
+        .Otherwise("Validation", "{Name} has an invalid email", c => c.Name);
+```
+
+Validation rules run at very high salience by default, ensuring they execute before business rules.
+
+### Scoring
+
+Use `ThenAffirm()` and `ThenVeto()` to build a weighted decision score:
+
+```csharp
+rules.AddRule<Application>("CreditCheck")
+    .If(a => a.CreditScore > 700)
+    .ThenAffirm(10)
+    .OtherwiseVeto(20);
+
+rules.AddRule<Application>("IncomeCheck")
+    .If(a => a.AnnualIncome > 50_000)
+    .ThenAffirm(15);
+
+// After evaluation:
+// results.Score > 0 means approved
+```
+
+### Forward Chaining
+
+Rules can insert, modify, or retract facts to trigger re-evaluation. Use `Cascade()` to pull in related objects:
+
+```csharp
+rules.AddRule<Order>("ApplyLineItems")
+    .If(o => o.LineItems.Any())
+    .Then(o => { /* process order */ })
+    .CascadeAll(o => o.LineItems);
+
+rules.AddRule<LineItem>("FlagBackorder")
+    .If(li => li.Quantity > li.InStock)
+    .Then(li => li.IsBackordered = true)
+    .Modifies(li => li);
+```
+
+### Rule Properties
+
+Fine-tune rule behavior with salience (priority), mutex (mutual exclusion), fire-once, and time windows:
+
+```csharp
+rules.AddRule<Order>("PriorityRule")
+    .WithSalience(900)                            // higher = runs first (default: 500)
+    .InMutex("ShippingMethod")                    // only one rule wins per mutex group
+    .FireOnce()                                   // skip after first match
+    .WithInception(new DateTime(2025, 1, 1))      // active from
+    .WithExpiration(new DateTime(2025, 12, 31))   // active until
+    .If(o => o.IsExpedited)
+    .Then(o => o.ShippingMethod = "Overnight");
+```
+
+### Evaluation
+
+Build an `EvaluationContext`, add facts, and evaluate:
+
+```csharp
+var context = rules.GetEvaluationContext()
+    .WithDescription("Order Processing")
+    .WithMaxEvaluations(1000)
+    .WithMaxDuration(5000);
+
+context.AddFacts(order, customer);
+var results = context.Evaluate();
+
+// Inspect results
+Console.WriteLine($"Score: {results.Score}");
+Console.WriteLine($"Violations: {results.ViolationCount}");
+Console.WriteLine($"Rules fired: {results.TotalFired}");
+
+foreach (var violation in results.GetViolations())
+    Console.WriteLine($"  [{violation.Group}] {violation.Message}");
+```
+
+Or use the convenience extensions:
+
+```csharp
+// Quick evaluation
+var results = rules.Evaluate(order, customer);
+
+// Validation with structured result
+var validation = rules.Validate(order);
+if (!validation.IsValid)
+{
+    foreach (var (group, violations) in validation.ViolationsByGroup)
+        Console.WriteLine($"{group}: {violations.Count} violation(s)");
+}
+```
+
+### RuleSetFactory
+
+For production scenarios, `RuleSetFactory` provides lazy initialization and namespace-scoped rule sets:
+
+```csharp
+var factory = new RuleSetFactory();
+factory.AddSources(new OrderRules(), new CustomerRules());
+factory.Start();
+
+IRuleSet ruleSet = factory.GetRuleSet();
+IRuleSet orderOnly = factory.GetRuleSet("OrderRules");
+```
+
+### EF Core Integration
+
+`Pondhawk.Rules.EFCore` validates all `Added` and `Modified` entities through your rule set before `SaveChanges`:
+
+```csharp
+services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlServer(connectionString)
+           .AddRuleValidation(ruleSet));
+```
+
+If validation fails, `EntityValidationException` is thrown with the full `ValidationResult`:
+
+```csharp
+try
+{
+    await dbContext.SaveChangesAsync();
+}
+catch (EntityValidationException ex)
+{
+    foreach (var v in ex.ValidationResult.Violations)
+        Console.WriteLine($"  {v.Message}");
+}
+```
+
+---
+
+## Pondhawk.Rql
+
+A Resource Query Language with a fluent builder, text parser, and multiple serialization targets (RQL text, LINQ expressions, parameterized SQL).
+
+### Fluent Builder
+
+Build filters with strongly-typed lambda expressions:
+
+```csharp
+var filter = RqlFilterBuilder<Product>
+    .Where(p => p.Category).Equals("Electronics")
+    .And(p => p.Price).GreaterThan(99)
+    .And(p => p.InStock).Equals(true);
+```
+
+### Supported Operators
+
+| Builder Method | RQL Syntax | SQL Output |
+|----------------|-----------|------------|
+| `.Equals(v)` | `eq(Field,v)` | `Field = @p` |
+| `.NotEquals(v)` | `ne(Field,v)` | `Field <> @p` |
+| `.LesserThan(v)` | `lt(Field,v)` | `Field < @p` |
+| `.GreaterThan(v)` | `gt(Field,v)` | `Field > @p` |
+| `.LesserThanOrEqual(v)` | `le(Field,v)` | `Field <= @p` |
+| `.GreaterThanOrEqual(v)` | `ge(Field,v)` | `Field >= @p` |
+| `.Between(a, b)` | `bt(Field,a,b)` | `Field between @a and @b` |
+| `.In(a, b, c)` | `in(Field,a,b,c)` | `Field in (@a,@b,@c)` |
+| `.NotIn(a, b, c)` | `ni(Field,a,b,c)` | `Field not in (@a,@b,@c)` |
+| `.StartsWith(v)` | `sw(Field,v)` | `Field like 'v%'` |
+| `.Contains(v)` | `cn(Field,v)` | `Field like '%v%'` |
+| `.EndsWith(v)` | `ew(Field,v)` | `Field like '%v'` |
+| `.IsNull()` | `nu(Field)` | `Field is null` |
+| `.IsNotNull()` | `nn(Field)` | `Field is not null` |
+
+Values support `string`, `int`, `long`, `decimal`, `DateTime`, and `bool` types.
+
+### Parsing
+
+Parse RQL text back into a filter AST:
+
+```csharp
+var tree = RqlLanguageParser.ToCriteria("(eq(Name,'John'),gt(Age,30))");
+```
+
+Value prefixes in RQL text:
+- Strings: `'value'` (escape single quotes as `''`)
+- DateTime: `@2025-01-15T00:00:00Z`
+- Decimal: `#99.95`
+- Integers and booleans: bare values (`30`, `true`)
+
+### Serialization
+
+Serialize filters to three different output formats:
+
+```csharp
+var filter = RqlFilterBuilder<Product>
+    .Where(p => p.Category).Equals("Electronics")
+    .And(p => p.Price).GreaterThan(99);
+
+// RQL text
+string rql = filter.ToRql();
+// "(eq(Category,'Electronics'),gt(Price,99))"
+
+// Compiled LINQ predicate
+Func<Product, bool> predicate = filter.ToLambda<Product>();
+var matches = products.Where(predicate);
+
+// Expression tree (for EF Core / IQueryable)
+Expression<Func<Product, bool>> expr = filter.ToExpression<Product>();
+var results = dbContext.Products.Where(expr);
+
+// Parameterized SQL
+var (sql, parameters) = filter.ToSqlQuery<Product>();
+// sql:        "select * from Product where Category = {0} and Price > {1}"
+// parameters: ["Electronics", 99]
+
+// WHERE clause only
+var (where, args) = filter.ToSqlWhere();
+// where: "Category = {0} and Price > {1}"
+```
+
+Case-insensitive string matching is supported via the `insensitive` parameter:
+
+```csharp
+var predicate = filter.ToLambda<Product>(insensitive: true);
+```
+
+### Introspection
+
+Build filters automatically from criteria objects decorated with `[Criterion]`:
+
+```csharp
+public class ProductSearch : BaseCriteria
+{
+    [Criterion(Operation = RqlOperator.Contains)]
+    public string? Name { get; set; }
+
+    [Criterion(Operation = RqlOperator.Equals)]
+    public string? Category { get; set; }
+
+    [Criterion(Name = "Price", Operand = OperandKind.From)]
+    public decimal? MinPrice { get; set; }
+
+    [Criterion(Name = "Price", Operand = OperandKind.To)]
+    public decimal? MaxPrice { get; set; }
+}
+
+// Build filter from populated criteria
+var search = new ProductSearch { Category = "Electronics", MinPrice = 50, MaxPrice = 200 };
+var filter = RqlFilterBuilder<Product>.Create().Introspect(search);
+// Produces: eq(Category,'Electronics'), bt(Price,#50,#200)
+```
+
+### Untyped Builder
+
+For dynamic scenarios where the target type isn't known at compile time:
+
+```csharp
+var filter = RqlFilterBuilder
+    .Where("Status").Equals("Active")
+    .And("CreatedDate").GreaterThan(DateTime.UtcNow.AddDays(-30));
+
+var (sql, args) = filter.ToSqlWhere();
+```
+
+---
+
+## Other Packages
+
+### Pondhawk.Core
+
+Serilog logging extensions for structured diagnostics. Provides `GetLogger()` on any object, disposable method tracing, and typed payload logging.
+
+```csharp
+// Get a logger scoped to the current type
+var log = this.GetLogger();
+
+// Method tracing with automatic entry/exit and elapsed time
+using (log.EnterMethod())
+{
+    log.Inspect("orderId", orderId);        // logs "orderId = 123" at Debug
+    log.LogObject("payload", order);        // serializes object to JSON
+    log.LogSql("query", sqlText);           // typed payload with syntax hint
+}
+```
+
+### Pondhawk.Watch
+
+A Serilog `ILogEventSink` with unbounded `Channel<T>` batching and circuit-breaker resilience for the Watch structured logging pipeline.
+
+```csharp
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.WatchSink(httpClient, switchSource, domain: "MyApp")
+    .CreateLogger();
+```
+
+### Pondhawk.Hosting
+
+Co-locate service registration with startup/shutdown logic using `AddSingletonWithStart<T>()`. A single `IHostedService` resolves all registered services and calls their start/stop actions.
+
+```csharp
+services.AddSingletonWithStart<RuleSetFactory>(f => f.Start());
+services.AddSingletonWithStart<CacheService>(
+    (svc, ct) => svc.WarmUpAsync(ct),
+    (svc, ct) => svc.FlushAsync(ct));
+```
+
+### Pondhawk.Watch.Framework
+
+Shared types for the Watch pipeline targeting `netstandard2.0`: `LogEvent`, `LogEventBatch`, `ISwitch`/`ISwitchSource`, sink providers, and `Microsoft.Extensions.Logging` integration via `WatchLoggerProvider`.
+
+---
+
+## Dependency Graph
+
+```
+Pondhawk.Core              (foundation — Serilog extensions, utilities)
+    ^
+    |
+Pondhawk.Watch ────────> Pondhawk.Core
+Pondhawk.Watch.Framework   (standalone — netstandard2.0)
+
+Pondhawk.Rules             (standalone)
+    ^
+    |
+Pondhawk.Rules.EFCore ──> Pondhawk.Rules
+
+Pondhawk.Rql               (standalone)
+Pondhawk.Hosting           (standalone)
+```
+
+## Building & Testing
+
+The repository uses [Cake Frosting](https://cakebuild.net/) for build orchestration.
+
+```bash
+# Build all projects
+dotnet build pondhawk-tools.slnx
+
+# Run all tests
+dotnet test pondhawk-tools.slnx
+
+# Cake targets: Clean, Restore, Build, Test, Pack, Push
+dotnet run --project build/Build.csproj -- --target=Test
+dotnet run --project build/Build.csproj -- --target=Pack --package-version=1.0.0
+```
+
+## License
+
+MIT &copy; [Pond Hawk Technologies Inc.](https://github.com/pondhawk)

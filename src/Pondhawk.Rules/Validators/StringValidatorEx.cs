@@ -1,0 +1,518 @@
+﻿/*
+The MIT License (MIT)
+
+Copyright (c) 2017 The Kampilan Group Inc.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+
+using System.Text.RegularExpressions;
+using Humanizer;
+
+namespace Pondhawk.Rules.Validators;
+
+public static class StringValidatorEx
+{
+
+
+    static StringValidatorEx()
+    {
+
+        _USStates = new HashSet<string>(["AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA", "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD", "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ", "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC", "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY", "DC"]);
+
+        _states = new HashSet<string>(["AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA", "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD", "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ", "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC", "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY", "DC", "PR", "VI", "AS", "GU", "MP", "AB", "BC", "MB", "NB", "NL", "NS", "ON", "PE", "QC", "SK", "NT", "NU", "YT"]);
+
+
+    }
+
+    public static IValidator<TFact, object> Required<TFact>(this IValidator<TFact, object> validator) where TFact : class
+    {
+        var v = validator.Is((f, v) => v is not null );
+        
+        var propName = validator.PropertyName.Humanize(LetterCasing.Title);
+        
+        v.Otherwise($"{propName} is required");
+
+        return v;        
+        
+    }
+
+
+    public static IValidator<TFact, string> Required<TFact>( this IValidator<TFact, string> validator) where TFact : class
+    {
+
+        var v = validator.Is((f, v) => !string.IsNullOrWhiteSpace(v));
+
+        var propName = validator.PropertyName.Humanize(LetterCasing.Title);
+
+        v.Otherwise($"{propName} is required");
+
+        return v;
+        
+    }
+
+
+    public static IValidator<TFact, string> IsEmpty<TFact>( this IValidator<TFact, string> validator ) where TFact : class
+    {
+        var v = validator.Is( ( f, v ) => string.IsNullOrWhiteSpace( v ) );
+        
+        var propName = validator.PropertyName.Humanize(LetterCasing.Title);
+        
+        v.Otherwise($"{propName} is not Empty");
+
+        return v;        
+        
+    }
+
+    public static IValidator<TFact, string> IsNotEmpty<TFact>( this IValidator<TFact, string> validator ) where TFact : class
+    {
+        var v = validator.Is( ( f, v ) => !string.IsNullOrWhiteSpace( v ) );
+        
+        var propName = validator.PropertyName.Humanize(LetterCasing.Title);
+        
+        v.Otherwise($"{propName} is Empty");
+
+        return v;        
+        
+        
+    }
+
+    public static IValidator<TFact, string> HasMinimumLength<TFact>( this IValidator<TFact, string> validator, int minimum ) where TFact : class
+    {
+
+        var v = validator.Is( ( f, v ) => !string.IsNullOrWhiteSpace(v) && v.Length >= minimum );
+
+        var propName = validator.PropertyName.Humanize(LetterCasing.Title);
+        
+        v.Otherwise($"{propName} is too short");
+
+        return v;        
+        
+    }
+
+
+    public static IValidator<TFact, string> HasMaximumLength<TFact>( this IValidator<TFact, string> validator, int maximum ) where TFact : class
+    {
+
+        var v = validator.Is( ( f, v ) => string.IsNullOrWhiteSpace(v) || v.Length <= maximum );
+        
+        var propName = validator.PropertyName.Humanize(LetterCasing.Title);
+        
+        v.Otherwise($"{propName} is too long");
+
+        return v;        
+        
+    }
+
+
+    public static IValidator<TFact, string> IsIn<TFact>( this IValidator<TFact, string> validator, params string[] values ) where TFact : class
+    {
+        
+        var v =  validator.Is( ( f, v ) => values.Contains( v ) );
+        
+        var propName = validator.PropertyName.Humanize(LetterCasing.Title);
+        
+        v.Otherwise($"{propName} is not in valid range ({string.Join(',', values)})");
+
+        return v;
+        
+    }
+
+
+    public static IValidator<TFact, string> IsNotIn<TFact>( this IValidator<TFact, string> validator, params string[] values ) where TFact : class
+    {
+
+        var v =  validator.Is( ( f, v ) => !values.Contains( v ) );
+        
+        var propName = validator.PropertyName.Humanize(LetterCasing.Title);
+        
+        v.Otherwise($"{propName} is in invalid range ({string.Join(',', values)})");
+
+        return v;        
+        
+    }
+
+
+    public static IValidator<TFact, string> IsLessThan<TFact>(  this IValidator<TFact, string> validator, string test ) where TFact : class
+    {
+
+        var v =  validator.Is( ( f, v ) => string.Compare( test, v, StringComparison.Ordinal ) == 1 );
+        
+        var propName = validator.PropertyName.Humanize(LetterCasing.Title);
+        
+        v.Otherwise($"{propName} is not less than {test}");
+
+        return v;        
+        
+    }
+
+    public static IValidator<TFact, string> IsLessThan<TFact>( this IValidator<TFact, string> validator, Func<TFact, string> extractor ) where TFact : class
+    {
+
+        var v =  validator.Is((f, v) => string.Compare(extractor(f), v, StringComparison.Ordinal) == 1);
+        
+        var propName = validator.PropertyName.Humanize(LetterCasing.Title);
+        
+        v.Otherwise($"{propName} is not less than");
+
+        return v;        
+        
+    }
+
+
+    public static IValidator<TFact, string> IsGreaterThan<TFact>(  this IValidator<TFact, string> validator, string test ) where TFact : class
+    {
+
+        var v = validator.Is( ( f, v ) => string.Compare( test, v, StringComparison.Ordinal ) == -1 );
+        
+        var propName = validator.PropertyName.Humanize(LetterCasing.Title);
+        
+        v.Otherwise($"{propName} is not greater than {test}");
+
+        return v;        
+        
+    }
+
+    public static IValidator<TFact, string> IsGreaterThan<TFact>( this IValidator<TFact, string> validator, Func<TFact, string> extractor ) where TFact : class
+    {
+        var v = validator.Is((f, v) => string.Compare(extractor(f), v, StringComparison.Ordinal) == -1);
+
+        var propName = validator.PropertyName.Humanize(LetterCasing.Title);
+
+        v.Otherwise($"{propName} is not greater than the specified value");
+
+        return v;
+    }
+
+    public static IValidator<TFact, string> IsGreaterThanOrEqual<TFact>( this IValidator<TFact, string> validator, string test ) where TFact : class
+    {
+        var v = validator.Is( ( f, v ) => string.Compare( v, test, StringComparison.Ordinal ) >= 0 );
+        var propName = validator.PropertyName.Humanize(LetterCasing.Title);
+        v.Otherwise($"{propName} must be greater than or equal to {test}");
+        return v;
+    }
+
+    public static IValidator<TFact, string> IsGreaterThanOrEqual<TFact>( this IValidator<TFact, string> validator, Func<TFact, string> extractor ) where TFact : class
+    {
+        var v = validator.Is( ( f, v ) => string.Compare( v, extractor(f), StringComparison.Ordinal ) >= 0 );
+        var propName = validator.PropertyName.Humanize(LetterCasing.Title);
+        v.Otherwise($"{propName} must be greater than or equal to the specified value");
+        return v;
+    }
+
+    public static IValidator<TFact, string> IsLessThanOrEqual<TFact>( this IValidator<TFact, string> validator, string test ) where TFact : class
+    {
+        var v = validator.Is( ( f, v ) => string.Compare( v, test, StringComparison.Ordinal ) <= 0 );
+        var propName = validator.PropertyName.Humanize(LetterCasing.Title);
+        v.Otherwise($"{propName} must be less than or equal to {test}");
+        return v;
+    }
+
+    public static IValidator<TFact, string> IsLessThanOrEqual<TFact>( this IValidator<TFact, string> validator, Func<TFact, string> extractor ) where TFact : class
+    {
+        var v = validator.Is( ( f, v ) => string.Compare( v, extractor(f), StringComparison.Ordinal ) <= 0 );
+        var propName = validator.PropertyName.Humanize(LetterCasing.Title);
+        v.Otherwise($"{propName} must be less than or equal to the specified value");
+        return v;
+    }
+
+
+    public static IValidator<TFact, string> IsEqualTo<TFact>( this IValidator<TFact, string> validator, string test ) where TFact : class
+    {
+
+        var v = validator.Is( ( f, v ) => test.Equals(v) );
+        
+        var propName = validator.PropertyName.Humanize(LetterCasing.Title);
+        
+        v.Otherwise($"{propName} is not equal to {test}");
+
+        return v;        
+        
+    }
+
+    public static IValidator<TFact, string> IsEqualTo<TFact>( this IValidator<TFact, string> validator, Func<TFact, string> extractor) where TFact : class
+    {
+
+        var v =  validator.Is((f, v) => extractor(f).Equals(v) );
+        
+        var propName = validator.PropertyName.Humanize(LetterCasing.Title);
+        
+        v.Otherwise($"{propName} is not equal to");
+
+        return v;        
+        
+    }
+
+
+    public static IValidator<TFact, string> IsNotEqualTo<TFact>(  this IValidator<TFact, string> validator, string test ) where TFact : class
+    {
+
+        var v = validator.Is( ( f, v ) => !test.Equals( v ) );
+        
+        var propName = validator.PropertyName.Humanize(LetterCasing.Title);
+        
+        v.Otherwise($"{propName} is equal to {test}");
+
+        return v;
+        
+    }
+
+    public static IValidator<TFact, string> IsNotEqualTo<TFact>( this IValidator<TFact, string> validator, Func<TFact,string> extractor ) where TFact : class
+    {
+
+        var v =  validator.Is((f, v) => !extractor(f).Equals(v));
+        
+        var propName = validator.PropertyName.Humanize(LetterCasing.Title);
+        
+        v.Otherwise($"{propName} is equal to");
+
+        return v;        
+        
+    }
+
+
+    public static IValidator<TFact, string> IsMatch<TFact>(  this IValidator<TFact, string> validator, string pattern ) where TFact : class
+    {
+
+        var v =  validator.Is( ( f, v ) => !string.IsNullOrWhiteSpace(v) && Regex.IsMatch( v, pattern ) );
+        
+        var propName = validator.PropertyName.Humanize(LetterCasing.Title);
+        
+        v.Otherwise($"{propName} does not match {pattern}");
+
+        return v;        
+        
+    }
+
+    public static IValidator<TFact, string> IsNotMatch<TFact>(  this IValidator<TFact, string> validator, string pattern ) where TFact : class
+    {
+
+        var v =  validator.IsNot( ( f, v ) => !string.IsNullOrWhiteSpace(v) && Regex.IsMatch( v, pattern ) );
+
+        var propName = validator.PropertyName.Humanize(LetterCasing.Title);
+
+        v.Otherwise($"{propName} matches {pattern}");
+
+        return v;
+
+    }
+
+    public static IValidator<TFact, string> IsMatch<TFact>( this IValidator<TFact, string> validator, Regex regex ) where TFact : class
+    {
+        var v = validator.Is( ( f, v ) => !string.IsNullOrWhiteSpace(v) && regex.IsMatch( v ) );
+        var propName = validator.PropertyName.Humanize(LetterCasing.Title);
+        v.Otherwise($"{propName} does not match the required pattern");
+        return v;
+    }
+
+    public static IValidator<TFact, string> IsNotMatch<TFact>( this IValidator<TFact, string> validator, Regex regex ) where TFact : class
+    {
+        var v = validator.IsNot( ( f, v ) => !string.IsNullOrWhiteSpace(v) && regex.IsMatch( v ) );
+        var propName = validator.PropertyName.Humanize(LetterCasing.Title);
+        v.Otherwise($"{propName} matches a prohibited pattern");
+        return v;
+    }
+
+    public static IValidator<TFact, string> IsPhone<TFact>(  this IValidator<TFact, string> validator ) where TFact : class
+    {
+
+        var v =  validator.Is((f, v) => string.IsNullOrWhiteSpace(v) || Regex.IsMatch(v, @"\(?(\d{3})\)?-?(\d{3})-(\d{4})"));
+        
+        var propName = validator.PropertyName.Humanize(LetterCasing.Title);
+        
+        v.Otherwise($"{propName} is not valid a Phone number");
+
+        return v;        
+        
+    }
+
+
+    public static IValidator<TFact, string> IsEmail<TFact>( this IValidator<TFact, string> validator) where TFact : class
+    {
+
+        var v =  validator.Is((f, v) => string.IsNullOrWhiteSpace(v) || Regex.IsMatch(v, @"^[a-zA-Z]+(([\'\,\.\- ][a-zA-Z ])?[a-zA-Z]*)*\s+&lt;(\w[-._\w]*\w@\w[-._\w]*\w\.\w{2,3})&gt;$|^(\w[-._\w]*\w@\w[-._\w]*\w\.\w{2,3})$"));
+
+        var propName = validator.PropertyName.Humanize(LetterCasing.Title);
+        
+        v.Otherwise($"{propName} is not valid a Email Address");
+
+        return v;        
+        
+    }
+
+
+    public static IValidator<TFact, string> IsSsn<TFact>( this IValidator<TFact, string> validator ) where TFact : class
+    {
+
+        var v =  validator.Is( ( f, v ) => string.IsNullOrWhiteSpace( v ) || Regex.IsMatch( v, @"^\d{3}-\d{2}-\d{4}$" ) );
+        
+        var propName = validator.PropertyName.Humanize(LetterCasing.Title);
+        
+        v.Otherwise($"{propName} is not valid a SSN");
+
+        return v;        
+        
+    }
+
+
+    public static IValidator<TFact, string> IsZip<TFact>(  this IValidator<TFact, string> validator ) where TFact : class
+    {
+
+        var v =  validator.Is((f, v) => string.IsNullOrWhiteSpace(v) || Regex.IsMatch(v, @"^[0-9]{5}(?:-[0-9]{4})?$"));
+
+        var propName = validator.PropertyName.Humanize(LetterCasing.Title);
+        
+        v.Otherwise($"{propName} is not valid a Zip Code");
+
+        return v;        
+
+        
+    }
+
+
+
+    // ===== Case-insensitive variants =====
+
+    public static IValidator<TFact, string> IsEqualTo<TFact>( this IValidator<TFact, string> validator, string test, StringComparison comparison ) where TFact : class
+    {
+        var v = validator.Is( ( f, v ) => string.Equals( v, test, comparison ) );
+        var propName = validator.PropertyName.Humanize(LetterCasing.Title);
+        v.Otherwise($"{propName} is not equal to {test}");
+        return v;
+    }
+
+    public static IValidator<TFact, string> IsNotEqualTo<TFact>( this IValidator<TFact, string> validator, string test, StringComparison comparison ) where TFact : class
+    {
+        var v = validator.Is( ( f, v ) => !string.Equals( v, test, comparison ) );
+        var propName = validator.PropertyName.Humanize(LetterCasing.Title);
+        v.Otherwise($"{propName} is equal to {test}");
+        return v;
+    }
+
+    public static IValidator<TFact, string> IsIn<TFact>( this IValidator<TFact, string> validator, StringComparison comparison, params string[] values ) where TFact : class
+    {
+        var v = validator.Is( ( f, v ) => values.Any( val => string.Equals( v, val, comparison ) ) );
+        var propName = validator.PropertyName.Humanize(LetterCasing.Title);
+        v.Otherwise($"{propName} is not in valid range ({string.Join(',', values)})");
+        return v;
+    }
+
+    public static IValidator<TFact, string> IsNotIn<TFact>( this IValidator<TFact, string> validator, StringComparison comparison, params string[] values ) where TFact : class
+    {
+        var v = validator.Is( ( f, v ) => !values.Any( val => string.Equals( v, val, comparison ) ) );
+        var propName = validator.PropertyName.Humanize(LetterCasing.Title);
+        v.Otherwise($"{propName} is in invalid range ({string.Join(',', values)})");
+        return v;
+    }
+
+
+    // ===== Common text pattern validators =====
+
+    public static IValidator<TFact, string> StartsWith<TFact>( this IValidator<TFact, string> validator, string prefix ) where TFact : class
+    {
+        var v = validator.Is( ( f, v ) => !string.IsNullOrEmpty(v) && v.StartsWith( prefix, StringComparison.Ordinal ) );
+        var propName = validator.PropertyName.Humanize(LetterCasing.Title);
+        v.Otherwise($"{propName} must start with '{prefix}'");
+        return v;
+    }
+
+    public static IValidator<TFact, string> StartsWith<TFact>( this IValidator<TFact, string> validator, string prefix, StringComparison comparison ) where TFact : class
+    {
+        var v = validator.Is( ( f, v ) => !string.IsNullOrEmpty(v) && v.StartsWith( prefix, comparison ) );
+        var propName = validator.PropertyName.Humanize(LetterCasing.Title);
+        v.Otherwise($"{propName} must start with '{prefix}'");
+        return v;
+    }
+
+    public static IValidator<TFact, string> EndsWith<TFact>( this IValidator<TFact, string> validator, string suffix ) where TFact : class
+    {
+        var v = validator.Is( ( f, v ) => !string.IsNullOrEmpty(v) && v.EndsWith( suffix, StringComparison.Ordinal ) );
+        var propName = validator.PropertyName.Humanize(LetterCasing.Title);
+        v.Otherwise($"{propName} must end with '{suffix}'");
+        return v;
+    }
+
+    public static IValidator<TFact, string> EndsWith<TFact>( this IValidator<TFact, string> validator, string suffix, StringComparison comparison ) where TFact : class
+    {
+        var v = validator.Is( ( f, v ) => !string.IsNullOrEmpty(v) && v.EndsWith( suffix, comparison ) );
+        var propName = validator.PropertyName.Humanize(LetterCasing.Title);
+        v.Otherwise($"{propName} must end with '{suffix}'");
+        return v;
+    }
+
+    public static IValidator<TFact, string> Contains<TFact>( this IValidator<TFact, string> validator, string substring ) where TFact : class
+    {
+        var v = validator.Is( ( f, v ) => !string.IsNullOrEmpty(v) && v.Contains( substring, StringComparison.Ordinal ) );
+        var propName = validator.PropertyName.Humanize(LetterCasing.Title);
+        v.Otherwise($"{propName} must contain '{substring}'");
+        return v;
+    }
+
+    public static IValidator<TFact, string> Contains<TFact>( this IValidator<TFact, string> validator, string substring, StringComparison comparison ) where TFact : class
+    {
+        var v = validator.Is( ( f, v ) => !string.IsNullOrEmpty(v) && v.Contains( substring, comparison ) );
+        var propName = validator.PropertyName.Humanize(LetterCasing.Title);
+        v.Otherwise($"{propName} must contain '{substring}'");
+        return v;
+    }
+
+    public static IValidator<TFact, string> HasLengthBetween<TFact>( this IValidator<TFact, string> validator, int minimum, int maximum ) where TFact : class
+    {
+        var v = validator.Is( ( f, v ) => !string.IsNullOrWhiteSpace(v) && v.Length >= minimum && v.Length <= maximum );
+        var propName = validator.PropertyName.Humanize(LetterCasing.Title);
+        v.Otherwise($"{propName} must have length between {minimum} and {maximum}");
+        return v;
+    }
+
+
+    private static readonly HashSet<string> _USStates;
+
+
+    public static IValidator<TFact, string> IsUSState<TFact>( this IValidator<TFact, string> validator) where TFact : class
+    {
+        
+        var v =  validator.Is((f, v) => string.IsNullOrWhiteSpace(v) || _USStates.Contains(v));
+        
+        var propName = validator.PropertyName.Humanize(LetterCasing.Title);
+        
+        v.Otherwise($"{propName} is not a valid US State");
+
+        return v;        
+        
+    }
+
+
+    private static readonly HashSet<string> _states;
+
+
+    public static IValidator<TFact, string> IsState<TFact>( this IValidator<TFact, string> validator) where TFact : class
+    {
+
+        var v =  validator.Is((f, v) => string.IsNullOrWhiteSpace(v) || _states.Contains(v));
+        
+        var propName = validator.PropertyName.Humanize(LetterCasing.Title);
+        
+        v.Otherwise($"{propName} is not a valid State or Province");
+
+        return v;        
+        
+    }
+
+
+}

@@ -1,0 +1,56 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Determine version
+        id: version
+        run: |
+          if [ "${{ github.ref }}" = "refs/heads/main" ]; then
+            echo "version=1.0.${{ github.run_number }}" >> "$GITHUB_OUTPUT"
+          else
+            SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
+            echo "version=0.0.${{ github.run_number }}-pr.${SHORT_SHA}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build and Test
+        run: dotnet run --project build/Build.csproj -- --target=Test --package-version=${{ steps.version.outputs.version }}
+
+      - name: Pack
+        if: github.ref == 'refs/heads/main'
+        run: dotnet run --project build/Build.csproj -- --target=Pack --exclusive --package-version=${{ steps.version.outputs.version }}
+
+      - name: Push
+        if: github.ref == 'refs/heads/main'
+        run: dotnet run --project build/Build.csproj -- --target=Push --exclusive
+        env:
+          NUGET_SOURCE: https://nuget.pkg.github.com/kampilan/index.json
+          NUGET_API_KEY: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload artifacts
+        if: github.ref == 'refs/heads/main'
+        uses: actions/upload-artifact@v4
+        with:
+          name: nuget-packages
+          path: artifacts/*.nupkg
+          retention-days: 30

@@ -191,7 +191,13 @@ public static class StringValidatorEx
 
     public static IValidator<TFact, string> IsGreaterThan<TFact>( this IValidator<TFact, string> validator, Func<TFact, string> extractor ) where TFact : class
     {
-        return validator.Is((f, v) => string.Compare(extractor(f), v, StringComparison.Ordinal) == -1);
+        var v = validator.Is((f, v) => string.Compare(extractor(f), v, StringComparison.Ordinal) == -1);
+
+        var propName = validator.PropertyName.Humanize(LetterCasing.Title);
+
+        v.Otherwise($"{propName} is not greater than the specified value");
+
+        return v;
     }
 
 

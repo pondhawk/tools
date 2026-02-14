@@ -1,8 +1,12 @@
-﻿using Pondhawk.Exceptions;
+﻿using Humanizer;
+using Pondhawk.Exceptions;
 
 namespace Pondhawk.Rules.Validators;
 public interface ICollectionValidator<out TFact, out TType>
 {
+
+    string GroupName { get; }
+    string PropertyName { get; }
 
     ICollectionValidator<TFact, TType> Is(Func<TFact, IEnumerable<TType>, bool> condition);
 
@@ -18,12 +22,15 @@ public interface ICollectionValidator<out TFact, out TType>
 
 
 
-public class CollectionValidator<TFact, TType>( ValidationRule<TFact> rule, string group, Func<TFact, IEnumerable<TType>> extractor )
+public class CollectionValidator<TFact, TType>( ValidationRule<TFact> rule, string group, string propertyName, Func<TFact, IEnumerable<TType>> extractor )
     : BaseValidator<TFact>( rule, group ), ICollectionValidator<TFact, TType>
 {
+    public string GroupName { get; } = group;
+    public string PropertyName { get; } = propertyName;
+
     protected Func<TFact, IEnumerable<TType>> Extractor { get; } = extractor;
 
-    
+
     public ICollectionValidator<TFact, TType> Is(Func<TFact, IEnumerable<TType>, bool> condition)
     {
         bool Cond(TFact f) => condition(f, Extractor(f) );
@@ -31,7 +38,7 @@ public class CollectionValidator<TFact, TType>( ValidationRule<TFact> rule, stri
         return this;
     }
 
-    
+
     public ICollectionValidator<TFact, TType> IsNot(Func<TFact, IEnumerable<TType>, bool> condition)
     {
         bool Cond(TFact f) => !condition(f, Extractor(f));
@@ -47,75 +54,97 @@ public static class CollectionValidatorEx
 
     public static ICollectionValidator<TFact, TType> Required<TFact, TType>( this ICollectionValidator<TFact, TType> validator) where TFact : class where TType : class
     {
-        return validator.Is((f, v) => v.Any());
+        var v = validator.Is((f, value) => value.Any());
+        var propName = validator.PropertyName.Humanize(LetterCasing.Title);
+        v.Otherwise($"{propName} is required");
+        return v;
     }
 
     public static ICollectionValidator<TFact, TType> IsEmpty<TFact, TType>( this ICollectionValidator<TFact, TType> validator) where TFact : class where TType : class
     {
-        return validator.IsNot((f, v) => v.Any());
+        var v = validator.IsNot((f, value) => value.Any());
+        var propName = validator.PropertyName.Humanize(LetterCasing.Title);
+        v.Otherwise($"{propName} must be empty");
+        return v;
     }
 
     public static ICollectionValidator<TFact, TType> IsNotEmpty<TFact, TType>( this ICollectionValidator<TFact, TType> validator) where TFact : class where TType : class
     {
-        return validator.Is((f, v) => v.Any());
+        var v = validator.Is((f, value) => value.Any());
+        var propName = validator.PropertyName.Humanize(LetterCasing.Title);
+        v.Otherwise($"{propName} must not be empty");
+        return v;
     }
 
 
-    
+
     public static ICollectionValidator<TFact, TType> Has<TFact, TType>(this ICollectionValidator<TFact, TType> validator, Func<TType, bool> predicate) where TFact : class
         where TType : class
     {
-        validator.Is((f, v) => v.Any(predicate));
-        return validator;
+        var v = validator.Is((f, value) => value.Any(predicate));
+        var propName = validator.PropertyName.Humanize(LetterCasing.Title);
+        v.Otherwise($"{propName} must contain at least one matching item");
+        return v;
     }
 
 
-    
+
     public static ICollectionValidator<TFact, TType> HasNone<TFact, TType>(this ICollectionValidator<TFact, TType> validator, Func<TType, bool> predicate) where TFact : class where TType : class
     {
-        validator.IsNot((f, v) => v.Any(predicate));
-        return validator;
+        var v = validator.IsNot((f, value) => value.Any(predicate));
+        var propName = validator.PropertyName.Humanize(LetterCasing.Title);
+        v.Otherwise($"{propName} must not contain any matching items");
+        return v;
     }
 
 
-    
+
     public static ICollectionValidator<TFact, TType> HasExactly<TFact, TType>(this ICollectionValidator<TFact, TType> validator, Func<TType, bool> predicate, int count) where TFact : class where TType : class
     {
-        validator.Is((f, v) => v.Where(predicate).Count() == count);
-        return validator;
+        var v = validator.Is((f, value) => value.Where(predicate).Count() == count);
+        var propName = validator.PropertyName.Humanize(LetterCasing.Title);
+        v.Otherwise($"{propName} must contain exactly {count} matching item{(count != 1 ? "s" : "")}");
+        return v;
     }
 
 
-    
+
     public static ICollectionValidator<TFact, TType> HasOnlyOne<TFact, TType>(this ICollectionValidator<TFact, TType> validator, Func<TType, bool> predicate) where TFact : class where TType : class
     {
-        validator.Is((f, v) => v.Where(predicate).Count() == 1);
-        return validator;
+        var v = validator.Is((f, value) => value.Where(predicate).Count() == 1);
+        var propName = validator.PropertyName.Humanize(LetterCasing.Title);
+        v.Otherwise($"{propName} must contain exactly one matching item");
+        return v;
     }
 
 
-    
+
     public static ICollectionValidator<TFact, TType> HasAtMostOne<TFact, TType>(this ICollectionValidator<TFact, TType> validator, Func<TType, bool> predicate) where TFact : class where TType : class
     {
-        validator.Is((f, v) => v.Where(predicate).Count() <= 1);
-        return validator;
+        var v = validator.Is((f, value) => value.Where(predicate).Count() <= 1);
+        var propName = validator.PropertyName.Humanize(LetterCasing.Title);
+        v.Otherwise($"{propName} must contain at most one matching item");
+        return v;
     }
 
 
-    
+
     public static ICollectionValidator<TFact, TType> HasAtLeast<TFact, TType>(this ICollectionValidator<TFact, TType> validator, Func<TType, bool> predicate, int count) where TFact : class where TType : class
     {
-        validator.Is((f, v) => v.Where(predicate).Count() >= count);
-        return validator;
+        var v = validator.Is((f, value) => value.Where(predicate).Count() >= count);
+        var propName = validator.PropertyName.Humanize(LetterCasing.Title);
+        v.Otherwise($"{propName} must contain at least {count} matching item{(count != 1 ? "s" : "")}");
+        return v;
     }
 
 
 
     public static ICollectionValidator<TFact, TType> HasAtMost<TFact, TType>(this ICollectionValidator<TFact, TType> validator, Func<TType, bool> predicate, int count) where TFact : class where TType : class
     {
-        validator.Is((f, v) => v.Where(predicate).Count() <= count);
-        return validator;
+        var v = validator.Is((f, value) => value.Where(predicate).Count() <= count);
+        var propName = validator.PropertyName.Humanize(LetterCasing.Title);
+        v.Otherwise($"{propName} must contain at most {count} matching item{(count != 1 ? "s" : "")}");
+        return v;
     }
 
 }
-

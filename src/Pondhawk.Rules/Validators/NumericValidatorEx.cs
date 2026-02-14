@@ -186,9 +186,11 @@ public static class NumericValidatorEx
 
     // ===== Float-specific overloads (epsilon-based equality) =====
 
+    private const float FloatTolerance = 1e-6f;
+
     public static IValidator<TFact, float> IsEqual<TFact>(this IValidator<TFact, float> validator, float test) where TFact : class
     {
-        var v = validator.Is((f, value) => Math.Abs(value - test) < float.Epsilon);
+        var v = validator.Is((f, value) => Math.Abs(value - test) < FloatTolerance);
         var propName = validator.PropertyName.Humanize(LetterCasing.Title);
         v.Otherwise($"{propName} must equal {test}");
         return v;
@@ -196,7 +198,7 @@ public static class NumericValidatorEx
 
     public static IValidator<TFact, float> IsEqual<TFact>(this IValidator<TFact, float> validator, Func<TFact, float> extractor) where TFact : class
     {
-        var v = validator.Is((f, value) => Math.Abs(value - extractor(f)) < float.Epsilon);
+        var v = validator.Is((f, value) => Math.Abs(value - extractor(f)) < FloatTolerance);
         var propName = validator.PropertyName.Humanize(LetterCasing.Title);
         v.Otherwise($"{propName} must equal the specified value");
         return v;
@@ -204,7 +206,7 @@ public static class NumericValidatorEx
 
     public static IValidator<TFact, float> IsNotEqual<TFact>(this IValidator<TFact, float> validator, float test) where TFact : class
     {
-        var v = validator.Is((f, value) => Math.Abs(value - test) >= float.Epsilon);
+        var v = validator.Is((f, value) => Math.Abs(value - test) >= FloatTolerance);
         var propName = validator.PropertyName.Humanize(LetterCasing.Title);
         v.Otherwise($"{propName} must not equal {test}");
         return v;
@@ -212,7 +214,7 @@ public static class NumericValidatorEx
 
     public static IValidator<TFact, float> IsNotEqual<TFact>(this IValidator<TFact, float> validator, Func<TFact, float> extractor) where TFact : class
     {
-        var v = validator.Is((f, value) => Math.Abs(value - extractor(f)) >= float.Epsilon);
+        var v = validator.Is((f, value) => Math.Abs(value - extractor(f)) >= FloatTolerance);
         var propName = validator.PropertyName.Humanize(LetterCasing.Title);
         v.Otherwise($"{propName} must not equal the specified value");
         return v;
@@ -220,7 +222,7 @@ public static class NumericValidatorEx
 
     public static IValidator<TFact, float> IsIn<TFact>(this IValidator<TFact, float> validator, params float[] values) where TFact : class
     {
-        var v = validator.Is((f, value) => values.Any(val => Math.Abs(value - val) < float.Epsilon));
+        var v = validator.Is((f, value) => values.Any(val => Math.Abs(value - val) < FloatTolerance));
         var propName = validator.PropertyName.Humanize(LetterCasing.Title);
         v.Otherwise($"{propName} must be one of the allowed values");
         return v;
@@ -228,7 +230,7 @@ public static class NumericValidatorEx
 
     public static IValidator<TFact, float> IsNotIn<TFact>(this IValidator<TFact, float> validator, params float[] values) where TFact : class
     {
-        var v = validator.Is((f, value) => values.All(val => Math.Abs(value - val) >= float.Epsilon));
+        var v = validator.Is((f, value) => values.All(val => Math.Abs(value - val) >= FloatTolerance));
         var propName = validator.PropertyName.Humanize(LetterCasing.Title);
         v.Otherwise($"{propName} must not be one of the prohibited values");
         return v;
@@ -236,9 +238,11 @@ public static class NumericValidatorEx
 
     // ===== Double-specific overloads (epsilon-based equality) =====
 
+    private const double DoubleTolerance = 1e-9;
+
     public static IValidator<TFact, double> IsEqual<TFact>(this IValidator<TFact, double> validator, double test) where TFact : class
     {
-        var v = validator.Is((f, value) => Math.Abs(value - test) < double.Epsilon);
+        var v = validator.Is((f, value) => Math.Abs(value - test) < DoubleTolerance);
         var propName = validator.PropertyName.Humanize(LetterCasing.Title);
         v.Otherwise($"{propName} must equal {test}");
         return v;
@@ -246,7 +250,7 @@ public static class NumericValidatorEx
 
     public static IValidator<TFact, double> IsEqual<TFact>(this IValidator<TFact, double> validator, Func<TFact, double> extractor) where TFact : class
     {
-        var v = validator.Is((f, value) => Math.Abs(value - extractor(f)) < double.Epsilon);
+        var v = validator.Is((f, value) => Math.Abs(value - extractor(f)) < DoubleTolerance);
         var propName = validator.PropertyName.Humanize(LetterCasing.Title);
         v.Otherwise($"{propName} must equal the specified value");
         return v;
@@ -254,7 +258,7 @@ public static class NumericValidatorEx
 
     public static IValidator<TFact, double> IsNotEqual<TFact>(this IValidator<TFact, double> validator, double test) where TFact : class
     {
-        var v = validator.Is((f, value) => Math.Abs(value - test) >= double.Epsilon);
+        var v = validator.Is((f, value) => Math.Abs(value - test) >= DoubleTolerance);
         var propName = validator.PropertyName.Humanize(LetterCasing.Title);
         v.Otherwise($"{propName} must not equal {test}");
         return v;
@@ -262,7 +266,7 @@ public static class NumericValidatorEx
 
     public static IValidator<TFact, double> IsNotEqual<TFact>(this IValidator<TFact, double> validator, Func<TFact, double> extractor) where TFact : class
     {
-        var v = validator.Is((f, value) => Math.Abs(value - extractor(f)) >= double.Epsilon);
+        var v = validator.Is((f, value) => Math.Abs(value - extractor(f)) >= DoubleTolerance);
         var propName = validator.PropertyName.Humanize(LetterCasing.Title);
         v.Otherwise($"{propName} must not equal the specified value");
         return v;
@@ -270,7 +274,7 @@ public static class NumericValidatorEx
 
     public static IValidator<TFact, double> IsIn<TFact>(this IValidator<TFact, double> validator, params double[] values) where TFact : class
     {
-        var v = validator.Is((f, value) => values.Any(val => Math.Abs(value - val) < double.Epsilon));
+        var v = validator.Is((f, value) => values.Any(val => Math.Abs(value - val) < DoubleTolerance));
         var propName = validator.PropertyName.Humanize(LetterCasing.Title);
         v.Otherwise($"{propName} must be one of the allowed values");
         return v;
@@ -278,7 +282,7 @@ public static class NumericValidatorEx
 
     public static IValidator<TFact, double> IsNotIn<TFact>(this IValidator<TFact, double> validator, params double[] values) where TFact : class
     {
-        var v = validator.Is((f, value) => values.All(val => Math.Abs(value - val) >= double.Epsilon));
+        var v = validator.Is((f, value) => values.All(val => Math.Abs(value - val) >= DoubleTolerance));
         var propName = validator.PropertyName.Humanize(LetterCasing.Title);
         v.Otherwise($"{propName} must not be one of the prohibited values");
         return v;

@@ -31,7 +31,13 @@ public static class BoolValidatorEx
 
     public static IValidator<TFact, bool> Required<TFact>( this IValidator<TFact, bool> validator) where TFact : class
     {
-        return validator.Is((f, v) => true);
+        var v = validator.Is((f, v) => v);
+
+        var propName = validator.PropertyName.Humanize(LetterCasing.Title);
+
+        v.Otherwise($"{propName} is required");
+
+        return v;
     }
         
     public static IValidator<TFact, bool> IsTrue<TFact>(  this IValidator<TFact, bool> validator ) where TFact : class

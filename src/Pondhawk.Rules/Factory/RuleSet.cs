@@ -35,6 +35,11 @@ public class RuleSet : AbstractRuleSet
 
     public IRuleBase RuleBase => _tree;
 
+    public void Build()
+    {
+        _tree.Build();
+    }
+
     public void Add(  IBuilder builder )
     {
         builder.LoadRules( _tree );

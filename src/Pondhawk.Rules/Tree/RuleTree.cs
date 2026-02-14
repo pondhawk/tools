@@ -30,9 +30,42 @@ namespace Pondhawk.Rules.Tree;
 public sealed class RuleTree : IRuleBase, IRuleSink
 {
 
+    private volatile bool _isBuilt;
+    private readonly object _buildLock = new();
+
     private Dictionary<int, RuleRoot> RootMap { get; } = new();
 
     public int MaxAxisCount => RootMap.Count > 0 ? RootMap.Keys.Max() : 0;
+
+
+    /// <summary>
+    /// Seals the tree and eagerly builds the type-match caches.
+    /// After this call, any attempt to add rules will throw.
+    /// Called automatically on the first query if not called explicitly.
+    /// </summary>
+    public void Build()
+    {
+        if( _isBuilt ) return;
+        lock( _buildLock )
+        {
+            if( _isBuilt ) return;
+            foreach( var root in RootMap.Values )
+                root.Build();
+            _isBuilt = true;
+        }
+    }
+
+    private void EnsureBuilt()
+    {
+        if( !_isBuilt ) Build();
+    }
+
+    private void ThrowIfBuilt()
+    {
+        if( _isBuilt )
+            throw new InvalidOperationException( "Cannot add rules to a RuleTree after it has been built. All rules must be added before the first evaluation." );
+    }
+
 
     public bool HasRules(  Type[] factTypes )
     {
@@ -46,6 +79,8 @@ public sealed class RuleTree : IRuleBase, IRuleSink
         Guard.IsNotNull(factTypes);
         Guard.IsNotNull(namespaces);
 
+        EnsureBuilt();
+
         RootMap.TryGetValue( factTypes.Length, out var targetRoot );
         if( targetRoot is null )
             return false;
@@ -55,10 +90,12 @@ public sealed class RuleTree : IRuleBase, IRuleSink
     }
 
 
-        
+
     public ISet<IRule> FindRules( Type[] factTypes )
     {
         Guard.IsNotNull(factTypes);
+
+        EnsureBuilt();
 
         RootMap.TryGetValue( factTypes.Length, out var targetRoot );
         return targetRoot is null ? new HashSet<IRule>() : targetRoot.FindRules( factTypes );
@@ -69,6 +106,8 @@ public sealed class RuleTree : IRuleBase, IRuleSink
     {
         Guard.IsNotNull(factTypes);
         Guard.IsNotNull(namespaces);
+
+        EnsureBuilt();
 
         RootMap.TryGetValue( factTypes.Length, out var targetRoot );
         if( targetRoot is null )
@@ -81,19 +120,23 @@ public sealed class RuleTree : IRuleBase, IRuleSink
 
     public void Add( Type factType, IRule rule )
     {
+        ThrowIfBuilt();
+
         if (!RootMap.TryGetValue(1, out var targetRoot))
         {
             targetRoot = new();
             RootMap[1] = targetRoot;
         }
 
-        targetRoot.Add( [factType], [rule]);            
+        targetRoot.Add( [factType], [rule]);
 
     }
 
 
     public void Add(  Type[] factTypes, IEnumerable<IRule> rules )
     {
+        ThrowIfBuilt();
+
         var axisCount = factTypes.Length;
 
         if( !RootMap.TryGetValue( axisCount, out var targetRoot ) )
@@ -110,5 +153,7 @@ public sealed class RuleTree : IRuleBase, IRuleSink
     {
         foreach( var r in RootMap.Values )
             r.Clear();
+
+        _isBuilt = false;
     }
 }

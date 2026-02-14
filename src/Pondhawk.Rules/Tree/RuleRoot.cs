@@ -31,6 +31,18 @@ internal sealed class RuleRoot
     private readonly Dictionary<Type, RuleNode> _trunk = [];
     private Dictionary<Type, List<RuleNode>> _trunkMatchCache;
 
+    internal void Build()
+    {
+        var cache = new Dictionary<Type, List<RuleNode>>( _trunk.Count );
+        foreach( var requestType in _trunk.Keys )
+            cache[requestType] = _BuildTrunkMatches( requestType );
+
+        foreach( var node in _trunk.Values )
+            node.Build();
+
+        _trunkMatchCache = cache;
+    }
+
     public void Clear()
     {
         foreach( var n in _trunk.Values )
@@ -48,7 +60,6 @@ internal sealed class RuleRoot
         {
             node = new RuleNode { Target = target };
             _trunk[target] = node;
-            _trunkMatchCache = null;
         }
 
         // Depth 1..N-1: use node.GetOrAddBranch
@@ -75,16 +86,18 @@ internal sealed class RuleRoot
         if( _trunk.Count == 0 )
             return [];
 
-        _trunkMatchCache ??= new();
         if( _trunkMatchCache.TryGetValue( requestType, out var cached ) )
             return cached;
 
+        return _BuildTrunkMatches( requestType );
+    }
+
+    private List<RuleNode> _BuildTrunkMatches( Type requestType )
+    {
         var matches = new List<RuleNode>();
         foreach( var node in _trunk.Values )
             if( node.Target.IsAssignableFrom( requestType ) )
                 matches.Add( node );
-
-        _trunkMatchCache[requestType] = matches;
         return matches;
     }
 

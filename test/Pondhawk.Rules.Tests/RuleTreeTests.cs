@@ -157,10 +157,10 @@ public class RuleTreeTests
     }
 
 
-    // ========== Cache invalidation ==========
+    // ========== Build / seal semantics ==========
 
     [Fact]
-    public void FindRules_CacheInvalidated_WhenNewRuleAddedForSameArity()
+    public void Add_ThrowsAfterTreeIsBuilt()
     {
         var tree = new RuleTree();
         var rule1 = new Rule<Person>("test", "rule1")
@@ -169,15 +169,32 @@ public class RuleTreeTests
 
         tree.Add([typeof(Person)], [rule1]);
 
-        // Warm the cache
+        // First query auto-builds and seals the tree
         tree.FindRules([typeof(Person)], []).Count.ShouldBe(1);
 
-        // Add a rule for a base type — should be found for Person queries
+        // Adding after build should throw
         var rule2 = new Rule<object>("test", "object-rule")
             .Fire(o => { });
+
+        Should.Throw<InvalidOperationException>(() =>
+            tree.Add([typeof(object)], [rule2]));
+    }
+
+    [Fact]
+    public void FindRules_PolymorphicMatch_SingleArity()
+    {
+        var tree = new RuleTree();
+        var rule1 = new Rule<Person>("test", "rule1")
+            .If(p => true)
+            .Then(p => { });
+        var rule2 = new Rule<object>("test", "object-rule")
+            .Fire(o => { });
+
+        // Add both rules before any query
+        tree.Add([typeof(Person)], [rule1]);
         tree.Add([typeof(object)], [rule2]);
 
-        // The cache must have been invalidated so the new rule is visible
+        // Person is assignable to object, so both rules should match
         var found = tree.FindRules([typeof(Person)], []).ToList();
         found.Count.ShouldBe(2);
         found.ShouldContain(rule1);
@@ -185,7 +202,7 @@ public class RuleTreeTests
     }
 
     [Fact]
-    public void FindRules_CacheInvalidated_AfterClear()
+    public void FindRules_ClearResetsTree_AllowsReAddAndQuery()
     {
         var tree = new RuleTree();
         var rule = new Rule<Person>("test", "rule1")
@@ -194,42 +211,37 @@ public class RuleTreeTests
 
         tree.Add([typeof(Person)], [rule]);
 
-        // Warm the cache
+        // Query seals the tree
         tree.FindRules([typeof(Person)], []).ShouldNotBeEmpty();
 
+        // Clear resets the seal
         tree.Clear();
 
-        // After clear the cache must be gone
-        tree.FindRules([typeof(Person)], []).ShouldBeEmpty();
-
-        // Re-add and verify new lookups work
+        // Re-add after clear should work
         var rule2 = new Rule<Person>("test", "rule2")
             .If(p => true)
             .Then(p => { });
         tree.Add([typeof(Person)], [rule2]);
 
+        // Query works on the new tree
         var found = tree.FindRules([typeof(Person)], []);
         found.Count.ShouldBe(1);
         found.ShouldContain(rule2);
     }
 
     [Fact]
-    public void FindRules_CacheInvalidated_WhenBranchAddedForMultiArity()
+    public void FindRules_PolymorphicMatch_MultiArity()
     {
         var tree = new RuleTree();
         var rule1 = new Rule<Person, Order>("test", "rule1")
             .If((p, o) => true)
             .Then((p, o) => { });
-
-        tree.Add([typeof(Person), typeof(Order)], [rule1]);
-
-        // Warm the cache
-        tree.FindRules([typeof(Person), typeof(Order)], []).Count.ShouldBe(1);
-
-        // Add a second 2-arity rule with a base type at depth 1
         var rule2 = new Rule<Person, object>("test", "rule2")
             .If((p, o) => true)
             .Then((p, o) => { });
+
+        // Add both rules before any query
+        tree.Add([typeof(Person), typeof(Order)], [rule1]);
         tree.Add([typeof(Person), typeof(object)], [rule2]);
 
         // Order is assignable to object, so both rules should match

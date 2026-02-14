@@ -46,6 +46,21 @@ internal sealed class RuleNode
 
     public HashSet<IRule> Rules => _rules ??= [];
 
+    internal void Build()
+    {
+        if( _branches is not null && _branches.Count > 0 )
+        {
+            var cache = new Dictionary<Type, List<RuleNode>>( _branches.Count );
+            foreach( var requestType in _branches.Keys )
+                cache[requestType] = _BuildBranchMatches( requestType );
+
+            _branchMatchCache = cache;
+
+            foreach( var node in _branches.Values )
+                node.Build();
+        }
+    }
+
     public RuleNode GetOrAddBranch( Type target )
     {
         var branches = Branches;
@@ -54,7 +69,6 @@ internal sealed class RuleNode
 
         var node = new RuleNode { Target = target };
         branches[target] = node;
-        _branchMatchCache = null;
         return node;
     }
 
@@ -63,16 +77,18 @@ internal sealed class RuleNode
         if( _branches is null || _branches.Count == 0 )
             return [];
 
-        _branchMatchCache ??= new();
         if( _branchMatchCache.TryGetValue( requestType, out var cached ) )
             return cached;
 
+        return _BuildBranchMatches( requestType );
+    }
+
+    private List<RuleNode> _BuildBranchMatches( Type requestType )
+    {
         var matches = new List<RuleNode>();
         foreach( var node in _branches.Values )
             if( node.Target.IsAssignableFrom( requestType ) )
                 matches.Add( node );
-
-        _branchMatchCache[requestType] = matches;
         return matches;
     }
 

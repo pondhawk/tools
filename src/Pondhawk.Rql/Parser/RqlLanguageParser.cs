@@ -80,7 +80,7 @@ public class RqlLanguageParser
         select MergePredicates(leading.GetOrDefault(), rest);
 
 
-    private static IEnumerable<IRqlPredicate> MergePredicates(IRqlPredicate head, IEnumerable<IRqlPredicate> rest)
+    private static IEnumerable<IRqlPredicate> MergePredicates(IRqlPredicate? head, IEnumerable<IRqlPredicate> rest)
     {
 
         if (head != null)
@@ -98,7 +98,7 @@ public class RqlLanguageParser
         if (string.IsNullOrWhiteSpace(op))
             throw new RqlException($"Empty or whitespace-only operator encountered for target '{name}'");
 
-        Type dataType = null;
+        Type? dataType = null;
 
         var raw   = new List<string>(values);
         var typed = new List<object>();
@@ -167,7 +167,7 @@ public class RqlLanguageParser
         else
             dataType ??= typeof(string);
 
-        var predicate = new RqlPredicate( opr, name, dataType, typed );
+        var predicate = new RqlPredicate( opr, name, dataType!, typed );
 
         return predicate;
 

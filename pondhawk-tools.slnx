@@ -8,6 +8,9 @@
     <Project Path="src/Pondhawk.Watch.Framework/Pondhawk.Watch.Framework.csproj" />
     <Project Path="src/Pondhawk.Watch/Pondhawk.Watch.csproj" />
   </Folder>
+  <Folder Name="/build/">
+    <Project Path="build/Build.csproj" />
+  </Folder>
   <Folder Name="/test/">
     <Project Path="test/Pondhawk.Core.Tests/Pondhawk.Core.Tests.csproj" />
     <Project Path="test/Pondhawk.Hosting.Tests/Pondhawk.Hosting.Tests.csproj" />

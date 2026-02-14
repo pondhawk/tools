@@ -66,8 +66,8 @@ namespace Pondhawk.Rql.Serialization
             // ***************************************************************************
             var typeMap = new Dictionary<Type, TypeSpec>();
 
-            string DefaultFormatter(object o) => o.ToString();
-            string LowerCaseFormatter(object o) => o.ToString()?.ToLowerInvariant();
+            string DefaultFormatter(object o) => o.ToString() ?? string.Empty;
+            string LowerCaseFormatter(object o) => o.ToString()?.ToLowerInvariant() ?? string.Empty;
 
             typeMap[typeof(string)]   = new TypeSpec { NeedsQuotes = true,  Prefix = "",  Formatter  = DefaultFormatter };
             typeMap[typeof(bool)]     = new TypeSpec { NeedsQuotes = false, Prefix = "",  Formatter  = LowerCaseFormatter };

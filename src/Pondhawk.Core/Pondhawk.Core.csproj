@@ -9,19 +9,17 @@
     <Title>Pondhawk.Core</Title>
     <Authors>Pond Hawk Technologies Inc.</Authors>
     <Company>Pond Hawk Technologies Inc.</Company>
-    <Description>Utilites for building Pondhawk Applications</Description>
-    <Copyright>Pond Hawk Technologies Inc. (c) 2025</Copyright>
+    <Description>Utilities for building Pondhawk applications</Description>
+    <Copyright>Pond Hawk Technologies Inc. (c) 2026</Copyright>
+    <PackageIcon>pht-small-logo.png</PackageIcon>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/kampilan/pondhawk-tools</RepositoryUrl>
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
   </PropertyGroup>
 
-	<PropertyGroup>
-		<PackageIcon>smithy.png</PackageIcon>
-	</PropertyGroup>
-
-
-	<ItemGroup>
-		<None Include="smithy.png" Pack="true" PackagePath="\" />
-	</ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\pht-small-logo.png" Pack="true" PackagePath="\" />
+  </ItemGroup>
 
 
 

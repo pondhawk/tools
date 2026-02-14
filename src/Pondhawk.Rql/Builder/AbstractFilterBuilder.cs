@@ -46,6 +46,7 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
     protected AbstractFilterBuilder()
     {
 
+        CurrentName = string.Empty;
         Predicates = new List<IRqlPredicate>();
 
     }
@@ -74,7 +75,7 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
 
     #region Criteria related members
 
-    public TBuilder Introspect(  ICriteria source, IDictionary<string,string> map=null )
+    public TBuilder Introspect(  ICriteria source, IDictionary<string,string>? map=null )
     {
 
         Guard.IsNotNull(source);
@@ -125,7 +126,7 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
             var dataType = prop.PropertyType;
 
             if (dataType.IsGenericType && dataType.GetGenericTypeDefinition() == typeof(Nullable<>))
-                dataType = Nullable.GetUnderlyingType(dataType);
+                dataType = Nullable.GetUnderlyingType(dataType)!;
 
 
             switch (attr.Operand)

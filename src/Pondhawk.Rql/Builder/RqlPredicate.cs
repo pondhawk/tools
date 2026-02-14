@@ -26,7 +26,7 @@ namespace Pondhawk.Rql.Builder
     public class RqlPredicate<TType>: IRqlPredicate
     {
 
-        private IReadOnlyList<object> _cachedValues;
+        private IReadOnlyList<object>? _cachedValues;
 
         public RqlPredicate(RqlOperator op,  string name,  TType value )
         {

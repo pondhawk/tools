@@ -3,25 +3,22 @@
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>disable</Nullable>
+    <Nullable>enable</Nullable>
     <Title>Pondhawk.Rql</Title>
     <Authors>Pond Hawk Technologies Inc.</Authors>
     <Company>Pond Hawk Technologies Inc.</Company>
     <Description>Implementation of RQL with AST and various serializers</Description>
-    <Copyright>Pond Hawk Technologies Inc. (c) 2025</Copyright>
+    <Copyright>Pond Hawk Technologies Inc. (c) 2026</Copyright>
+    <PackageIcon>pht-small-logo.png</PackageIcon>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/kampilan/pondhawk-tools</RepositoryUrl>
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
-	<LangVersion>latestmajor</LangVersion>
+    <LangVersion>latestmajor</LangVersion>
   </PropertyGroup>
 
-
-	<PropertyGroup>
-		<PackageIcon>smithy.png</PackageIcon>
-	</PropertyGroup>
-
-
-	<ItemGroup>
-		<None Include="smithy.png" Pack="true" PackagePath="\" />
-	</ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\pht-small-logo.png" Pack="true" PackagePath="\" />
+  </ItemGroup>
 
 
 	<ItemGroup>

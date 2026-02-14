@@ -8,19 +8,17 @@
     <Authors>Pond Hawk Technologies Inc.</Authors>
     <Company>Pond Hawk Technologies Inc.</Company>
     <Description>Rules engine with support for validation and general reasoning.</Description>
-    <Copyright>Pond Hawk Technologies Inc. (c) 2025</Copyright>
+    <Copyright>Pond Hawk Technologies Inc. (c) 2026</Copyright>
+    <PackageIcon>pht-small-logo.png</PackageIcon>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/kampilan/pondhawk-tools</RepositoryUrl>
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
-	<LangVersion>default</LangVersion>
+    <LangVersion>default</LangVersion>
   </PropertyGroup>
 
-	<PropertyGroup>
-		<PackageIcon>smithy.png</PackageIcon>
-	</PropertyGroup>
-
-
-	<ItemGroup>
-		<None Include="smithy.png" Pack="true" PackagePath="\" />
-	</ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\pht-small-logo.png" Pack="true" PackagePath="\" />
+  </ItemGroup>
 
 	<ItemGroup>
     <PackageReference Include="CommunityToolkit.Diagnostics" />

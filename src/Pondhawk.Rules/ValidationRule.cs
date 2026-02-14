@@ -108,8 +108,16 @@ public class ValidationRule<TFact> : AbstractRule, IValidationRule<TFact>
     }
 
 
+    public ValidationRule<TFact> Unless( Func<TFact, bool> predicate )
+    {
+        Guard.IsNotNull(predicate);
 
-        
+        Predicates = [f => !predicate(f)];
+        return this;
+    }
+
+
+
     public IValidator<TFact, TType> Assert<TType>( Expression<Func<TFact, TType>> extractorEx )
     {
         Guard.IsNotNull(extractorEx);

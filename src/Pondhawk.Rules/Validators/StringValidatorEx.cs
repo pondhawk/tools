@@ -200,6 +200,38 @@ public static class StringValidatorEx
         return v;
     }
 
+    public static IValidator<TFact, string> IsGreaterThanOrEqual<TFact>( this IValidator<TFact, string> validator, string test ) where TFact : class
+    {
+        var v = validator.Is( ( f, v ) => string.Compare( v, test, StringComparison.Ordinal ) >= 0 );
+        var propName = validator.PropertyName.Humanize(LetterCasing.Title);
+        v.Otherwise($"{propName} must be greater than or equal to {test}");
+        return v;
+    }
+
+    public static IValidator<TFact, string> IsGreaterThanOrEqual<TFact>( this IValidator<TFact, string> validator, Func<TFact, string> extractor ) where TFact : class
+    {
+        var v = validator.Is( ( f, v ) => string.Compare( v, extractor(f), StringComparison.Ordinal ) >= 0 );
+        var propName = validator.PropertyName.Humanize(LetterCasing.Title);
+        v.Otherwise($"{propName} must be greater than or equal to the specified value");
+        return v;
+    }
+
+    public static IValidator<TFact, string> IsLessThanOrEqual<TFact>( this IValidator<TFact, string> validator, string test ) where TFact : class
+    {
+        var v = validator.Is( ( f, v ) => string.Compare( v, test, StringComparison.Ordinal ) <= 0 );
+        var propName = validator.PropertyName.Humanize(LetterCasing.Title);
+        v.Otherwise($"{propName} must be less than or equal to {test}");
+        return v;
+    }
+
+    public static IValidator<TFact, string> IsLessThanOrEqual<TFact>( this IValidator<TFact, string> validator, Func<TFact, string> extractor ) where TFact : class
+    {
+        var v = validator.Is( ( f, v ) => string.Compare( v, extractor(f), StringComparison.Ordinal ) <= 0 );
+        var propName = validator.PropertyName.Humanize(LetterCasing.Title);
+        v.Otherwise($"{propName} must be less than or equal to the specified value");
+        return v;
+    }
+
 
     public static IValidator<TFact, string> IsEqualTo<TFact>( this IValidator<TFact, string> validator, string test ) where TFact : class
     {
@@ -274,11 +306,27 @@ public static class StringValidatorEx
         var v =  validator.IsNot( ( f, v ) => !string.IsNullOrWhiteSpace(v) && Regex.IsMatch( v, pattern ) );
 
         var propName = validator.PropertyName.Humanize(LetterCasing.Title);
-        
+
         v.Otherwise($"{propName} matches {pattern}");
 
-        return v;        
-        
+        return v;
+
+    }
+
+    public static IValidator<TFact, string> IsMatch<TFact>( this IValidator<TFact, string> validator, Regex regex ) where TFact : class
+    {
+        var v = validator.Is( ( f, v ) => !string.IsNullOrWhiteSpace(v) && regex.IsMatch( v ) );
+        var propName = validator.PropertyName.Humanize(LetterCasing.Title);
+        v.Otherwise($"{propName} does not match the required pattern");
+        return v;
+    }
+
+    public static IValidator<TFact, string> IsNotMatch<TFact>( this IValidator<TFact, string> validator, Regex regex ) where TFact : class
+    {
+        var v = validator.IsNot( ( f, v ) => !string.IsNullOrWhiteSpace(v) && regex.IsMatch( v ) );
+        var propName = validator.PropertyName.Humanize(LetterCasing.Title);
+        v.Otherwise($"{propName} matches a prohibited pattern");
+        return v;
     }
 
     public static IValidator<TFact, string> IsPhone<TFact>(  this IValidator<TFact, string> validator ) where TFact : class

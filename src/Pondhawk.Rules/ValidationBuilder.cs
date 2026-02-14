@@ -134,4 +134,40 @@ public abstract class ValidationBuilder<TFact>: AbstractRuleBuilder, IBuilder
     }
 
 
+    protected void Unless( Func<TFact,bool> predicate, Action builder )
+    {
+        When(f => !predicate(f), builder);
+    }
+
+
+    public virtual EnumerableValidator<TFact, TType> AssertOver<TType>( Expression<Func<TFact, IEnumerable<TType>>> extractor )
+    {
+
+        var nameSpace = GetType().Namespace;
+        var fullSetName = $"{nameSpace}.{SetName}";
+
+        var factName = typeof(TFact).GetConciseName();
+        var ruleName = (extractor.Body is MemberExpression body ? $"{factName}.{body.Member.Name}" : factName);
+
+        var rule = new ValidationRule<TFact>( fullSetName, ruleName );
+
+        rule.WithSalience(_currentSalience);
+        rule.WithInception(DefaultInception);
+        rule.WithExpiration(DefaultExpiration);
+
+        if (_currentPredicate is not null)
+            rule.When(_currentPredicate);
+
+        if ( !string.IsNullOrWhiteSpace(_currentMutex) )
+            rule.InMutex(_currentMutex);
+
+        Sinks.Add(t => t.Add(typeof(TFact), rule));
+
+        _currentSalience += 100;
+
+        return rule.AssertOver(extractor);
+
+    }
+
+
 }

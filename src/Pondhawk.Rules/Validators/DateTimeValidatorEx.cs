@@ -24,11 +24,9 @@ SOFTWARE.
 
 
 using Humanizer;
-using JetBrains.Annotations;
 
 namespace Pondhawk.Rules.Validators;
 
-[UsedImplicitly]
 public static class DateTimeValidatorEx
 {
 
@@ -104,6 +102,38 @@ public static class DateTimeValidatorEx
         return v;
     }
 
+    public static IValidator<TFact, DateTime> IsGreaterThanOrEqual<TFact>(this IValidator<TFact, DateTime> validator, DateTime test) where TFact : class
+    {
+        var v = validator.Is((_, value) => value >= test);
+        var propName = validator.PropertyName.Humanize(LetterCasing.Title);
+        v.Otherwise($"{propName} must be greater than or equal to {test:yyyy-MM-dd HH:mm:ss}");
+        return v;
+    }
+
+    public static IValidator<TFact, DateTime> IsGreaterThanOrEqual<TFact>(this IValidator<TFact, DateTime> validator, Func<TFact, DateTime> extractor) where TFact : class
+    {
+        var v = validator.Is((f, value) => value >= extractor(f));
+        var propName = validator.PropertyName.Humanize(LetterCasing.Title);
+        v.Otherwise($"{propName} must be greater than or equal to the specified value");
+        return v;
+    }
+
+    public static IValidator<TFact, DateTime> IsLessThanOrEqual<TFact>(this IValidator<TFact, DateTime> validator, DateTime test) where TFact : class
+    {
+        var v = validator.Is((_, value) => value <= test);
+        var propName = validator.PropertyName.Humanize(LetterCasing.Title);
+        v.Otherwise($"{propName} must be less than or equal to {test:yyyy-MM-dd HH:mm:ss}");
+        return v;
+    }
+
+    public static IValidator<TFact, DateTime> IsLessThanOrEqual<TFact>(this IValidator<TFact, DateTime> validator, Func<TFact, DateTime> extractor) where TFact : class
+    {
+        var v = validator.Is((f, value) => value <= extractor(f));
+        var propName = validator.PropertyName.Humanize(LetterCasing.Title);
+        v.Otherwise($"{propName} must be less than or equal to the specified value");
+        return v;
+    }
+
     public static IValidator<TFact, DateTime> IsBetween<TFact>(this IValidator<TFact, DateTime> validator, DateTime low, DateTime high) where TFact : class
     {
         var v = validator.Is((_, value) => (value >= low) && (value <= high));
@@ -133,6 +163,22 @@ public static class DateTimeValidatorEx
         var v = validator.Is((f, value) => (value < lowExtractor(f)) || (value > highExtractor(f)));
         var propName = validator.PropertyName.Humanize(LetterCasing.Title);
         v.Otherwise($"{propName} must not be between the specified values");
+        return v;
+    }
+
+    public static IValidator<TFact, DateTime> IsExclusiveBetween<TFact>(this IValidator<TFact, DateTime> validator, DateTime low, DateTime high) where TFact : class
+    {
+        var v = validator.Is((_, value) => (value > low) && (value < high));
+        var propName = validator.PropertyName.Humanize(LetterCasing.Title);
+        v.Otherwise($"{propName} must be between {low:yyyy-MM-dd HH:mm:ss} and {high:yyyy-MM-dd HH:mm:ss} (exclusive)");
+        return v;
+    }
+
+    public static IValidator<TFact, DateTime> IsExclusiveBetween<TFact>(this IValidator<TFact, DateTime> validator, Func<TFact, DateTime> lowExtractor, Func<TFact, DateTime> highExtractor) where TFact : class
+    {
+        var v = validator.Is((f, value) => (value > lowExtractor(f)) && (value < highExtractor(f)));
+        var propName = validator.PropertyName.Humanize(LetterCasing.Title);
+        v.Otherwise($"{propName} must be between the specified values (exclusive)");
         return v;
     }
 

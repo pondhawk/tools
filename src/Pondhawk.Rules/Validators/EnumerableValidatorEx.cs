@@ -24,11 +24,9 @@ SOFTWARE.
 
 
 using Humanizer;
-using JetBrains.Annotations;
 
 namespace Pondhawk.Rules.Validators;
 
-[UsedImplicitly]
 public static class EnumerableValidatorEx
 {
 

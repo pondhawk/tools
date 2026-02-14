@@ -130,6 +130,42 @@ public static class NumericValidatorEx
         return v;
     }
 
+    public static IValidator<TFact, TType> IsGreaterThanOrEqual<TFact, TType>(this IValidator<TFact, TType> validator, TType test)
+        where TFact : class where TType : struct, IComparable<TType>
+    {
+        var v = validator.Is((f, value) => value.CompareTo(test) >= 0);
+        var propName = validator.PropertyName.Humanize(LetterCasing.Title);
+        v.Otherwise($"{propName} must be greater than or equal to {test}");
+        return v;
+    }
+
+    public static IValidator<TFact, TType> IsGreaterThanOrEqual<TFact, TType>(this IValidator<TFact, TType> validator, Func<TFact, TType> extractor)
+        where TFact : class where TType : struct, IComparable<TType>
+    {
+        var v = validator.Is((f, value) => value.CompareTo(extractor(f)) >= 0);
+        var propName = validator.PropertyName.Humanize(LetterCasing.Title);
+        v.Otherwise($"{propName} must be greater than or equal to the specified value");
+        return v;
+    }
+
+    public static IValidator<TFact, TType> IsLessThanOrEqual<TFact, TType>(this IValidator<TFact, TType> validator, TType test)
+        where TFact : class where TType : struct, IComparable<TType>
+    {
+        var v = validator.Is((f, value) => value.CompareTo(test) <= 0);
+        var propName = validator.PropertyName.Humanize(LetterCasing.Title);
+        v.Otherwise($"{propName} must be less than or equal to {test}");
+        return v;
+    }
+
+    public static IValidator<TFact, TType> IsLessThanOrEqual<TFact, TType>(this IValidator<TFact, TType> validator, Func<TFact, TType> extractor)
+        where TFact : class where TType : struct, IComparable<TType>
+    {
+        var v = validator.Is((f, value) => value.CompareTo(extractor(f)) <= 0);
+        var propName = validator.PropertyName.Humanize(LetterCasing.Title);
+        v.Otherwise($"{propName} must be less than or equal to the specified value");
+        return v;
+    }
+
     public static IValidator<TFact, TType> IsBetween<TFact, TType>(this IValidator<TFact, TType> validator, TType low, TType high)
         where TFact : class where TType : struct, IComparable<TType>
     {
@@ -163,6 +199,24 @@ public static class NumericValidatorEx
         var v = validator.Is((f, value) => value.CompareTo(lowExtractor(f)) < 0 || value.CompareTo(highExtractor(f)) > 0);
         var propName = validator.PropertyName.Humanize(LetterCasing.Title);
         v.Otherwise($"{propName} must not be between the specified values");
+        return v;
+    }
+
+    public static IValidator<TFact, TType> IsExclusiveBetween<TFact, TType>(this IValidator<TFact, TType> validator, TType low, TType high)
+        where TFact : class where TType : struct, IComparable<TType>
+    {
+        var v = validator.Is((f, value) => value.CompareTo(low) > 0 && value.CompareTo(high) < 0);
+        var propName = validator.PropertyName.Humanize(LetterCasing.Title);
+        v.Otherwise($"{propName} must be between {low} and {high} (exclusive)");
+        return v;
+    }
+
+    public static IValidator<TFact, TType> IsExclusiveBetween<TFact, TType>(this IValidator<TFact, TType> validator, Func<TFact, TType> lowExtractor, Func<TFact, TType> highExtractor)
+        where TFact : class where TType : struct, IComparable<TType>
+    {
+        var v = validator.Is((f, value) => value.CompareTo(lowExtractor(f)) > 0 && value.CompareTo(highExtractor(f)) < 0);
+        var propName = validator.PropertyName.Humanize(LetterCasing.Title);
+        v.Otherwise($"{propName} must be between the specified values (exclusive)");
         return v;
     }
 
@@ -354,6 +408,31 @@ public static class NumericValidatorEx
         var v = validator.Is((f, value) => values.All(val => Math.Abs(value - val) >= DoubleTolerance));
         var propName = validator.PropertyName.Humanize(LetterCasing.Title);
         v.Otherwise($"{propName} must not be one of the prohibited values");
+        return v;
+    }
+
+
+    // ===== Decimal precision/scale =====
+
+    public static IValidator<TFact, decimal> HasPrecision<TFact>(this IValidator<TFact, decimal> validator, int precision, int scale, bool ignoreTrailingZeros = false) where TFact : class
+    {
+        var v = validator.Is((f, value) =>
+        {
+            var d = Math.Abs(value);
+            if (ignoreTrailingZeros)
+                d = d / 1.0000000000000000000000000000m;
+
+            var bits = decimal.GetBits(d);
+            var decimalPlaces = (bits[3] >> 16) & 0x7F;
+            var unscaled = new decimal(bits[0], bits[1], bits[2], false, 0);
+            var totalDigits = unscaled == 0m ? 1 : unscaled.ToString(System.Globalization.CultureInfo.InvariantCulture).Length;
+            var integerDigits = totalDigits - decimalPlaces;
+            var expectedIntDigits = precision - scale;
+
+            return integerDigits <= expectedIntDigits && decimalPlaces <= scale;
+        });
+        var propName = validator.PropertyName.Humanize(LetterCasing.Title);
+        v.Otherwise($"{propName} must have no more than {precision} digits in total, with {scale} decimal places");
         return v;
     }
 }

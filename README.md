@@ -95,6 +95,15 @@ rules.AddRule<Order, Customer>("LoyaltyBonus")
     .Then((order, customer) => order.DiscountPct += 0.05m);
 ```
 
+Per-fact overloads let you write conditions against a single fact type, which enables C# pattern matching with full type inference:
+
+```csharp
+rules.AddRule<Order, Customer>("GoldCustomer")
+    .When((Func<Customer, bool>)(c => c.Tier is "Gold" or "Platinum"))
+    .And((Func<Order, bool>)(o => o.Total is > 200 and < 10_000))
+    .Then((order, customer) => order.DiscountPct += 0.05m);
+```
+
 ### Validation
 
 `ValidationRule<T>` provides property-level assertions with the `Assert<T>().Is().Otherwise()` pattern:
@@ -315,6 +324,10 @@ var (sql, parameters) = filter.ToSqlQuery<Product>();
 // WHERE clause only
 var (where, args) = filter.ToSqlWhere();
 // where: "Category = {0} and Price > {1}"
+
+// Human-readable English description
+string description = filter.ToDescription();
+// "Category equals 'Electronics' and Price is greater than 99"
 ```
 
 Case-insensitive string matching is supported via the `insensitive` parameter:

@@ -46,6 +46,13 @@ string rql = filter.ToRql();
 // "(eq(Name,'Widget'),gt(Quantity,5),lt(Price,#100))"
 ```
 
+### Serialize to English Description
+
+```csharp
+string description = filter.ToDescription();
+// "Name equals 'Widget' and Quantity is greater than 5 and Price is less than 100"
+```
+
 ### Parse RQL Text
 
 ```csharp

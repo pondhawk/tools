@@ -39,6 +39,19 @@ ruleSet.AddValidation<Person>("age-range")
 bool valid = ruleSet.TryValidate(person, out var violations);
 ```
 
+### Per-Fact Conditions and Pattern Matching
+
+Multi-fact rules support per-fact `When()`/`And()` overloads that accept a single-fact predicate, enabling C# pattern matching with full type inference:
+
+```csharp
+ruleSet.AddRule<Person, Order>("gold-discount")
+    .When((Func<Person, bool>)(p => p.Tier is "Gold" or "Platinum"))
+    .And((Func<Order, bool>)(o => o.Total is > 200 and < 10_000))
+    .Then((p, o) => o.DiscountPct = 0.10m);
+```
+
+When the two fact types are the same, use the combined overload: `.When((f1, f2) => ...)`.
+
 ### Scoring / Decisions
 
 ```csharp

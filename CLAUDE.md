@@ -54,7 +54,7 @@ A Serilog `ILogEventSink` with Channel-based batching, plus the full Watch loggi
 
 A forward-chaining rule engine with type-based fact matching. Fully standalone — no dependency on Pondhawk.Core. Uses `Microsoft.Extensions.Logging` for listener infrastructure (Serilog picks up MS Logging events transparently). Key subsystems:
 
-- **Builder** (`Pondhawk.Rules.Builder`): Fluent API for defining rules. `RuleBuilder<TFact1..TFact4>` creates `Rule<T>` instances via `When().And().Then()` chains. Supports up to 4 fact types per rule. Rules have salience (priority), mutex (mutual exclusion), fire-once, inception/expiration.
+- **Builder** (`Pondhawk.Rules.Builder`): Fluent API for defining rules. `RuleBuilder<TFact1..TFact4>` creates `Rule<T>` instances via `When().And().Then()` chains. Supports up to 4 fact types per rule. Multi-fact rules have per-fact `When(Func<T, bool>)`/`And(Func<T, bool>)` overloads that enable C# pattern matching with full type inference. Rules have salience (priority), mutex (mutual exclusion), fire-once, inception/expiration.
 - **Evaluation** (`Pondhawk.Rules.Evaluation`): `EvaluationPlan` generates all fact-type combinations using variations-with-repetition. `TupleEvaluator` executes rules in salience order against fact tuples. `FactSpace` stores facts with int selectors for memory efficiency.
 - **Tree** (`Pondhawk.Rules.Tree`): `RuleTree` indexes rules by fact types for fast lookup with polymorphic type matching.
 - **Validation** (`Pondhawk.Rules.Validators`): `ValidationBuilder<TFact>` with `Assert<T>(expr).Is().IsNot().Otherwise()` chains. Runs at very high salience.
@@ -85,6 +85,7 @@ A filtering DSL with AST, fluent builder, parser, and multiple serialization tar
   - `ToRql()` — RQL text: `(eq(Name,'John'),gt(Age,30))`
   - `ToLambda<T>()` / `ToExpression<T>()` — compiled LINQ expressions
   - `ToSqlQuery()` / `ToSqlWhere()` — parameterized SQL
+  - `ToDescription()` — human-readable English: `"Name equals 'John' and Age is greater than 30"`
 
 ### Pondhawk.Hosting — Service Startup Extensions for Generic Host
 

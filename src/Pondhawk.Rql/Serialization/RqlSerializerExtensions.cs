@@ -22,6 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+using System.Globalization;
 using System.Text;
 using CommunityToolkit.Diagnostics;
 using Pondhawk.Rql.Builder;
@@ -60,20 +61,20 @@ namespace Pondhawk.Rql.Serialization
             // ***************************************************************************
             var kindMap = new Dictionary<RqlOperator, KindSpec>
             {
-                [RqlOperator.Equals]             = new() { Operation = "eq", MultiValue = false },
-                [RqlOperator.NotEquals]          = new() { Operation = "ne", MultiValue = false },
-                [RqlOperator.Contains]           = new() { Operation = "cn", MultiValue = false },
-                [RqlOperator.StartsWith]         = new() { Operation = "sw", MultiValue = false },
-                [RqlOperator.LesserThan]         = new() { Operation = "lt", MultiValue = false },
-                [RqlOperator.GreaterThan]        = new() { Operation = "gt", MultiValue = false },
-                [RqlOperator.LesserThanOrEqual]  = new() { Operation = "le", MultiValue = false },
+                [RqlOperator.Equals] = new() { Operation = "eq", MultiValue = false },
+                [RqlOperator.NotEquals] = new() { Operation = "ne", MultiValue = false },
+                [RqlOperator.Contains] = new() { Operation = "cn", MultiValue = false },
+                [RqlOperator.StartsWith] = new() { Operation = "sw", MultiValue = false },
+                [RqlOperator.LesserThan] = new() { Operation = "lt", MultiValue = false },
+                [RqlOperator.GreaterThan] = new() { Operation = "gt", MultiValue = false },
+                [RqlOperator.LesserThanOrEqual] = new() { Operation = "le", MultiValue = false },
                 [RqlOperator.GreaterThanOrEqual] = new() { Operation = "ge", MultiValue = false },
-                [RqlOperator.Between]            = new() { Operation = "bt", MultiValue = true },
-                [RqlOperator.In]                 = new() { Operation = "in", MultiValue = true },
-                [RqlOperator.NotIn]              = new() { Operation = "ni", MultiValue = true },
-                [RqlOperator.EndsWith]           = new() { Operation = "ew", MultiValue = false },
-                [RqlOperator.IsNull]             = new() { Operation = "nu", MultiValue = false, NoValue = true },
-                [RqlOperator.IsNotNull]          = new() { Operation = "nn", MultiValue = false, NoValue = true }
+                [RqlOperator.Between] = new() { Operation = "bt", MultiValue = true },
+                [RqlOperator.In] = new() { Operation = "in", MultiValue = true },
+                [RqlOperator.NotIn] = new() { Operation = "ni", MultiValue = true },
+                [RqlOperator.EndsWith] = new() { Operation = "ew", MultiValue = false },
+                [RqlOperator.IsNull] = new() { Operation = "nu", MultiValue = false, NoValue = true },
+                [RqlOperator.IsNotNull] = new() { Operation = "nn", MultiValue = false, NoValue = true }
             };
 
 
@@ -87,20 +88,20 @@ namespace Pondhawk.Rql.Serialization
             string DefaultFormatter(object o) => o.ToString() ?? string.Empty;
             string LowerCaseFormatter(object o) => o.ToString()?.ToLowerInvariant() ?? string.Empty;
 
-            typeMap[typeof(string)]   = new TypeSpec { NeedsQuotes = true,  Prefix = "",  Formatter  = DefaultFormatter };
-            typeMap[typeof(bool)]     = new TypeSpec { NeedsQuotes = false, Prefix = "",  Formatter  = LowerCaseFormatter };
-            typeMap[typeof(DateTime)] = new TypeSpec { NeedsQuotes = false, Prefix = "@", Formatter  = _dateTimeFormatter };
-            typeMap[typeof(decimal)]  = new TypeSpec { NeedsQuotes = false, Prefix = "#", Formatter  = DefaultFormatter };
-            typeMap[typeof(short)]    = new TypeSpec { NeedsQuotes = false, Prefix = "",  Formatter  = DefaultFormatter };
-            typeMap[typeof(int)]      = new TypeSpec { NeedsQuotes = false, Prefix = "",  Formatter  = DefaultFormatter };
-            typeMap[typeof(long)]     = new TypeSpec { NeedsQuotes = false, Prefix = "",  Formatter  = DefaultFormatter };
+            typeMap[typeof(string)] = new TypeSpec { NeedsQuotes = true, Prefix = "", Formatter = DefaultFormatter };
+            typeMap[typeof(bool)] = new TypeSpec { NeedsQuotes = false, Prefix = "", Formatter = LowerCaseFormatter };
+            typeMap[typeof(DateTime)] = new TypeSpec { NeedsQuotes = false, Prefix = "@", Formatter = _dateTimeFormatter };
+            typeMap[typeof(decimal)] = new TypeSpec { NeedsQuotes = false, Prefix = "#", Formatter = DefaultFormatter };
+            typeMap[typeof(short)] = new TypeSpec { NeedsQuotes = false, Prefix = "", Formatter = DefaultFormatter };
+            typeMap[typeof(int)] = new TypeSpec { NeedsQuotes = false, Prefix = "", Formatter = DefaultFormatter };
+            typeMap[typeof(long)] = new TypeSpec { NeedsQuotes = false, Prefix = "", Formatter = DefaultFormatter };
 
             TypeMap = typeMap;
 
 
         }
 
-        private static string _dateTimeFormatter( object source )
+        private static string _dateTimeFormatter(object source)
         {
 
             Guard.IsNotNull(source);
@@ -108,15 +109,15 @@ namespace Pondhawk.Rql.Serialization
             if (source is not DateTime time)
                 throw new InvalidOperationException($"Object of type: {source.GetType().FullName} can not be cast to a DateTime");
 
-            var dtStr = time.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ");
+            var dtStr = time.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ", CultureInfo.InvariantCulture);
 
             return dtStr;
 
         }
 
 
-        private static IReadOnlyDictionary<RqlOperator,KindSpec> KindMap { get; }
-        private static IReadOnlyDictionary<Type, TypeSpec> TypeMap { get; }
+        private static Dictionary<RqlOperator, KindSpec> KindMap { get; }
+        private static Dictionary<Type, TypeSpec> TypeMap { get; }
 
 
         private struct KindSpec
@@ -135,7 +136,7 @@ namespace Pondhawk.Rql.Serialization
         }
 
 
-        private static IEnumerable<string> BuildRestrictionParts(IEnumerable<IRqlPredicate> meta)
+        private static List<string> BuildRestrictionParts(IEnumerable<IRqlPredicate> meta)
         {
 
             var parts = new List<string>();
@@ -196,7 +197,7 @@ namespace Pondhawk.Rql.Serialization
 
 
 
-        public static string ToRql( this IRqlFilter builder )
+        public static string ToRql(this IRqlFilter builder)
         {
 
             var parts = BuildRestrictionParts(builder.Criteria);

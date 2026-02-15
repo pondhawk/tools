@@ -14,7 +14,7 @@ public class BaseCriteria : ICriteria
     public string[]? Rql { get; set; }
 
     [JsonExtensionData]
-    private Dictionary<string, JsonElement> Overposts { get; } = new();
+    private Dictionary<string, JsonElement> Overposts { get; } = new(StringComparer.Ordinal);
 
     public bool IsOverposted() => Overposts.Count > 0;
 

@@ -1,4 +1,4 @@
-namespace Pondhawk.Logging;
+﻿namespace Pondhawk.Logging;
 
 internal static class WatchPropertyNames
 {

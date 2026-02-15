@@ -1,4 +1,6 @@
-﻿using System.Linq.Expressions;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
+using System.Linq.Expressions;
 using System.Reflection;
 using CommunityToolkit.Diagnostics;
 using Pondhawk.Rql.Builder;
@@ -45,7 +47,7 @@ namespace Pondhawk.Rql.Serialization
         /// </summary>
         /// <param name="filter">The filter to compile.</param>
         /// <param name="insensitive">When <c>true</c>, string comparisons are case-insensitive.</param>
-        public static Func<TEntity, bool> ToLambda<TEntity>(  this IRqlFilter<TEntity> filter, bool insensitive = false) where TEntity : class
+        public static Func<TEntity, bool> ToLambda<TEntity>(this IRqlFilter<TEntity> filter, bool insensitive = false) where TEntity : class
         {
 
             Guard.IsNotNull(filter);
@@ -62,7 +64,8 @@ namespace Pondhawk.Rql.Serialization
         /// </summary>
         /// <param name="filter">The filter to convert.</param>
         /// <param name="insensitive">When <c>true</c>, string comparisons are case-insensitive.</param>
-        public static Expression<Func<TEntity, bool>> ToExpression<TEntity>(  this IRqlFilter<TEntity> filter, bool insensitive=false ) where TEntity : class
+        [SuppressMessage("Design", "MA0051:Method is too long", Justification = "Switch-based expression builder with one case per RQL operator; splitting would reduce readability")]
+        public static Expression<Func<TEntity, bool>> ToExpression<TEntity>(this IRqlFilter<TEntity> filter, bool insensitive = false) where TEntity : class
         {
 
             Guard.IsNotNull(filter);
@@ -71,29 +74,29 @@ namespace Pondhawk.Rql.Serialization
 
             Expression? running = null;
 
-            foreach( var predicate in filter.Criteria )
+            foreach (var predicate in filter.Criteria)
             {
 
                 switch (predicate.Operator)
                 {
 
                     case RqlOperator.Equals:
-                        running = BuildComparison( running, entity, predicate, Expression.Equal );
+                        running = BuildComparison(running, entity, predicate, Expression.Equal);
                         break;
                     case RqlOperator.NotEquals:
-                        running = BuildComparison( running, entity, predicate, Expression.NotEqual );
+                        running = BuildComparison(running, entity, predicate, Expression.NotEqual);
                         break;
                     case RqlOperator.LesserThan:
-                        running = BuildComparison( running, entity, predicate, Expression.LessThan );
+                        running = BuildComparison(running, entity, predicate, Expression.LessThan);
                         break;
                     case RqlOperator.GreaterThan:
-                        running = BuildComparison( running, entity, predicate, Expression.GreaterThan );
+                        running = BuildComparison(running, entity, predicate, Expression.GreaterThan);
                         break;
                     case RqlOperator.LesserThanOrEqual:
-                        running = BuildComparison( running, entity, predicate, Expression.LessThanOrEqual );
+                        running = BuildComparison(running, entity, predicate, Expression.LessThanOrEqual);
                         break;
                     case RqlOperator.GreaterThanOrEqual:
-                        running = BuildComparison( running, entity, predicate, Expression.GreaterThanOrEqual );
+                        running = BuildComparison(running, entity, predicate, Expression.GreaterThanOrEqual);
                         break;
                     case RqlOperator.StartsWith when predicate.DataType == typeof(string) && insensitive:
                         running = BuildStartsWithCi(running, entity, predicate);
@@ -120,7 +123,7 @@ namespace Pondhawk.Rql.Serialization
                         running = BuildIsNotNull(running, entity, predicate);
                         break;
                     case RqlOperator.Between:
-                        running = BuildBetween( running, entity, predicate );
+                        running = BuildBetween(running, entity, predicate);
                         break;
                     case RqlOperator.In:
                         running = BuildIn(running, entity, predicate);
@@ -129,20 +132,20 @@ namespace Pondhawk.Rql.Serialization
                         running = BuildNotIn(running, entity, predicate);
                         break;
                     default:
-                        throw new ArgumentOutOfRangeException();
+                        throw new ArgumentOutOfRangeException(nameof(filter), predicate.Operator, $"Unsupported RQL operator: {predicate.Operator}");
 
                 }
 
             }
 
 
-            if( running == null )
+            if (running == null)
             {
-                Expression<Func<TEntity, bool>> none = _=> true;
+                Expression<Func<TEntity, bool>> none = _ => true;
                 return none;
             }
 
-            return Expression.Lambda<Func<TEntity,bool>>( running, entity );
+            return Expression.Lambda<Func<TEntity, bool>>(running, entity);
 
         }
 
@@ -152,10 +155,10 @@ namespace Pondhawk.Rql.Serialization
             var left = Expression.Property(entity, name);
             ConstantExpression right;
 
-            var prop  = (PropertyInfo)left.Member;
+            var prop = (PropertyInfo)left.Member;
             if (prop.PropertyType != dataType)
             {
-                var conv = Convert.ChangeType(value, prop.PropertyType);
+                var conv = Convert.ChangeType(value, prop.PropertyType, CultureInfo.InvariantCulture);
                 right = Expression.Constant(conv, prop.PropertyType);
             }
             else
@@ -165,17 +168,17 @@ namespace Pondhawk.Rql.Serialization
 
         }
 
-        private static (Expression left, IEnumerable<Expression> right) BuildOperandsInsensitive(Expression entity, string name, string value )
+        private static (Expression left, IEnumerable<Expression> right) BuildOperandsInsensitive(Expression entity, string name, string value)
         {
 
-            var left  = Expression.Property(entity, name);
-            var right = new List<Expression> {Expression.Constant(value, typeof(string)), Expression.Constant(StringComparison.InvariantCultureIgnoreCase, typeof(StringComparison)) };
+            var left = Expression.Property(entity, name);
+            var right = new List<Expression> { Expression.Constant(value, typeof(string)), Expression.Constant(StringComparison.InvariantCultureIgnoreCase, typeof(StringComparison)) };
 
             return (left, right);
 
         }
 
-        private static Expression BuildComparison(Expression? running, Expression entity, IRqlPredicate predicate, Func<Expression, Expression, BinaryExpression> factory)
+        private static BinaryExpression BuildComparison(Expression? running, Expression entity, IRqlPredicate predicate, Func<Expression, Expression, BinaryExpression> factory)
         {
 
             var (left, right) = BuildOperands(entity, predicate.Target.Name, predicate.DataType, predicate.Values[0]);
@@ -189,7 +192,7 @@ namespace Pondhawk.Rql.Serialization
 
         }
 
-        private static Expression BuildBetween(Expression? running, Expression entity, IRqlPredicate predicate)
+        private static BinaryExpression BuildBetween(Expression? running, Expression entity, IRqlPredicate predicate)
         {
 
             if (predicate.Values.Count < 2)
@@ -203,7 +206,7 @@ namespace Pondhawk.Rql.Serialization
 
             var to = Expression.LessThanOrEqual(leftTo, rightTo);
 
-            var exp = Expression.AndAlso(from,to);
+            var exp = Expression.AndAlso(from, to);
 
             if (running is null)
                 return exp;
@@ -212,10 +215,10 @@ namespace Pondhawk.Rql.Serialization
 
         }
 
-        private static Expression BuildStartsWith( Expression? running, Expression entity, IRqlPredicate predicate )
+        private static Expression BuildStartsWith(Expression? running, Expression entity, IRqlPredicate predicate)
         {
 
-            var (left, right) = BuildOperands( entity, predicate.Target.Name, typeof(string), predicate.Values[0].ToString()! );
+            var (left, right) = BuildOperands(entity, predicate.Target.Name, typeof(string), predicate.Values[0].ToString()!);
 
             var exp = Expression.Call(left, StartsWithMethod, right);
 
@@ -243,9 +246,9 @@ namespace Pondhawk.Rql.Serialization
         private static Expression BuildContains(Expression? running, Expression entity, IRqlPredicate predicate)
         {
 
-            var (left, right) = BuildOperands(entity, predicate.Target.Name, typeof(string),predicate.Values[0].ToString()!);
+            var (left, right) = BuildOperands(entity, predicate.Target.Name, typeof(string), predicate.Values[0].ToString()!);
 
-            var exp = Expression.Call( left, ContainsMethod, right );
+            var exp = Expression.Call(left, ContainsMethod, right);
 
             if (running is null)
                 return exp;
@@ -268,10 +271,10 @@ namespace Pondhawk.Rql.Serialization
 
         }
 
-        private static Expression BuildEndsWith( Expression? running, Expression entity, IRqlPredicate predicate )
+        private static Expression BuildEndsWith(Expression? running, Expression entity, IRqlPredicate predicate)
         {
 
-            var (left, right) = BuildOperands( entity, predicate.Target.Name, typeof(string), predicate.Values[0].ToString()! );
+            var (left, right) = BuildOperands(entity, predicate.Target.Name, typeof(string), predicate.Values[0].ToString()!);
 
             var exp = Expression.Call(left, EndsWithMethod, right);
 
@@ -332,11 +335,11 @@ namespace Pondhawk.Rql.Serialization
 
         }
 
-        private static Expression BuildIn( Expression? running, Expression entity, IRqlPredicate predicate )
+        private static Expression BuildIn(Expression? running, Expression entity, IRqlPredicate predicate)
         {
 
-            var left  = Expression.Constant(new List<object>(predicate.Values), typeof(List<object>));
-            var cand  = Expression.Property(entity, predicate.Target.Name);
+            var left = Expression.Constant(new List<object>(predicate.Values), typeof(List<object>));
+            var cand = Expression.Property(entity, predicate.Target.Name);
             var right = Expression.Convert(cand, typeof(object));
 
             var exp = Expression.Call(left, ListContainsMethod, right);
@@ -351,8 +354,8 @@ namespace Pondhawk.Rql.Serialization
         private static Expression BuildNotIn(Expression? running, Expression entity, IRqlPredicate predicate)
         {
 
-            var left  = Expression.Constant(new List<object>(predicate.Values), typeof(List<object>));
-            var cand  = Expression.Property(entity, predicate.Target.Name);
+            var left = Expression.Constant(new List<object>(predicate.Values), typeof(List<object>));
+            var cand = Expression.Property(entity, predicate.Target.Name);
             var right = Expression.Convert(cand, typeof(object));
 
             var found = Expression.Call(left, ListContainsMethod, right);

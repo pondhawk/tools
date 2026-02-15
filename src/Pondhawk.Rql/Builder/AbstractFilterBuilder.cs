@@ -25,6 +25,7 @@ SOFTWARE.
 
 // ReSharper disable UnusedMember.Global
 
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using CommunityToolkit.Diagnostics;
 using Pondhawk.Rql.Criteria;
@@ -36,16 +37,15 @@ namespace Pondhawk.Rql.Builder;
 /// such as <c>Equals</c>, <c>Between</c>, <c>In</c>, <c>StartsWith</c>, and more.
 /// </summary>
 /// <typeparam name="TBuilder">The concrete builder type for fluent method chaining.</typeparam>
-public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder: AbstractFilterBuilder<TBuilder>
+public abstract class AbstractFilterBuilder<TBuilder> : IRqlFilter where TBuilder : AbstractFilterBuilder<TBuilder>
 {
 
 
 
-    public static implicit operator List<IRqlPredicate>(  AbstractFilterBuilder<TBuilder> builder )
+    [SuppressMessage("Design", "MA0016:Prefer using collection abstraction instead of implementation", Justification = "Implicit operator must declare the concrete target type for the conversion")]
+    public static implicit operator List<IRqlPredicate>(AbstractFilterBuilder<TBuilder> builder)
     {
-        var list = new List<IRqlPredicate>();
-        list.AddRange( builder.Predicates );
-        return list;
+        return new List<IRqlPredicate>(builder.Predicates);
     }
 
     protected AbstractFilterBuilder()
@@ -56,11 +56,11 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
 
     }
 
-    protected AbstractFilterBuilder( RqlTree tree ) : this()
+    protected AbstractFilterBuilder(RqlTree tree) : this()
     {
 
         CurrentName = "";
-        Predicates  = new List<IRqlPredicate>(tree.Criteria);
+        Predicates = new List<IRqlPredicate>(tree.Criteria);
 
     }
 
@@ -71,7 +71,7 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
     public bool Is<TTarget>()
     {
 
-        var result = (Target == typeof(TTarget)) || (Target.IsAssignableFrom( typeof(TTarget) )) || (typeof(TTarget).IsAssignableFrom( Target ));
+        var result = (Target == typeof(TTarget)) || (Target.IsAssignableFrom(typeof(TTarget))) || (typeof(TTarget).IsAssignableFrom(Target));
 
         return result;
 
@@ -80,19 +80,20 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
 
     #region Criteria related members
 
-    public TBuilder Introspect(  ICriteria source, IDictionary<string,string>? map=null )
+    [SuppressMessage("Design", "MA0051:Method is too long", Justification = "Introspect method has a large but linear switch/case structure that does not benefit from splitting")]
+    public TBuilder Introspect(ICriteria source, IDictionary<string, string>? map = null)
     {
 
         Guard.IsNotNull(source);
 
 
-        var parts = new Dictionary<string, RqlPredicate>();
+        var parts = new Dictionary<string, RqlPredicate>(StringComparer.Ordinal);
 
         foreach (var prop in source.GetType().GetProperties())
         {
 
 
-            if( prop.GetCustomAttribute(typeof(CriterionAttribute)) is not CriterionAttribute attr )
+            if (prop.GetCustomAttribute<CriterionAttribute>() is not { } attr)
                 continue;
 
 
@@ -101,7 +102,7 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
 
 
             var value = prop.GetValue(source);
-            if( value == null )
+            if (value == null)
                 continue;
 
 
@@ -109,7 +110,7 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
             var includeMethod = source.GetType().GetMethod($"Include{prop.Name}");
             if (includeMethod is not null)
             {
-                var ret = includeMethod.Invoke(source, new object[] { });
+                var ret = includeMethod.Invoke(source, Array.Empty<object>());
                 if (ret is false)
                     continue;
             }
@@ -127,7 +128,7 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
             }
 
 
-            var target   = string.IsNullOrWhiteSpace(attr.Name) ? prop.Name : attr.Name;
+            var target = string.IsNullOrWhiteSpace(attr.Name) ? prop.Name : attr.Name;
             var dataType = prop.PropertyType;
 
             if (dataType.IsGenericType && dataType.GetGenericTypeDefinition() == typeof(Nullable<>))
@@ -153,8 +154,7 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
 
 
 
-            RqlPredicate oper;
-            if (!parts.ContainsKey(target))
+            if (!parts.TryGetValue(target, out var oper))
             {
 
                 var op = attr.Operation;
@@ -167,12 +167,10 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
                 if (map != null && map.TryGetValue(target, out var found))
                     mapped = found;
 
-                oper = new RqlPredicate(op, mapped, dataType, new object[] { });
+                oper = new RqlPredicate(op, mapped, dataType, Array.Empty<object>());
                 parts[target] = oper;
 
             }
-            else
-                oper = parts[target];
 
 
 
@@ -222,7 +220,7 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
 
     public int RowLimit { get; set; }
 
-    public bool AtLeastOne( Func<IRqlPredicate, bool> predicate )
+    public bool AtLeastOne(Func<IRqlPredicate, bool> predicate)
     {
 
         Guard.IsNotNull(predicate);
@@ -233,7 +231,7 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
 
     }
 
-    public bool OnlyOne( Func<IRqlPredicate, bool> predicate )
+    public bool OnlyOne(Func<IRqlPredicate, bool> predicate)
     {
 
         Guard.IsNotNull(predicate);
@@ -244,7 +242,7 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
 
     }
 
-    public bool None( Func<IRqlPredicate, bool> predicate)
+    public bool None(Func<IRqlPredicate, bool> predicate)
     {
 
         Guard.IsNotNull(predicate);
@@ -256,12 +254,12 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
     }
 
 
-    public void Add( IRqlPredicate predicate )
+    public void Add(IRqlPredicate operation)
     {
 
-        Guard.IsNotNull(predicate);
+        Guard.IsNotNull(operation);
 
-        Predicates.Add( predicate );
+        Predicates.Add(operation);
 
     }
 
@@ -281,13 +279,13 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
 
 
 
-    public TBuilder Equals( string value )
+    public TBuilder Equals(string value)
     {
 
         Guard.IsNotNullOrWhiteSpace(value);
         Guard.IsNotNullOrWhiteSpace(CurrentName);
 
-        Predicates.Add( new RqlPredicate<string>(RqlOperator.Equals, CurrentName, value) );
+        Predicates.Add(new RqlPredicate<string>(RqlOperator.Equals, CurrentName, value));
 
         return (TBuilder)this;
 
@@ -300,7 +298,7 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
 
         Guard.IsNotNullOrWhiteSpace(CurrentName);
 
-        Predicates.Add( new RqlPredicate<int>(RqlOperator.Equals, CurrentName, value ) );
+        Predicates.Add(new RqlPredicate<int>(RqlOperator.Equals, CurrentName, value));
 
         return (TBuilder)this;
 
@@ -336,7 +334,7 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
 
         Guard.IsNotNullOrWhiteSpace(CurrentName);
 
-        Predicates.Add( new RqlPredicate<decimal>(RqlOperator.Equals, CurrentName, value) );
+        Predicates.Add(new RqlPredicate<decimal>(RqlOperator.Equals, CurrentName, value));
 
         return (TBuilder)this;
 
@@ -359,13 +357,13 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
 
     #region NotEquals
 
-    public TBuilder NotEquals( string value )
+    public TBuilder NotEquals(string value)
     {
 
         Guard.IsNotNullOrWhiteSpace(value);
         Guard.IsNotNullOrWhiteSpace(CurrentName);
 
-        Predicates.Add( new RqlPredicate<string>(RqlOperator.NotEquals, CurrentName, value) );
+        Predicates.Add(new RqlPredicate<string>(RqlOperator.NotEquals, CurrentName, value));
 
         return (TBuilder)this;
 
@@ -435,7 +433,7 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
 
     #region LesserThan
 
-    public TBuilder LesserThan( string value )
+    public TBuilder LesserThan(string value)
     {
 
         Guard.IsNotNullOrWhiteSpace(value);
@@ -484,7 +482,7 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
     }
 
 
-    public TBuilder LesserThan( decimal value )
+    public TBuilder LesserThan(decimal value)
     {
 
         Guard.IsNotNullOrWhiteSpace(CurrentName);
@@ -501,7 +499,7 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
 
     #region LesserThanOrEqual
 
-    public TBuilder LesserThanOrEqual( string value )
+    public TBuilder LesserThanOrEqual(string value)
     {
 
         Guard.IsNotNullOrWhiteSpace(value);
@@ -531,7 +529,7 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
 
         Guard.IsNotNullOrWhiteSpace(CurrentName);
 
-        Predicates.Add( new RqlPredicate<long>(RqlOperator.LesserThanOrEqual, CurrentName, value) );
+        Predicates.Add(new RqlPredicate<long>(RqlOperator.LesserThanOrEqual, CurrentName, value));
 
         return (TBuilder)this;
 
@@ -568,7 +566,7 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
 
     #region GreaterThan
 
-    public TBuilder GreaterThan( string value )
+    public TBuilder GreaterThan(string value)
     {
 
         Guard.IsNotNullOrWhiteSpace(value);
@@ -617,12 +615,12 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
     }
 
 
-    public TBuilder GreaterThan( decimal value )
+    public TBuilder GreaterThan(decimal value)
     {
 
         Guard.IsNotNullOrWhiteSpace(CurrentName);
 
-        Predicates.Add( new RqlPredicate<decimal>(RqlOperator.GreaterThan, CurrentName, value) );
+        Predicates.Add(new RqlPredicate<decimal>(RqlOperator.GreaterThan, CurrentName, value));
 
         return (TBuilder)this;
 
@@ -634,7 +632,7 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
 
     #region GreaterThanOrEqual
 
-    public TBuilder GreaterThanOrEqual(  string value )
+    public TBuilder GreaterThanOrEqual(string value)
     {
 
         Guard.IsNotNullOrWhiteSpace(value);
@@ -700,7 +698,7 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
 
     #region String operations
 
-    public TBuilder StartsWith( string value )
+    public TBuilder StartsWith(string value)
     {
 
         Guard.IsNotNullOrWhiteSpace(value);
@@ -712,7 +710,7 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
 
     }
 
-    public TBuilder Contains( string value )
+    public TBuilder Contains(string value)
     {
 
         Guard.IsNotNullOrWhiteSpace(value);
@@ -724,7 +722,7 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
 
     }
 
-    public TBuilder EndsWith( string value )
+    public TBuilder EndsWith(string value)
     {
 
         Guard.IsNotNullOrWhiteSpace(value);
@@ -768,7 +766,7 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
 
         Guard.IsNotNullOrWhiteSpace(CurrentName);
 
-        Predicates.Add(new RqlPredicate<int>( RqlOperator.Between, CurrentName, new []{from,to}) );
+        Predicates.Add(new RqlPredicate<int>(RqlOperator.Between, CurrentName, new[] { from, to }));
 
 
         return (TBuilder)this;
@@ -811,7 +809,7 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
     }
 
 
-    public TBuilder Between(  string from,  string to )
+    public TBuilder Between(string from, string to)
     {
 
         Guard.IsNotNull(from);
@@ -829,7 +827,7 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
 
     #region In
 
-    public TBuilder In( params string[] values )
+    public TBuilder In(params string[] values)
     {
 
         Guard.IsNotNull(values);
@@ -842,7 +840,7 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
     }
 
 
-    public TBuilder In( IEnumerable<string> values )
+    public TBuilder In(IEnumerable<string> values)
     {
 
         Guard.IsNotNull(values);
@@ -855,7 +853,7 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
     }
 
 
-    public TBuilder In( params int[] values )
+    public TBuilder In(params int[] values)
     {
 
         Guard.IsNotNull(values);
@@ -867,7 +865,7 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
 
     }
 
-    public TBuilder In( IEnumerable<int> values )
+    public TBuilder In(IEnumerable<int> values)
     {
 
         Guard.IsNotNull(values);
@@ -880,7 +878,7 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
     }
 
 
-    public TBuilder In( params long[] values )
+    public TBuilder In(params long[] values)
     {
 
         Guard.IsNotNull(values);
@@ -893,7 +891,7 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
     }
 
 
-    public TBuilder In( IEnumerable<long> values )
+    public TBuilder In(IEnumerable<long> values)
     {
 
         Guard.IsNotNull(values);
@@ -907,7 +905,7 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
 
 
 
-    public TBuilder In( params decimal[] values )
+    public TBuilder In(params decimal[] values)
     {
 
         Guard.IsNotNull(values);
@@ -920,7 +918,7 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
     }
 
 
-    public TBuilder In( IEnumerable<decimal> values )
+    public TBuilder In(IEnumerable<decimal> values)
     {
 
         Guard.IsNotNull(values);
@@ -933,7 +931,7 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
     }
 
 
-    public TBuilder In(  params DateTime[] values )
+    public TBuilder In(params DateTime[] values)
     {
 
         Guard.IsNotNull(values);
@@ -946,7 +944,7 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
     }
 
 
-    public TBuilder In(  IEnumerable<DateTime> values )
+    public TBuilder In(IEnumerable<DateTime> values)
     {
 
         Guard.IsNotNull(values);
@@ -964,7 +962,7 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
     #region NotIn
 
 
-    public TBuilder NotIn( params string[] values)
+    public TBuilder NotIn(params string[] values)
     {
 
         Guard.IsNotNull(values);
@@ -977,7 +975,7 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
     }
 
 
-    public TBuilder NotIn( IEnumerable<string> values)
+    public TBuilder NotIn(IEnumerable<string> values)
     {
 
         Guard.IsNotNull(values);
@@ -990,7 +988,7 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
     }
 
 
-    public TBuilder NotIn( params int[] values )
+    public TBuilder NotIn(params int[] values)
     {
 
         Guard.IsNotNull(values);
@@ -1003,7 +1001,7 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
     }
 
 
-    public TBuilder NotIn( IEnumerable<int> values)
+    public TBuilder NotIn(IEnumerable<int> values)
     {
 
         Guard.IsNotNull(values);
@@ -1017,7 +1015,7 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
 
 
 
-    public TBuilder NotIn( params long[] values )
+    public TBuilder NotIn(params long[] values)
     {
 
         Guard.IsNotNull(values);
@@ -1031,7 +1029,7 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
 
 
 
-    public TBuilder NotIn( IEnumerable<long> values )
+    public TBuilder NotIn(IEnumerable<long> values)
     {
 
         Guard.IsNotNull(values);
@@ -1045,7 +1043,7 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
 
 
 
-    public TBuilder NotIn( params decimal[] values )
+    public TBuilder NotIn(params decimal[] values)
     {
 
         Guard.IsNotNull(values);
@@ -1059,7 +1057,7 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
 
 
 
-    public TBuilder NotIn( IEnumerable<decimal> values )
+    public TBuilder NotIn(IEnumerable<decimal> values)
     {
 
         Guard.IsNotNull(values);
@@ -1072,7 +1070,7 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
     }
 
 
-    public TBuilder NotIn( params DateTime[] values)
+    public TBuilder NotIn(params DateTime[] values)
     {
 
         Guard.IsNotNull(values);
@@ -1085,7 +1083,7 @@ public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder
     }
 
 
-    public TBuilder NotIn( IEnumerable<DateTime> values)
+    public TBuilder NotIn(IEnumerable<DateTime> values)
     {
 
         Guard.IsNotNull(values);

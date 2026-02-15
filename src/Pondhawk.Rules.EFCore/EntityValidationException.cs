@@ -1,4 +1,4 @@
-using Pondhawk.Rules;
+﻿using Pondhawk.Rules;
 
 namespace Pondhawk.Rules.EFCore;
 

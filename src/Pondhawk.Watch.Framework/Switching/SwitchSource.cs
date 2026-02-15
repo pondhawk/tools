@@ -1,4 +1,4 @@
-/*
+﻿/*
 The MIT License (MIT)
 
 Copyright (c) 2025 Pond Hawk Technologies Inc.
@@ -26,12 +26,14 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Linq;
 using System.Threading;
 
 namespace Pondhawk.Watch.Framework.Switching
 {
+    [SuppressMessage("Design", "CA1001:Types that own disposable fields should be disposable", Justification = "ReaderWriterLockSlim is a long-lived infrastructure field that lives for the application lifetime")]
     public class SwitchSource : ISwitchSource
     {
         private long _version;
@@ -45,7 +47,7 @@ namespace Pondhawk.Watch.Framework.Switching
 
         protected IReadOnlyCollection<string> Patterns { get; set; } = new ReadOnlyCollection<string>(new List<string>());
 
-        protected IDictionary<string, ISwitch> Switches { get; set; } = new ConcurrentDictionary<string, ISwitch>();
+        protected IDictionary<string, ISwitch> Switches { get; set; } = new ConcurrentDictionary<string, ISwitch>(StringComparer.Ordinal);
 
         public IList<SwitchDef> CurrentSwitchDefs
         {
@@ -112,6 +114,7 @@ namespace Pondhawk.Watch.Framework.Switching
         {
         }
 
+        [SuppressMessage("Naming", "CA1716:Identifiers should not match keywords", Justification = "Stop is the established lifecycle method name in this API")]
         public virtual void Stop()
         {
         }
@@ -153,15 +156,15 @@ namespace Pondhawk.Watch.Framework.Switching
 
         public ISwitch GetDebugSwitch() => DebugSwitch;
 
-        public virtual void Update(IEnumerable<SwitchDef> switchSource)
+        public virtual void Update(IEnumerable<SwitchDef> switches)
         {
-            if (switchSource == null)
-                throw new ArgumentNullException(nameof(switchSource));
+            if (switches == null)
+                throw new ArgumentNullException(nameof(switches));
 
-            var switches = new ConcurrentDictionary<string, ISwitch>();
+            var switchMap = new ConcurrentDictionary<string, ISwitch>(StringComparer.Ordinal);
             var pKeys = new List<string>();
 
-            foreach (var def in switchSource.Where(s => s.Level != Level.Quiet))
+            foreach (var def in switches.Where(s => s.Level != Level.Quiet))
             {
                 var sw = new Switch
                 {
@@ -173,7 +176,7 @@ namespace Pondhawk.Watch.Framework.Switching
 
                 var key = def.Pattern;
                 pKeys.Add(key);
-                switches[key] = sw;
+                switchMap[key] = sw;
             }
 
             var pOrdered = pKeys.OrderBy(k => k.Length).Reverse().ToList();
@@ -183,7 +186,7 @@ namespace Pondhawk.Watch.Framework.Switching
             {
                 _switchLock.EnterWriteLock();
                 Patterns = patterns;
-                Switches = switches;
+                Switches = switchMap;
             }
             finally
             {

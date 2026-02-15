@@ -63,7 +63,7 @@ public sealed class RuleSetFactory
     public IEvaluationContextFactory ContextFactory { get; set; }
     public IEvaluationListenerFactory ListenerFactory { get; set; }
 
-    private Dictionary<string, IEnumerable<string>> CompositeNamespaces { get; } = new();
+    private Dictionary<string, IEnumerable<string>> CompositeNamespaces { get; } = new(StringComparer.Ordinal);
 
     public void RegisterCompositeNamespace(string name, IEnumerable<string> namespaces)
     {
@@ -87,7 +87,7 @@ public sealed class RuleSetFactory
     }
 
 
-    private RuleTree Tree { get; } = new ();
+    private RuleTree Tree { get; } = new();
 
     internal IRuleBase RuleBase => Tree;
 
@@ -124,7 +124,7 @@ public sealed class RuleSetFactory
     }
 
 
-    
+
     public IRuleSet GetRuleSet()
     {
         var ruleSet = new FactoryRuleSetImpl(Tree, [], ContextFactory);
@@ -132,7 +132,7 @@ public sealed class RuleSetFactory
     }
 
 
-    
+
     public IRuleSet GetRuleSetForComposite(string name)
     {
         if (!CompositeNamespaces.TryGetValue(name, out var composite))
@@ -143,18 +143,18 @@ public sealed class RuleSetFactory
     }
 
 
-    
+
     public IRuleSet GetRuleSet(params string[] namespaces)
     {
-        var ruleSet = new FactoryRuleSetImpl(Tree, new HashSet<string>(namespaces), ContextFactory);
+        var ruleSet = new FactoryRuleSetImpl(Tree, new HashSet<string>(namespaces, StringComparer.Ordinal), ContextFactory);
         return ruleSet;
     }
 
 
-    
+
     public IRuleSet GetRuleSet(IEnumerable<string> namespaces)
     {
-        var ruleSet = new FactoryRuleSetImpl(Tree, new HashSet<string>(namespaces), ContextFactory);
+        var ruleSet = new FactoryRuleSetImpl(Tree, new HashSet<string>(namespaces, StringComparer.Ordinal), ContextFactory);
         return ruleSet;
     }
 

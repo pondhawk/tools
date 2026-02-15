@@ -33,11 +33,11 @@ internal sealed class RuleRoot
 
     internal void Build()
     {
-        var cache = new Dictionary<Type, List<RuleNode>>( _trunk.Count );
-        foreach( var requestType in _trunk.Keys )
-            cache[requestType] = _BuildTrunkMatches( requestType );
+        var cache = new Dictionary<Type, List<RuleNode>>(_trunk.Count);
+        foreach (var requestType in _trunk.Keys)
+            cache[requestType] = _BuildTrunkMatches(requestType);
 
-        foreach( var node in _trunk.Values )
+        foreach (var node in _trunk.Values)
             node.Build();
 
         _trunkMatchCache = cache;
@@ -45,106 +45,106 @@ internal sealed class RuleRoot
 
     public void Clear()
     {
-        foreach( var n in _trunk.Values )
+        foreach (var n in _trunk.Values)
             n.Clear();
 
         _trunk.Clear();
         _trunkMatchCache = null;
     }
 
-    public void Add( Type[] targetTypes, IEnumerable<IRule> rules )
+    public void Add(Type[] targetTypes, IEnumerable<IRule> rules)
     {
         // Depth 0: use trunk dictionary
         var target = targetTypes[0];
-        if( !_trunk.TryGetValue( target, out var node ) )
+        if (!_trunk.TryGetValue(target, out var node))
         {
             node = new RuleNode { Target = target };
             _trunk[target] = node;
         }
 
         // Depth 1..N-1: use node.GetOrAddBranch
-        for( int depth = 1; depth < targetTypes.Length; depth++ )
-            node = node.GetOrAddBranch( targetTypes[depth] );
+        for (int depth = 1; depth < targetTypes.Length; depth++)
+            node = node.GetOrAddBranch(targetTypes[depth]);
 
-        node.AddRules( rules );
+        node.AddRules(rules);
     }
 
-    public bool HasRules( Type[] requestTypes, List<string> namespaces ) =>
-        _HasRules( 0, requestTypes, _GetMatchingTrunkNodes( requestTypes[0] ), namespaces );
+    public bool HasRules(Type[] requestTypes, List<string> namespaces) =>
+        _HasRules(0, requestTypes, _GetMatchingTrunkNodes(requestTypes[0]), namespaces);
 
-    public ISet<IRule> FindRules( Type[] requestTypes ) => FindRules( requestTypes, [] );
+    public ISet<IRule> FindRules(Type[] requestTypes) => FindRules(requestTypes, []);
 
-    public ISet<IRule> FindRules( Type[] requestTypes, List<string> namespaces )
+    public ISet<IRule> FindRules(Type[] requestTypes, List<string> namespaces)
     {
         var sink = new HashSet<IRule>();
-        _FindRules( 0, requestTypes, _GetMatchingTrunkNodes( requestTypes[0] ), namespaces, sink );
+        _FindRules(0, requestTypes, _GetMatchingTrunkNodes(requestTypes[0]), namespaces, sink);
         return sink;
     }
 
-    private List<RuleNode> _GetMatchingTrunkNodes( Type requestType )
+    private List<RuleNode> _GetMatchingTrunkNodes(Type requestType)
     {
-        if( _trunk.Count == 0 )
+        if (_trunk.Count == 0)
             return [];
 
-        if( _trunkMatchCache.TryGetValue( requestType, out var cached ) )
+        if (_trunkMatchCache.TryGetValue(requestType, out var cached))
             return cached;
 
-        return _BuildTrunkMatches( requestType );
+        return _BuildTrunkMatches(requestType);
     }
 
-    private List<RuleNode> _BuildTrunkMatches( Type requestType )
+    private List<RuleNode> _BuildTrunkMatches(Type requestType)
     {
         var matches = new List<RuleNode>();
-        foreach( var node in _trunk.Values )
-            if( node.Target.IsAssignableFrom( requestType ) )
-                matches.Add( node );
+        foreach (var node in _trunk.Values)
+            if (node.Target.IsAssignableFrom(requestType))
+                matches.Add(node);
         return matches;
     }
 
-    private void _FindRules( int depth, Type[] types, List<RuleNode> nodes, List<string> namespaces, HashSet<IRule> sink )
+    private static void _FindRules(int depth, Type[] types, List<RuleNode> nodes, List<string> namespaces, HashSet<IRule> sink)
     {
         depth++;
 
-        if( depth == types.Length )
+        if (depth == types.Length)
         {
-            foreach( var node in nodes )
+            foreach (var node in nodes)
             {
-                if( namespaces.Count == 0 )
-                    sink.UnionWith( node.Rules );
+                if (namespaces.Count == 0)
+                    sink.UnionWith(node.Rules);
                 else
-                    foreach( var rule in node.Rules )
-                        if( namespaces.Contains( rule.Namespace ) )
-                            sink.Add( rule );
+                    foreach (var rule in node.Rules)
+                        if (namespaces.Contains(rule.Namespace, StringComparer.Ordinal))
+                            sink.Add(rule);
             }
             return;
         }
 
         var requestType = types[depth];
-        foreach( var node in nodes )
+        foreach (var node in nodes)
         {
-            var matching = node.GetMatchingBranches( requestType );
-            if( matching.Count > 0 )
-                _FindRules( depth, types, matching, namespaces, sink );
+            var matching = node.GetMatchingBranches(requestType);
+            if (matching.Count > 0)
+                _FindRules(depth, types, matching, namespaces, sink);
         }
     }
 
-    private bool _HasRules( int depth, Type[] types, List<RuleNode> nodes, List<string> namespaces )
+    private static bool _HasRules(int depth, Type[] types, List<RuleNode> nodes, List<string> namespaces)
     {
         depth++;
 
-        if( depth == types.Length )
+        if (depth == types.Length)
         {
-            foreach( var node in nodes )
-                if( node.HasRules( namespaces ) )
+            foreach (var node in nodes)
+                if (node.HasRules(namespaces))
                     return true;
             return false;
         }
 
         var requestType = types[depth];
-        foreach( var node in nodes )
+        foreach (var node in nodes)
         {
-            var matching = node.GetMatchingBranches( requestType );
-            if( matching.Count > 0 && _HasRules( depth, types, matching, namespaces ) )
+            var matching = node.GetMatchingBranches(requestType);
+            if (matching.Count > 0 && _HasRules(depth, types, matching, namespaces))
                 return true;
         }
 

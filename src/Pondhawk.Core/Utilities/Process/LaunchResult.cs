@@ -17,8 +17,8 @@
         public string Output { get; set; } = "";
         public string Error { get; set; } = "";
 
-        public bool Exited => TheProcess?.HasExited??true;
-        public int ExitCode => TheProcess?.ExitCode??0;
+        public bool Exited => TheProcess?.HasExited ?? true;
+        public int ExitCode => TheProcess?.ExitCode ?? 0;
 
 
     }

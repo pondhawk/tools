@@ -40,7 +40,7 @@ public abstract class AbstractRuleBuilder
 
     public string SetName { get; protected set; }
 
-    public bool DefaultFireOnce { get; protected set; } = false;
+    public bool DefaultFireOnce { get; protected set; }
     public int DefaultSalience { get; protected set; } = 500;
 
     public DateTime DefaultInception { get; protected set; } = DateTime.MinValue;
@@ -49,73 +49,73 @@ public abstract class AbstractRuleBuilder
 
     protected Type[] Targets { get; set; } = [];
 
-    public ISet<IRule>             Rules { get;  } = new HashSet<IRule>();
-    public ISet<Action<IRuleSink>> Sinks { get;  } = new HashSet<Action<IRuleSink>>();
+    public ISet<IRule> Rules { get; } = new HashSet<IRule>();
+    public ISet<Action<IRuleSink>> Sinks { get; } = new HashSet<Action<IRuleSink>>();
 
-    public virtual void LoadRules( IRuleSink ruleSink )
+    public virtual void LoadRules(IRuleSink ruleSink)
     {
 
-        foreach( var sink in Sinks )
-            sink( ruleSink );
+        foreach (var sink in Sinks)
+            sink(ruleSink);
 
-        if( Targets.Length > 0 )
-            ruleSink.Add( Targets, Rules );
+        if (Targets.Length > 0)
+            ruleSink.Add(Targets, Rules);
 
     }
 
 
-    protected string CurrentRuleName => RuleThreadLocalStorage.CurrentContext.CurrentRuleName;
+    protected static string CurrentRuleName => RuleThreadLocalStorage.CurrentContext.CurrentRuleName;
 
-    protected TMember Lookup<TMember>( object key )
+    protected static TMember Lookup<TMember>(object key)
     {
-        return RuleThreadLocalStorage.CurrentContext.Lookup<TMember>( key );
+        return RuleThreadLocalStorage.CurrentContext.Lookup<TMember>(key);
     }
 
-    protected TMember Lookup<TMember>( string name, object key )
+    protected static TMember Lookup<TMember>(string name, object key)
     {
-        return RuleThreadLocalStorage.CurrentContext.Lookup<TMember>( name, key );
+        return RuleThreadLocalStorage.CurrentContext.Lookup<TMember>(name, key);
     }
 
-    protected IDictionary<string, object> Shared => RuleThreadLocalStorage.CurrentContext.Shared;
+    protected static IDictionary<string, object> Shared => RuleThreadLocalStorage.CurrentContext.Shared;
 
-    protected void Info( string group, string template, params object[] markers )
+    protected static void Info(string group, string template, params object[] markers)
     {
-        RuleThreadLocalStorage.CurrentContext.Event( RuleEvent.EventCategory.Info, group, template, markers );
+        RuleThreadLocalStorage.CurrentContext.Event(RuleEvent.EventCategory.Info, group, template, markers);
     }
 
-    protected void Violation( string group, string template, params object[] markers )
+    protected static void Violation(string group, string template, params object[] markers)
     {
-        RuleThreadLocalStorage.CurrentContext.Event( RuleEvent.EventCategory.Violation, group, template, markers );
+        RuleThreadLocalStorage.CurrentContext.Event(RuleEvent.EventCategory.Violation, group, template, markers);
     }
 
-    protected void Affirm( int amount )
+    protected static void Affirm(int amount)
     {
-        RuleThreadLocalStorage.CurrentContext.Results.Affirm( amount );
+        RuleThreadLocalStorage.CurrentContext.Results.Affirm(amount);
     }
 
-    protected void Veto( int amount )
+    protected static void Veto(int amount)
     {
-        RuleThreadLocalStorage.CurrentContext.Results.Veto( amount );
+        RuleThreadLocalStorage.CurrentContext.Results.Veto(amount);
     }
 
-    protected void Debug( string template, params object[] markers )
+    protected static void Debug(string template, params object[] markers)
     {
-        RuleThreadLocalStorage.CurrentContext.Listener.Debug( template, markers );
+        RuleThreadLocalStorage.CurrentContext.Listener.Debug(template, markers);
     }
 
-    protected void Insert( object fact )
+    protected static void Insert(object fact)
     {
-        RuleThreadLocalStorage.CurrentContext.InsertFact( fact );
+        RuleThreadLocalStorage.CurrentContext.InsertFact(fact);
     }
 
-    protected void Modify( object fact )
+    protected static void Modify(object fact)
     {
-        RuleThreadLocalStorage.CurrentContext.ModifyFact( fact );
+        RuleThreadLocalStorage.CurrentContext.ModifyFact(fact);
     }
 
-    protected void Retract( object fact )
+    protected static void Retract(object fact)
     {
-        RuleThreadLocalStorage.CurrentContext.RetractFact( fact );
+        RuleThreadLocalStorage.CurrentContext.RetractFact(fact);
     }
 }
 

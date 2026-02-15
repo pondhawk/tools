@@ -1,4 +1,4 @@
-/*
+﻿/*
 The MIT License (MIT)
 
 Copyright (c) 2024 Pond Hawk Technologies Inc.
@@ -52,15 +52,4 @@ public class SwitchDto
     /// Gets or sets the ARGB color value.
     /// </summary>
     public int Color { get; set; }
-}
-
-/// <summary>
-/// Response from the switches API endpoint.
-/// </summary>
-public class SwitchesResponse
-{
-    /// <summary>
-    /// Gets or sets the list of switch definitions.
-    /// </summary>
-    public List<SwitchDto> Switches { get; set; } = [];
 }

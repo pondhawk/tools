@@ -1,6 +1,6 @@
 ﻿namespace Pondhawk.Utilities.Pipeline;
 
-internal interface IPipelineBuilder<TContext>  where TContext : class, IPipelineContext
+internal interface IPipelineBuilder<TContext> where TContext : class, IPipelineContext
 {
 
     /// <summary>
@@ -9,6 +9,6 @@ internal interface IPipelineBuilder<TContext>  where TContext : class, IPipeline
     /// </summary>
     /// <returns>A fully constructed <see cref="Pipeline{TContext}"/> instance, ready to execute the configured steps and actions.</returns>
     Pipeline<TContext> Build();
-    
+
 
 }

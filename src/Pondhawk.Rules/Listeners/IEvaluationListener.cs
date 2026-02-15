@@ -22,6 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+using System.Diagnostics.CodeAnalysis;
 using Pondhawk.Rules.Builder;
 
 namespace Pondhawk.Rules.Listeners;
@@ -29,24 +30,25 @@ namespace Pondhawk.Rules.Listeners;
 /// <summary>
 /// Observer interface for tracing rule evaluation. Receives callbacks for evaluation lifecycle events.
 /// </summary>
+[SuppressMessage("Naming", "CA1716:Identifiers should not conflict with reserved keywords", Justification = "Parameter name 'template' is the established domain term for message templates and cannot be renamed without breaking the public API")]
 public interface IEvaluationListener
 {
     void BeginEvaluation();
 
-    void BeginTupleEvaluation( object[] facts );
+    void BeginTupleEvaluation(object[] facts);
 
-    void FiringRule( IRule rule );
+    void FiringRule(IRule rule);
 
-    void FiredRule( IRule rule, bool modified );
+    void FiredRule(IRule rule, bool modified);
 
-    void EndTupleEvaluation( object[] facts );
+    void EndTupleEvaluation(object[] facts);
 
     void EndEvaluation();
 
-    void EventCreated( RuleEvent evalEvent );
+    void EventCreated(RuleEvent evalEvent);
 
-    void Debug( string template, params object[] markers );
-    void Warning( string template, params object[] markers );
+    void Debug(string template, params object[] markers);
+    void Warning(string template, params object[] markers);
 
 }
 

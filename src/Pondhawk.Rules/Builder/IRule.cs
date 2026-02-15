@@ -22,11 +22,14 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+using System.Diagnostics.CodeAnalysis;
+
 namespace Pondhawk.Rules.Builder;
 
 /// <summary>
 /// Represents a single rule with conditions and a consequence. Rules are matched against facts during evaluation.
 /// </summary>
+[SuppressMessage("Naming", "CA1716:Identifiers should not conflict with reserved keywords", Justification = "Namespace is the established domain term for rule grouping and cannot be renamed without breaking the public API")]
 public interface IRule
 {
     string Namespace { get; }
@@ -40,7 +43,7 @@ public interface IRule
     DateTime Inception { get; }
     DateTime Expiration { get; }
 
-    IRule EvaluateRule( object[] fact );
-    void FireRule( object[] fact );
+    IRule EvaluateRule(object[] fact);
+    void FireRule(object[] fact);
 }
 

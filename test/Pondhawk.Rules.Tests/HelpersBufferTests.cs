@@ -1,4 +1,4 @@
-using Pondhawk.Rules.Util;
+﻿using Pondhawk.Rules.Util;
 using Shouldly;
 using Xunit;
 

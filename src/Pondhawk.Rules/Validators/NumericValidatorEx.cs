@@ -1,4 +1,4 @@
-/*
+﻿/*
 The MIT License (MIT)
 
 Copyright (c) 2017 The Kampilan Group Inc.
@@ -22,6 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+using System.Diagnostics.CodeAnalysis;
 using Humanizer;
 
 namespace Pondhawk.Rules.Validators;
@@ -29,6 +30,7 @@ namespace Pondhawk.Rules.Validators;
 /// <summary>
 /// Numeric validation extensions for comparable value types (e.g. Required, IsPositive, IsInRange).
 /// </summary>
+[SuppressMessage("Naming", "CA1711:Identifiers should not have incorrect suffix", Justification = "Ex suffix is an intentional domain convention for extension method classes")]
 public static class NumericValidatorEx
 {
 

@@ -34,7 +34,7 @@ public sealed class RuleTree : IRuleBase, IRuleSink
 {
 
     private volatile bool _isBuilt;
-    private readonly object _buildLock = new();
+    private readonly Lock _buildLock = new();
 
     private Dictionary<int, RuleRoot> RootMap { get; } = new();
 
@@ -48,11 +48,11 @@ public sealed class RuleTree : IRuleBase, IRuleSink
     /// </summary>
     public void Build()
     {
-        if( _isBuilt ) return;
-        lock( _buildLock )
+        if (_isBuilt) return;
+        lock (_buildLock)
         {
-            if( _isBuilt ) return;
-            foreach( var root in RootMap.Values )
+            if (_isBuilt) return;
+            foreach (var root in RootMap.Values)
                 root.Build();
             _isBuilt = true;
         }
@@ -60,68 +60,68 @@ public sealed class RuleTree : IRuleBase, IRuleSink
 
     private void EnsureBuilt()
     {
-        if( !_isBuilt ) Build();
+        if (!_isBuilt) Build();
     }
 
     private void ThrowIfBuilt()
     {
-        if( _isBuilt )
-            throw new InvalidOperationException( "Cannot add rules to a RuleTree after it has been built. All rules must be added before the first evaluation." );
+        if (_isBuilt)
+            throw new InvalidOperationException("Cannot add rules to a RuleTree after it has been built. All rules must be added before the first evaluation.");
     }
 
 
-    public bool HasRules(  Type[] factTypes )
+    public bool HasRules(Type[] factTypes)
     {
         Guard.IsNotNull(factTypes);
 
-        return HasRules( factTypes, new string[] {} );
+        return HasRules(factTypes, Array.Empty<string>());
     }
 
-    public bool HasRules(  Type[] factTypes, IEnumerable<string> namespaces )
+    public bool HasRules(Type[] factTypes, IEnumerable<string> namespaces)
     {
         Guard.IsNotNull(factTypes);
         Guard.IsNotNull(namespaces);
 
         EnsureBuilt();
 
-        RootMap.TryGetValue( factTypes.Length, out var targetRoot );
-        if( targetRoot is null )
+        RootMap.TryGetValue(factTypes.Length, out var targetRoot);
+        if (targetRoot is null)
             return false;
 
         var ns = namespaces as List<string> ?? namespaces.ToList();
-        return targetRoot.HasRules( factTypes, ns );
+        return targetRoot.HasRules(factTypes, ns);
     }
 
 
 
-    public ISet<IRule> FindRules( Type[] factTypes )
+    public ISet<IRule> FindRules(Type[] factTypes)
     {
         Guard.IsNotNull(factTypes);
 
         EnsureBuilt();
 
-        RootMap.TryGetValue( factTypes.Length, out var targetRoot );
-        return targetRoot is null ? new HashSet<IRule>() : targetRoot.FindRules( factTypes );
+        RootMap.TryGetValue(factTypes.Length, out var targetRoot);
+        return targetRoot is null ? new HashSet<IRule>() : targetRoot.FindRules(factTypes);
     }
 
 
-    public ISet<IRule> FindRules( Type[] factTypes, IEnumerable<string> namespaces )
+    public ISet<IRule> FindRules(Type[] factTypes, IEnumerable<string> namespaces)
     {
         Guard.IsNotNull(factTypes);
         Guard.IsNotNull(namespaces);
 
         EnsureBuilt();
 
-        RootMap.TryGetValue( factTypes.Length, out var targetRoot );
-        if( targetRoot is null )
+        RootMap.TryGetValue(factTypes.Length, out var targetRoot);
+        if (targetRoot is null)
             return new HashSet<IRule>();
 
         var ns = namespaces as List<string> ?? namespaces.ToList();
-        return targetRoot.FindRules( factTypes, ns );
+        return targetRoot.FindRules(factTypes, ns);
     }
 
 
-    public void Add( Type factType, IRule rule )
+    public void Add(Type factType, IRule rules)
     {
         ThrowIfBuilt();
 
@@ -131,30 +131,30 @@ public sealed class RuleTree : IRuleBase, IRuleSink
             RootMap[1] = targetRoot;
         }
 
-        targetRoot.Add( [factType], [rule]);
+        targetRoot.Add([factType], [rules]);
 
     }
 
 
-    public void Add(  Type[] factTypes, IEnumerable<IRule> rules )
+    public void Add(Type[] factTypes, IEnumerable<IRule> rules)
     {
         ThrowIfBuilt();
 
         var axisCount = factTypes.Length;
 
-        if( !RootMap.TryGetValue( axisCount, out var targetRoot ) )
+        if (!RootMap.TryGetValue(axisCount, out var targetRoot))
         {
             targetRoot = new();
             RootMap[axisCount] = targetRoot;
         }
 
-        targetRoot.Add( factTypes, rules );
+        targetRoot.Add(factTypes, rules);
     }
 
 
     public void Clear()
     {
-        foreach( var r in RootMap.Values )
+        foreach (var r in RootMap.Values)
             r.Clear();
 
         _isBuilt = false;

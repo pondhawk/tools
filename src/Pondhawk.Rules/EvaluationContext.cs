@@ -54,7 +54,7 @@ public sealed class EvaluationContext
 
         Space = new();
 
-        Tables = new();
+        Tables = new(StringComparer.Ordinal);
 
         Results = new();
 
@@ -121,20 +121,20 @@ public sealed class EvaluationContext
 
     private Dictionary<string, IDictionary<object, object>> Tables { get; }
 
-    public void AddLookup<TMember>(Func<TMember,object> keyExtractor, IEnumerable<TMember> members )
+    public void AddLookup<TMember>(Func<TMember, object> keyExtractor, IEnumerable<TMember> members)
     {
         var name = typeof(TMember).FullName;
-        AddLookup( name, keyExtractor, members );
+        AddLookup(name, keyExtractor, members);
     }
 
-    public void AddLookup<TMember>( string name, Func<TMember, object> keyExtractor,  IEnumerable<TMember> members )
+    public void AddLookup<TMember>(string name, Func<TMember, object> keyExtractor, IEnumerable<TMember> members)
     {
 
-        Dictionary<object,object> table = new();
+        Dictionary<object, object> table = new();
 
-        foreach( var m in members )
+        foreach (var m in members)
         {
-            object key = keyExtractor( m );
+            object key = keyExtractor(m);
             table[key] = m;
         }
 
@@ -142,30 +142,30 @@ public sealed class EvaluationContext
 
     }
 
-    public void AddLookup( string name, IDictionary<object, object> table )
+    public void AddLookup(string name, IDictionary<object, object> table)
     {
-        Tables[name] = table;            
+        Tables[name] = table;
     }
 
 
 
-    public TMember Lookup<TMember>( object key )
+    public TMember Lookup<TMember>(object key)
     {
-        var name = typeof( TMember ).FullName;
-        return Lookup<TMember>( name, key );
+        var name = typeof(TMember).FullName;
+        return Lookup<TMember>(name, key);
     }
 
-        
-    public TMember Lookup<TMember>( string name, object key )
+
+    public TMember Lookup<TMember>(string name, object key)
     {
-        if( !Tables.TryGetValue( name, out var table ) )
+        if (!Tables.TryGetValue(name, out var table))
             throw new InvalidOperationException($"Could not find lookup table with the name {name}");
 
-        if( !table.TryGetValue( key, out var member ) )
+        if (!table.TryGetValue(key, out var member))
             throw new InvalidOperationException($"Could not find member using key {key} from table {name}");
 
-        if( member is not TMember )
-            throw new InvalidOperationException( $"Could not cast member to type {typeof (TMember).FullName} using key {key} from table {name}" );
+        if (member is not TMember)
+            throw new InvalidOperationException($"Could not cast member to type {typeof(TMember).FullName} using key {key} from table {name}");
 
         return (TMember)member;
 
@@ -175,48 +175,48 @@ public sealed class EvaluationContext
 
     public IDictionary<string, object> Shared => Results.Shared;
 
-    internal void InsertFact(  object fact )
+    internal void InsertFact(object fact)
     {
         Guard.IsNotNull(fact);
 
-        int index = _SelectorFromFact( fact );
-        if( index == 0 )
+        int index = _SelectorFromFact(fact);
+        if (index == 0)
         {
-            Space.InsertFact( fact );
+            Space.InsertFact(fact);
             InsertionsOccurred = true;
         }
     }
 
 
-    internal void ModifyFact(  object fact )
+    internal void ModifyFact(object fact)
     {
         Guard.IsNotNull(fact);
 
-        int index = _SelectorFromFact( fact );
-        if( index > 0 )
+        int index = _SelectorFromFact(fact);
+        if (index > 0)
         {
-            Space.ModifyFact( index );
+            Space.ModifyFact(index);
             ModificationsOccurred = true;
         }
     }
 
 
-    internal void RetractFact(  object fact )
+    internal void RetractFact(object fact)
     {
         Guard.IsNotNull(fact);
 
-        int index = _SelectorFromFact( fact );
-        if( index > 0 )
+        int index = _SelectorFromFact(fact);
+        if (index > 0)
         {
-            Space.RetractFact( index );
+            Space.RetractFact(index);
             ModificationsOccurred = true;
         }
     }
 
-    private int _SelectorFromFact( object fact )
+    private int _SelectorFromFact(object fact)
     {
-        for( var i = 0; i < CurrentArity; i++ )
-            if( fact == CurrentTuple[i] )
+        for (var i = 0; i < CurrentArity; i++)
+            if (fact == CurrentTuple[i])
                 return SelectorBuffer[i];
 
         return 0;
@@ -234,70 +234,70 @@ public sealed class EvaluationContext
         ModificationsOccurred = false;
     }
 
-    
-    internal void Event( RuleEvent.EventCategory category, string group,  string template, params object[] parameters )
+
+    internal void Event(RuleEvent.EventCategory category, string group, string template, params object[] parameters)
     {
 
 
         Guard.IsNotNullOrWhiteSpace(template);
 
-        var message = parameters.Length == 0 ? template : string.Format( template, parameters );
+        var message = parameters.Length == 0 ? template : string.Format(System.Globalization.CultureInfo.InvariantCulture, template, parameters);
 
         var theEvent = new RuleEvent
         {
-            Category        = category,
-            Group           = group,
-            RuleName        = CurrentRuleName,
+            Category = category,
+            Group = group,
+            RuleName = CurrentRuleName,
             MessageTemplate = template,
-            Message         = message
+            Message = message
         };
 
-        Results.Events.Add( theEvent );
+        Results.Events.Add(theEvent);
         if (category == RuleEvent.EventCategory.Violation)
             Results.ViolationCount++;
 
     }
 
 
-    public void AddFacts( params object[] facts )
+    public void AddFacts(params object[] facts)
     {
-        Space.Add( facts );
+        Space.Add(facts);
     }
 
 
-    public void AddAllFacts( IEnumerable<object> facts )
+    public void AddAllFacts(IEnumerable<object> facts)
     {
-        Space.AddAll( facts );
+        Space.AddAll(facts);
     }
 
 
     // ===== Fluent configuration API =====
 
-    public EvaluationContext WithMaxEvaluations( int max )
+    public EvaluationContext WithMaxEvaluations(int max)
     {
         MaxEvaluations = max;
         return this;
     }
 
-    public EvaluationContext WithMaxDuration( long milliseconds )
+    public EvaluationContext WithMaxDuration(long milliseconds)
     {
         MaxDuration = milliseconds;
         return this;
     }
 
-    public EvaluationContext WithMaxViolations( int max )
+    public EvaluationContext WithMaxViolations(int max)
     {
         MaxViolations = max;
         return this;
     }
 
-    public EvaluationContext WithDescription( string description )
+    public EvaluationContext WithDescription(string description)
     {
         Description = description;
         return this;
     }
 
-    public EvaluationContext WithListener( IEvaluationListener listener )
+    public EvaluationContext WithListener(IEvaluationListener listener)
     {
         Listener = listener;
         return this;

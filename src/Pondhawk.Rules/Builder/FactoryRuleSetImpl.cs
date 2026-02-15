@@ -27,7 +27,7 @@ using Pondhawk.Rules.Tree;
 
 namespace Pondhawk.Rules.Builder;
 
-internal class FactoryRuleSetImpl( IRuleBase ruleBase, IEnumerable<string> namespaces, IEvaluationContextFactory contextFactory ) : AbstractRuleSet
+internal class FactoryRuleSetImpl(IRuleBase ruleBase, IEnumerable<string> namespaces, IEvaluationContextFactory contextFactory) : AbstractRuleSet
 {
     private IRuleBase RuleBase { get; } = ruleBase;
 

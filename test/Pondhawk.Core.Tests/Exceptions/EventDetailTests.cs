@@ -1,4 +1,4 @@
-using Pondhawk.Exceptions;
+﻿using Pondhawk.Exceptions;
 using Shouldly;
 using Xunit;
 using static Pondhawk.Exceptions.EventDetail;

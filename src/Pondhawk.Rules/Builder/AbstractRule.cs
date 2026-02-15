@@ -38,7 +38,7 @@ namespace Pondhawk.Rules.Builder;
 public abstract class AbstractRule : IRule
 {
 
-    protected AbstractRule( string fqNamespace, string ruleName )
+    protected AbstractRule(string fqNamespace, string ruleName)
     {
         Namespace = fqNamespace;
         Name = $"{Namespace}.{ruleName}";
@@ -66,49 +66,49 @@ public abstract class AbstractRule : IRule
     public DateTime Expiration { get; set; }
 
 
-    public IRule EvaluateRule( object[] offered )
+    public IRule EvaluateRule(object[] fact)
     {
-        return InternalEvaluate( offered );
+        return InternalEvaluate(fact);
     }
 
-    public void FireRule( object[] offered )
+    public void FireRule(object[] fact)
     {
-        InternalFire( offered );
+        InternalFire(fact);
     }
 
 
-        
-    protected virtual IRule InternalEvaluate( object[] offered )
+
+    protected virtual IRule InternalEvaluate(object[] offered)
     {
         RuleThreadLocalStorage.CurrentContext.Results.TotalEvaluated++;
         return null;
     }
 
-    protected virtual void InternalFire( object[] offered )
+    protected virtual void InternalFire(object[] offered)
     {
         RuleThreadLocalStorage.CurrentContext.Results.TotalFired++;
     }
 
 
-    protected void HandleAffirm( int weight )
+    protected static void HandleAffirm(int weight)
     {
         RuleThreadLocalStorage.CurrentContext.Results.TotalAffirmations += weight;
     }
 
-    protected void HandleVeto( int weight )
+    protected static void HandleVeto(int weight)
     {
         RuleThreadLocalStorage.CurrentContext.Results.TotalVetos += weight;
     }
 
-    protected static void DispatchModify( object modified )
+    protected static void DispatchModify(object modified)
     {
-        if( modified is Array arr )
+        if (modified is Array arr)
         {
-            foreach( object o in arr )
-                RuleThreadLocalStorage.CurrentContext.ModifyFact( o );
+            foreach (object o in arr)
+                RuleThreadLocalStorage.CurrentContext.ModifyFact(o);
         }
-        else if( modified is not null )
-            RuleThreadLocalStorage.CurrentContext.ModifyFact( modified );
+        else if (modified is not null)
+            RuleThreadLocalStorage.CurrentContext.ModifyFact(modified);
     }
 
 }

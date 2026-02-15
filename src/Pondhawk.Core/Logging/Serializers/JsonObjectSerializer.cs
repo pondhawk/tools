@@ -1,4 +1,4 @@
-/*
+﻿/*
 The MIT License (MIT)
 
 Copyright (c) 2024 Pond Hawk Technologies Inc.
@@ -86,41 +86,5 @@ public class JsonObjectSerializer : IObjectSerializer
             // If serialization still fails, return empty object
             return (PayloadType.Json, "{}");
         }
-    }
-}
-
-/// <summary>
-/// JSON converter for Type objects.
-/// </summary>
-internal class TypeJsonConverter : JsonConverter<Type>
-{
-    public override Type? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-    {
-        throw new NotSupportedException("Type deserialization is not supported");
-    }
-
-    public override void Write(Utf8JsonWriter writer, Type value, JsonSerializerOptions options)
-    {
-        writer.WriteStartObject();
-        writer.WriteString("Name", value.GetConciseFullName());
-        writer.WriteEndObject();
-    }
-}
-
-/// <summary>
-/// JSON converter for Attribute objects.
-/// </summary>
-internal class AttributeJsonConverter : JsonConverter<Attribute>
-{
-    public override Attribute? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-    {
-        throw new NotSupportedException("Attribute deserialization is not supported");
-    }
-
-    public override void Write(Utf8JsonWriter writer, Attribute value, JsonSerializerOptions options)
-    {
-        writer.WriteStartObject();
-        writer.WriteString("Name", value.GetType().GetConciseFullName());
-        writer.WriteEndObject();
     }
 }

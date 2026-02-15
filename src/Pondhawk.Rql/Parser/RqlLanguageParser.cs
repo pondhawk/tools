@@ -1,3 +1,4 @@
+﻿using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using Pondhawk.Rql.Builder;
 using Sprache;
@@ -33,7 +34,7 @@ public class RqlLanguageParser
     {
 
 
-        OperatorMap = new Dictionary<string, RqlOperator>
+        OperatorMap = new Dictionary<string, RqlOperator>(StringComparer.Ordinal)
         {
             ["eq"] = RqlOperator.Equals,
             ["ne"] = RqlOperator.NotEquals,
@@ -56,33 +57,33 @@ public class RqlLanguageParser
     }
 
 
-    private static readonly IDictionary<string, RqlOperator> OperatorMap;
+    private static readonly Dictionary<string, RqlOperator> OperatorMap;
 
 
 
     private static readonly Parser<IEnumerable<char>> Whitespace = Parse.Char(' ').Many();
 
-    private static readonly Parser<char> RestrictionOpener  = Parse.Char('(');
-    private static readonly Parser<char> RestrictionCloser  = Parse.Char(')');
+    private static readonly Parser<char> RestrictionOpener = Parse.Char('(');
+    private static readonly Parser<char> RestrictionCloser = Parse.Char(')');
     private static readonly Parser<char> PredicateSeparator = Parse.Char(',');
 
     private static readonly Parser<char> PredicateOpener = Parse.Char('(');
     private static readonly Parser<char> PredicateCloser = Parse.Char(')');
 
-    private static readonly Parser<char>   PredicateTypeTerm = Parse.AnyChar.Except(PredicateOpener);
-    private static readonly Parser<string> PredicateType     = PredicateTypeTerm.XAtLeastOnce().Text();
+    private static readonly Parser<char> PredicateTypeTerm = Parse.AnyChar.Except(PredicateOpener);
+    private static readonly Parser<string> PredicateType = PredicateTypeTerm.XAtLeastOnce().Text();
 
     private static readonly Parser<char> PredicateValueSeparator = Parse.Char(',');
 
-    private static readonly Parser<char>   PredicateValueTerm   = Parse.AnyChar.Except(PredicateValueSeparator).Except(PredicateCloser);
-    private static readonly Parser<string> PredicateTargetName  = PredicateValueTerm.XAtLeastOnce().Text();
+    private static readonly Parser<char> PredicateValueTerm = Parse.AnyChar.Except(PredicateValueSeparator).Except(PredicateCloser);
+    private static readonly Parser<string> PredicateTargetName = PredicateValueTerm.XAtLeastOnce().Text();
     private static readonly Parser<string> PredicateTargetValue = PredicateValueTerm.XAtLeastOnce().Text();
 
 
     private static readonly Parser<IRqlPredicate> Predicate =
 
-        from ws     in Whitespace
-        from type   in PredicateType
+        from ws in Whitespace
+        from type in PredicateType
         from opener in PredicateOpener
         from target in PredicateTargetName
         from values in PredicateSeparator.Then(_ => PredicateTargetValue).Many()
@@ -94,10 +95,10 @@ public class RqlLanguageParser
 
     private static readonly Parser<IEnumerable<IRqlPredicate>> Restriction =
 
-        from open    in RestrictionOpener
+        from open in RestrictionOpener
         from leading in Predicate.Optional()
-        from rest    in PredicateSeparator.Then(_ => Predicate).Many()
-        from close   in RestrictionCloser
+        from rest in PredicateSeparator.Then(_ => Predicate).Many()
+        from close in RestrictionCloser
 
         select MergePredicates(leading.GetOrDefault(), rest);
 
@@ -113,7 +114,8 @@ public class RqlLanguageParser
 
     }
 
-    private static IRqlPredicate BuildPredicate( string op, string name, IEnumerable<string> values )
+    [SuppressMessage("Design", "MA0051:Method is too long", Justification = "Parser method with linear type-detection logic that does not benefit from splitting")]
+    private static RqlPredicate BuildPredicate(string op, string name, IEnumerable<string> values)
     {
 
 
@@ -122,10 +124,10 @@ public class RqlLanguageParser
 
         Type? dataType = null;
 
-        var raw   = new List<string>(values);
+        var raw = new List<string>(values);
         var typed = new List<object>();
 
-        foreach( var v in raw )
+        foreach (var v in raw)
         {
 
             if (v.Length == 0)
@@ -136,12 +138,12 @@ public class RqlLanguageParser
             }
 
             var indicator = v[0];
-            if( indicator == '@' && v.Length > 1 && DateTime.TryParse(v.Substring(1), CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out var date) )
+            if (indicator == '@' && v.Length > 1 && DateTime.TryParse(v.AsSpan(1), CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out var date))
             {
                 dataType ??= typeof(DateTime);
                 typed.Add(date);
             }
-            else if (indicator == '#' && v.Length > 1 && decimal.TryParse(v.Substring(1), NumberStyles.AllowLeadingSign | NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out var decm) )
+            else if (indicator == '#' && v.Length > 1 && decimal.TryParse(v.AsSpan(1), NumberStyles.AllowLeadingSign | NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out var decm))
             {
                 dataType ??= typeof(decimal);
                 typed.Add(decm);
@@ -152,22 +154,22 @@ public class RqlLanguageParser
                 var s = v.Substring(1, v.Length - 2).Replace("''", "'");
                 typed.Add(s);
             }
-            else if( int.TryParse(v, out var iv) )
+            else if (int.TryParse(v, NumberStyles.Integer, CultureInfo.InvariantCulture, out var iv))
             {
                 dataType ??= typeof(int);
                 typed.Add(iv);
             }
-            else if( long.TryParse(v, out var lv) )
+            else if (long.TryParse(v, NumberStyles.Integer, CultureInfo.InvariantCulture, out var lv))
             {
                 dataType ??= typeof(long);
                 typed.Add(lv);
             }
-            else if( decimal.TryParse(v, out var dv) )
+            else if (decimal.TryParse(v, NumberStyles.Number, CultureInfo.InvariantCulture, out var dv))
             {
                 dataType ??= typeof(decimal);
                 typed.Add(dv);
             }
-            else if( bool.TryParse(v, out var bv) )
+            else if (bool.TryParse(v, out var bv))
             {
                 dataType ??= typeof(bool);
                 typed.Add(bv);
@@ -181,7 +183,7 @@ public class RqlLanguageParser
 
         }
 
-        if( !OperatorMap.TryGetValue(op, out var opr) )
+        if (!OperatorMap.TryGetValue(op, out var opr))
             throw new RqlException($"Invalid RQL operator: ({op})");
 
         if (opr is RqlOperator.Between && typed.Count != 2)
@@ -192,7 +194,7 @@ public class RqlLanguageParser
         else
             dataType ??= typeof(string);
 
-        var predicate = new RqlPredicate( opr, name, dataType!, typed );
+        var predicate = new RqlPredicate(opr, name, dataType!, typed);
 
         return predicate;
 
@@ -206,7 +208,7 @@ public class RqlLanguageParser
     /// </summary>
     /// <param name="input">The RQL criteria text, e.g. <c>(eq(Name,'John'),gt(Age,30))</c>.</param>
     /// <exception cref="RqlException">Thrown when the input cannot be parsed.</exception>
-    public static RqlTree ToCriteria( string input )
+    public static RqlTree ToCriteria(string input)
     {
 
         try
@@ -215,14 +217,15 @@ public class RqlLanguageParser
             var ops = Restriction.Parse(input);
 
             var expr = new RqlTree();
-            expr.Criteria.AddRange(ops);
+            foreach (var op in ops)
+                expr.Criteria.Add(op);
 
             return expr;
 
         }
         catch (ParseException cause)
         {
-            throw new RqlException( $"Could not parse supplied RQL '{input}'. {cause.Message}", cause );
+            throw new RqlException($"Could not parse supplied RQL '{input}'. {cause.Message}", cause);
         }
 
     }

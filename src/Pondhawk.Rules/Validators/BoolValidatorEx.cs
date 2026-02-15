@@ -22,6 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+using System.Diagnostics.CodeAnalysis;
 using Humanizer;
 
 namespace Pondhawk.Rules.Validators;
@@ -29,10 +30,11 @@ namespace Pondhawk.Rules.Validators;
 /// <summary>
 /// Boolean validation extensions (e.g. Required, IsTrue, IsFalse).
 /// </summary>
+[SuppressMessage("Naming", "CA1711:Identifiers should not have incorrect suffix", Justification = "Ex suffix is an intentional domain convention for extension method classes")]
 public static class BoolValidatorEx
 {
 
-    public static IValidator<TFact, bool> Required<TFact>( this IValidator<TFact, bool> validator) where TFact : class
+    public static IValidator<TFact, bool> Required<TFact>(this IValidator<TFact, bool> validator) where TFact : class
     {
         var v = validator.Is((f, v) => v);
 
@@ -42,32 +44,32 @@ public static class BoolValidatorEx
 
         return v;
     }
-        
-    public static IValidator<TFact, bool> IsTrue<TFact>(  this IValidator<TFact, bool> validator ) where TFact : class
+
+    public static IValidator<TFact, bool> IsTrue<TFact>(this IValidator<TFact, bool> validator) where TFact : class
     {
 
-        var v = validator.Is( ( f, v ) => v );
-        
+        var v = validator.Is((f, v) => v);
+
         var propName = validator.PropertyName.Humanize(LetterCasing.Title);
-        
+
         v.Otherwise($"{propName} is not true");
 
-        return v;        
-        
+        return v;
+
     }
 
-    public static IValidator<TFact, bool> IsFalse<TFact>(  this IValidator<TFact, bool> validator ) where TFact : class
+    public static IValidator<TFact, bool> IsFalse<TFact>(this IValidator<TFact, bool> validator) where TFact : class
     {
-        
-        var v = validator.IsNot( ( f, v ) => v );
-        
+
+        var v = validator.IsNot((f, v) => v);
+
         var propName = validator.PropertyName.Humanize(LetterCasing.Title);
-        
+
         v.Otherwise($"{propName} is not false");
 
-        return v;        
-        
+        return v;
+
     }
-    
-    
+
+
 }

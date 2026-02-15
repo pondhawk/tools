@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using Pondhawk.Watch.Tests.Http;
 using Serilog.Events;
 using Shouldly;

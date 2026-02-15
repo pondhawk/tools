@@ -1,4 +1,4 @@
-namespace Pondhawk.Hosting;
+﻿namespace Pondhawk.Hosting;
 
 internal sealed class ServiceStartDescriptor
 {

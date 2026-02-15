@@ -42,7 +42,7 @@ public sealed class EvaluationResults
     public EvaluationResults()
     {
         Events = new HashSet<RuleEvent>();
-        Shared = new Dictionary<string, object>();
+        Shared = new Dictionary<string, object>(StringComparer.Ordinal);
 
         TotalEvaluated = 0;
         TotalFired = 0;
@@ -50,9 +50,9 @@ public sealed class EvaluationResults
         Started = DateTime.Now;
         Completed = DateTime.MaxValue;
 
-        FiredRules = new Dictionary<string, int>();
+        FiredRules = new Dictionary<string, int>(StringComparer.Ordinal);
 
-        MutexWinners = new Dictionary<string, string>();
+        MutexWinners = new Dictionary<string, string>(StringComparer.Ordinal);
     }
 
     public IDictionary<string, object> Shared { get; }
@@ -65,7 +65,7 @@ public sealed class EvaluationResults
     public int Score => TotalAffirmations - TotalVetos;
 
 
-    public ISet<RuleEvent> Events { get;}
+    public ISet<RuleEvent> Events { get; }
 
     public int ViolationCount { get; set; }
 
@@ -74,20 +74,20 @@ public sealed class EvaluationResults
     public DateTime Started { get; set; }
     public DateTime Completed { get; set; }
 
-    public long Duration => Convert.ToInt64( (Completed - Started).TotalMilliseconds );
+    public long Duration => Convert.ToInt64((Completed - Started).TotalMilliseconds);
 
     public int TotalEvaluated { get; set; }
     public int TotalFired { get; set; }
 
-    public IDictionary<string, string> MutexWinners { get;  }
-    public IDictionary<string, int> FiredRules { get;  }
+    public IDictionary<string, string> MutexWinners { get; }
+    public IDictionary<string, int> FiredRules { get; }
 
-    public void Affirm( int amount )
+    public void Affirm(int amount)
     {
         TotalAffirmations += amount;
     }
 
-    public void Veto( int amount )
+    public void Veto(int amount)
     {
         TotalVetos += amount;
     }
@@ -97,29 +97,29 @@ public sealed class EvaluationResults
 
     public IEnumerable<RuleEvent> GetViolations()
     {
-        return Events.Where( e => e.Category == RuleEvent.EventCategory.Violation );
+        return Events.Where(e => e.Category == RuleEvent.EventCategory.Violation);
     }
 
-    public IEnumerable<RuleEvent> GetEventsByCategory( RuleEvent.EventCategory category )
+    public IEnumerable<RuleEvent> GetEventsByCategory(RuleEvent.EventCategory category)
     {
-        return Events.Where( e => e.Category == category );
+        return Events.Where(e => e.Category == category);
     }
 
-    public IEnumerable<RuleEvent> GetEventsByGroup( string group )
+    public IEnumerable<RuleEvent> GetEventsByGroup(string group)
     {
-        return Events.Where( e => string.Equals( e.Group, group, StringComparison.Ordinal ) );
+        return Events.Where(e => string.Equals(e.Group, group, StringComparison.Ordinal));
     }
 
-    public IEnumerable<RuleEvent> GetEventsByRule( string ruleName )
+    public IEnumerable<RuleEvent> GetEventsByRule(string ruleName)
     {
-        return Events.Where( e => string.Equals( e.RuleName, ruleName, StringComparison.Ordinal ) );
+        return Events.Where(e => string.Equals(e.RuleName, ruleName, StringComparison.Ordinal));
     }
 
     public IDictionary<string, List<RuleEvent>> GetViolationsByGroup()
     {
         return GetViolations()
-            .GroupBy( e => e.Group ?? "" )
-            .ToDictionary( g => g.Key, g => g.ToList() );
+            .GroupBy(e => e.Group ?? "", StringComparer.Ordinal)
+            .ToDictionary(g => g.Key, g => g.ToList(), StringComparer.Ordinal);
     }
 
 }

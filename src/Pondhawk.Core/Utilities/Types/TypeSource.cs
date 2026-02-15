@@ -33,7 +33,7 @@ namespace Pondhawk.Utilities.Types;
 public class TypeSource
 {
 
-    private static Func<Type, bool> DefaultPredicate { get; } = _=>true;
+    private static Func<Type, bool> DefaultPredicate { get; } = _ => true;
 
     protected virtual Func<Type, bool> GetPredicate()
     {
@@ -41,17 +41,17 @@ public class TypeSource
     }
 
 
-    public void AddTypes( params Assembly[] assemblies )
+    public void AddTypes(params Assembly[] assemblies)
     {
 
         Guard.IsNotNull(assemblies);
 
-        foreach ( var type in assemblies.SelectMany(a=>a.GetTypes()).Where(GetPredicate()) )
+        foreach (var type in assemblies.SelectMany(a => a.GetTypes()).Where(GetPredicate()))
             Types.Add(type);
     }
 
 
-    public void AddTypes( params Type[] types )
+    public void AddTypes(params Type[] types)
     {
 
         Guard.IsNotNull(types);
@@ -61,17 +61,17 @@ public class TypeSource
     }
 
 
-    public void AddTypes( IEnumerable<Type> candidates )
+    public void AddTypes(IEnumerable<Type> candidates)
     {
 
         Guard.IsNotNull(candidates);
 
-        foreach (var type in candidates.Where( GetPredicate() ) )
+        foreach (var type in candidates.Where(GetPredicate()))
             Types.Add(type);
     }
 
 
-    private HashSet<Type> Types { get; } = new ();
+    private HashSet<Type> Types { get; } = new();
 
     public IEnumerable<Type> GetTypes()
     {

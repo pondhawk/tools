@@ -1,19 +1,8 @@
-﻿
+
+
 
 
 namespace Pondhawk.Rules;
-
-
-/// <summary>
-/// The result of validating one or more entities through a rule set, containing violations grouped by category.
-/// </summary>
-public sealed class ValidationResult
-{
-    public bool IsValid { get; init; }
-    public EvaluationResults Results { get; init; }
-    public IReadOnlyList<RuleEvent> Violations { get; init; }
-    public IReadOnlyDictionary<string, List<RuleEvent>> ViolationsByGroup { get; init; }
-}
 
 
 /// <summary>
@@ -28,11 +17,11 @@ public sealed class ValidationResult
 public static class RuleSetExtensions
 {
 
-    private static readonly List<RuleEvent> EmptyDetails = [];
-    private static readonly Dictionary<string, List<RuleEvent>> EmptyGrouped = new();
+    private static readonly IReadOnlyList<RuleEvent> EmptyDetails = [];
+    private static readonly IReadOnlyDictionary<string, List<RuleEvent>> EmptyGrouped = new Dictionary<string, List<RuleEvent>>(StringComparer.Ordinal);
 
 
-    public static EvaluationResults Evaluate( this IRuleSet rules, params object[] facts )
+    public static EvaluationResults Evaluate(this IRuleSet rules, params object[] facts)
     {
 
         var ec = rules.GetEvaluationContext();
@@ -46,7 +35,7 @@ public static class RuleSetExtensions
     }
 
 
-    public static EvaluationResults Evaluate( this IRuleSet rules, IEnumerable<object> fact )
+    public static EvaluationResults Evaluate(this IRuleSet rules, IEnumerable<object> fact)
     {
 
         var ec = rules.GetEvaluationContext();
@@ -60,7 +49,7 @@ public static class RuleSetExtensions
     }
 
 
-    public static bool TryValidate(this IRuleSet rules, object subject, out List<RuleEvent> violations)
+    public static bool TryValidate(this IRuleSet rules, object subject, out IReadOnlyList<RuleEvent> violations)
     {
 
         violations = EmptyDetails;
@@ -73,17 +62,17 @@ public static class RuleSetExtensions
 
         var vr = rules.Evaluate(ec);
 
-        if( !vr.HasViolations )
+        if (!vr.HasViolations)
             return true;
 
-        violations = [..vr.Events];
+        violations = [.. vr.Events];
 
         return false;
 
     }
 
 
-    public static bool TryValidate(this IRuleSet rules, IEnumerable<object> subjects, out List<RuleEvent> violations)
+    public static bool TryValidate(this IRuleSet rules, IEnumerable<object> subjects, out IReadOnlyList<RuleEvent> violations)
     {
 
         violations = EmptyDetails;
@@ -129,8 +118,8 @@ public static class RuleSetExtensions
 
         var violations = er.GetViolations().ToList();
         var grouped = violations
-            .GroupBy(e => e.Group ?? "")
-            .ToDictionary(g => g.Key, g => g.ToList());
+            .GroupBy(e => e.Group ?? "", StringComparer.Ordinal)
+            .ToDictionary(g => g.Key, g => g.ToList(), StringComparer.Ordinal);
 
         return new ValidationResult
         {

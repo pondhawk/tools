@@ -35,19 +35,19 @@ public sealed class NoopEvaluationListener : IEvaluationListener
     {
     }
 
-    public void BeginTupleEvaluation( object[] facts )
+    public void BeginTupleEvaluation(object[] facts)
     {
     }
 
-    public void FiringRule( IRule rule )
+    public void FiringRule(IRule rule)
     {
     }
 
-    public void FiredRule( IRule rule, bool modified )
+    public void FiredRule(IRule rule, bool modified)
     {
     }
 
-    public void EndTupleEvaluation( object[] facts )
+    public void EndTupleEvaluation(object[] facts)
     {
     }
 
@@ -55,15 +55,15 @@ public sealed class NoopEvaluationListener : IEvaluationListener
     {
     }
 
-    public void Debug( string template, params object[] markers )
+    public void Debug(string template, params object[] markers)
     {
     }
 
-    public void Warning( string template, params object[] markers )
+    public void Warning(string template, params object[] markers)
     {
     }
 
-    public void EventCreated( RuleEvent evalEvent )
+    public void EventCreated(RuleEvent evalEvent)
     {
     }
 

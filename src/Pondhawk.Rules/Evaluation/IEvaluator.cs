@@ -29,6 +29,6 @@ namespace Pondhawk.Rules.Evaluation;
 /// </summary>
 public interface IEvaluator
 {
-    EvaluationResults Evaluate( EvaluationContext context );
+    EvaluationResults Evaluate(EvaluationContext context);
 }
 

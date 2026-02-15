@@ -62,9 +62,9 @@ public sealed class RuleSet : AbstractRuleSet
         _tree.Build();
     }
 
-    public void Add(  IBuilder builder )
+    public void Add(IBuilder builder)
     {
-        builder.LoadRules( _tree );
+        builder.LoadRules(_tree);
     }
 
 
@@ -79,11 +79,11 @@ public sealed class RuleSet : AbstractRuleSet
     }
 
 
-    
-    public Rule<TFact> AddRule<TFact>( string name ) where TFact : class
+
+    public Rule<TFact> AddRule<TFact>(string name) where TFact : class
     {
-        var rule = new Rule<TFact>( "runtime", name );
-        _tree.Add( [typeof(TFact)], [rule] );
+        var rule = new Rule<TFact>("runtime", name);
+        _tree.Add([typeof(TFact)], [rule]);
         return rule;
     }
 
@@ -93,7 +93,7 @@ public sealed class RuleSet : AbstractRuleSet
     {
         return new();
     }
-    
+
 
     /// <summary>
     /// Adds a rule that reasons over the an enumeration of child facts associated with
@@ -128,16 +128,16 @@ public sealed class RuleSet : AbstractRuleSet
     ///     If( c=&gt;c.Name == "Gabby" ).And( c=&gt;c.Age == 4 )
     ///     Then( c=&gt;c.Status = "Not A baby anymore" )
     /// </example>
-    
-    public ForeachRule<TFact, TChild> AddRule<TFact, TChild>( string ruleName, Func<TFact, IEnumerable<TChild>> extractor ) where TFact : class where TChild : class
+
+    public ForeachRule<TFact, TChild> AddRule<TFact, TChild>(string ruleName, Func<TFact, IEnumerable<TChild>> extractor) where TFact : class where TChild : class
     {
 
         Guard.IsNotNullOrWhiteSpace(ruleName);
         Guard.IsNotNull(extractor);
 
-        var rule = new ForeachRule<TFact, TChild>( extractor, "runtime", ruleName );
+        var rule = new ForeachRule<TFact, TChild>(extractor, "runtime", ruleName);
 
-        _tree.Add( [typeof( TFact )], [rule] );
+        _tree.Add([typeof(TFact)], [rule]);
 
         return rule;
 
@@ -146,48 +146,48 @@ public sealed class RuleSet : AbstractRuleSet
 
 
 
-    public ValidationRule<TFact> AddValidation<TFact>( string name ) where TFact : class
+    public ValidationRule<TFact> AddValidation<TFact>(string name) where TFact : class
     {
         Guard.IsNotNullOrEmpty(name);
 
-        var rule = new ValidationRule<TFact>( "runtime", name );
-        _tree.Add( [typeof(TFact)], [rule] );
+        var rule = new ValidationRule<TFact>("runtime", name);
+        _tree.Add([typeof(TFact)], [rule]);
 
         return rule;
     }
 
 
-    
-    public Rule<TFact1, TFact2> AddRule<TFact1, TFact2>( string name )
+
+    public Rule<TFact1, TFact2> AddRule<TFact1, TFact2>(string name)
         where TFact1 : class
         where TFact2 : class
     {
-        var rule = new Rule<TFact1, TFact2>( "runtime", name );
-        _tree.Add( [typeof(TFact1), typeof(TFact2)], [rule] );
+        var rule = new Rule<TFact1, TFact2>("runtime", name);
+        _tree.Add([typeof(TFact1), typeof(TFact2)], [rule]);
         return rule;
     }
 
-    
-    public Rule<TFact1, TFact2, TFact3> AddRule<TFact1, TFact2, TFact3>( string name )
+
+    public Rule<TFact1, TFact2, TFact3> AddRule<TFact1, TFact2, TFact3>(string name)
         where TFact1 : class
         where TFact2 : class
         where TFact3 : class
     {
-        var rule = new Rule<TFact1, TFact2, TFact3>( "runtime", name );
-        _tree.Add( [typeof(TFact1), typeof(TFact2), typeof(TFact3)], [rule] );
+        var rule = new Rule<TFact1, TFact2, TFact3>("runtime", name);
+        _tree.Add([typeof(TFact1), typeof(TFact2), typeof(TFact3)], [rule]);
         return rule;
     }
 
 
-    
-    public Rule<TFact1, TFact2, TFact3, TFact4> AddRule<TFact1, TFact2, TFact3, TFact4>( string name )
+
+    public Rule<TFact1, TFact2, TFact3, TFact4> AddRule<TFact1, TFact2, TFact3, TFact4>(string name)
         where TFact1 : class
         where TFact2 : class
         where TFact3 : class
         where TFact4 : class
     {
-        var rule = new Rule<TFact1, TFact2, TFact3,TFact4>( "runtime", name );
-        _tree.Add( [typeof( TFact1 ), typeof( TFact2 ), typeof( TFact3 ), typeof(TFact4)], [rule] );
+        var rule = new Rule<TFact1, TFact2, TFact3, TFact4>("runtime", name);
+        _tree.Add([typeof(TFact1), typeof(TFact2), typeof(TFact3), typeof(TFact4)], [rule]);
         return rule;
     }
 

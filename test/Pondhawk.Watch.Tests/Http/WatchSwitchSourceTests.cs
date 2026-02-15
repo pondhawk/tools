@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Text;
 using System.Text.Json;
 using Serilog.Events;
@@ -17,7 +17,7 @@ public class WatchSwitchSourceTests
 
     private static StringContent CreateSwitchesJson(params SwitchDto[] switches)
     {
-        var response = new SwitchesResponse { Switches = [..switches] };
+        var response = new SwitchesResponse { Switches = [.. switches] };
         var json = JsonSerializer.Serialize(response);
         return new StringContent(json, Encoding.UTF8, "application/json");
     }

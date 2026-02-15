@@ -22,6 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.Logging;
 using Pondhawk.Rules.Builder;
 using Pondhawk.Rules.Evaluation;
@@ -31,10 +32,10 @@ namespace Pondhawk.Rules.Listeners;
 /// <summary>
 /// An <see cref="IEvaluationListener"/> that logs rule evaluation events via <see cref="Microsoft.Extensions.Logging.ILogger"/>.
 /// </summary>
-public sealed class WatchEvaluationListener: IEvaluationListener
+public sealed partial class WatchEvaluationListener : IEvaluationListener
 {
 
-    public WatchEvaluationListener( ILogger logger )
+    public WatchEvaluationListener(ILogger logger)
     {
         Logger = logger;
     }
@@ -46,59 +47,55 @@ public sealed class WatchEvaluationListener: IEvaluationListener
     public void BeginEvaluation()
     {
 
-
-        if( !Logger.IsEnabled( LogLevel.Debug ) )
+        if (!Logger.IsEnabled(LogLevel.Debug))
             return;
 
         var context = RuleThreadLocalStorage.CurrentContext;
 
-        Logger.LogDebug( "Begin Evaluation - ({ContextDescription})", context.Description );
-
-        Logger.LogDebug( "Context: {@Context}", context );
-
+        LogBeginEvaluation(Logger, context.Description);
+        LogContext(Logger, context);
     }
 
-    public void BeginTupleEvaluation( object[] facts )
+    public void BeginTupleEvaluation(object[] facts)
     {
 
         if (!Logger.IsEnabled(LogLevel.Debug))
             return;
 
-        Logger.LogDebug( "Begin Tuple Evaluation" );
+        LogBeginTupleEvaluation(Logger);
 
         for (int i = 0; i < facts.Length; i++)
-            Logger.LogDebug("{FactType}[{Index}]: {@Fact}", facts[i].GetType().FullName, i, facts[i]);
-
+            LogFact(Logger, facts[i].GetType().FullName, i, facts[i]);
 
     }
 
-    public void FiringRule( IRule rule )
+    public void FiringRule(IRule rule)
     {
 
         if (!Logger.IsEnabled(LogLevel.Debug))
             return;
 
-        Logger.LogDebug("Rule Firing ({RuleName}): {@Rule}", rule.Name, rule);
+        LogFiringRule(Logger, rule.Name, rule);
 
     }
 
-    public void FiredRule( IRule rule, bool modified )
+    public void FiredRule(IRule rule, bool modified)
     {
 
         if (!Logger.IsEnabled(LogLevel.Debug))
             return;
 
-        Logger.LogDebug( "Rule Fired ({RuleName}). Modified fact? {Modified}", rule.Name, modified );
+        LogFiredRule(Logger, rule.Name, modified);
 
     }
 
-    public void EndTupleEvaluation( object[] facts )
+    public void EndTupleEvaluation(object[] facts)
     {
 
         if (!Logger.IsEnabled(LogLevel.Debug))
             return;
 
-        Logger.LogDebug( "End Tuple Evaluation" );
+        LogEndTupleEvaluation(Logger);
 
     }
 
@@ -110,40 +107,74 @@ public sealed class WatchEvaluationListener: IEvaluationListener
 
         var context = RuleThreadLocalStorage.CurrentContext;
 
-        Logger.LogDebug( "Results: {@Results}", context.Results );
-
-        Logger.LogDebug( "End Evaluation - ({ContextDescription})", context.Description );
+        LogResults(Logger, context.Results);
+        LogEndEvaluation(Logger, context.Description);
 
     }
 
-    public void EventCreated( RuleEvent evalEvent )
+    public void EventCreated(RuleEvent evalEvent)
     {
 
         if (!Logger.IsEnabled(LogLevel.Debug))
             return;
 
-        Logger.LogDebug( "Evaluation Event Created: {@EvalEvent}", evalEvent );
+        LogEventCreated(Logger, evalEvent);
 
     }
 
-    public void Debug( string template, params object[] markers )
+    [SuppressMessage("Usage", "CA1848:Use the LoggerMessage delegates for improved performance", Justification = "Template varies by caller and cannot be a compile-time constant")]
+    [SuppressMessage("Usage", "CA2254:Template should be a static expression", Justification = "Template varies by caller — this is a pass-through logging method")]
+    public void Debug(string template, params object[] markers)
     {
 
         if (!Logger.IsEnabled(LogLevel.Debug))
             return;
 
-        Logger.LogDebug( template, markers );
+        Logger.LogDebug(template, markers);
 
     }
 
-    public void Warning( string template, params object[] markers )
+    [SuppressMessage("Usage", "CA1848:Use the LoggerMessage delegates for improved performance", Justification = "Template varies by caller and cannot be a compile-time constant")]
+    [SuppressMessage("Usage", "CA2254:Template should be a static expression", Justification = "Template varies by caller — this is a pass-through logging method")]
+    public void Warning(string template, params object[] markers)
     {
 
         if (!Logger.IsEnabled(LogLevel.Warning))
             return;
 
-        Logger.LogWarning( template, markers );
+        Logger.LogWarning(template, markers);
 
     }
+
+
+    [LoggerMessage(Level = LogLevel.Debug, Message = "Begin Evaluation - ({ContextDescription})")]
+    private static partial void LogBeginEvaluation(ILogger logger, string contextDescription);
+
+    [LoggerMessage(Level = LogLevel.Debug, Message = "Context: {Context}")]
+    private static partial void LogContext(ILogger logger, object context);
+
+    [LoggerMessage(Level = LogLevel.Debug, Message = "Begin Tuple Evaluation")]
+    private static partial void LogBeginTupleEvaluation(ILogger logger);
+
+    [LoggerMessage(Level = LogLevel.Debug, Message = "{FactType}[{Index}]: {Fact}")]
+    private static partial void LogFact(ILogger logger, string factType, int index, object fact);
+
+    [LoggerMessage(Level = LogLevel.Debug, Message = "Rule Firing ({RuleName}): {Rule}")]
+    private static partial void LogFiringRule(ILogger logger, string ruleName, object rule);
+
+    [LoggerMessage(Level = LogLevel.Debug, Message = "Rule Fired ({RuleName}). Modified fact? {Modified}")]
+    private static partial void LogFiredRule(ILogger logger, string ruleName, bool modified);
+
+    [LoggerMessage(Level = LogLevel.Debug, Message = "End Tuple Evaluation")]
+    private static partial void LogEndTupleEvaluation(ILogger logger);
+
+    [LoggerMessage(Level = LogLevel.Debug, Message = "Results: {Results}")]
+    private static partial void LogResults(ILogger logger, object results);
+
+    [LoggerMessage(Level = LogLevel.Debug, Message = "End Evaluation - ({ContextDescription})")]
+    private static partial void LogEndEvaluation(ILogger logger, string contextDescription);
+
+    [LoggerMessage(Level = LogLevel.Debug, Message = "Evaluation Event Created: {EvalEvent}")]
+    private static partial void LogEventCreated(ILogger logger, object evalEvent);
 
 }

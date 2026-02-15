@@ -1,4 +1,4 @@
-using Pondhawk.Rql.Builder;
+﻿using Pondhawk.Rql.Builder;
 using Shouldly;
 using Xunit;
 

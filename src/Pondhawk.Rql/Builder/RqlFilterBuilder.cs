@@ -22,6 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using CommunityToolkit.Diagnostics;
 
@@ -57,7 +58,8 @@ namespace Pondhawk.Rql.Builder
     /// var (sql, parms) = filter.ToSqlWhere();              // Status = {0} and Total &gt; {1} and Category in ({2},{3})
     /// </code>
     /// </example>
-    public class RqlFilterBuilder<TTarget>: AbstractFilterBuilder<RqlFilterBuilder<TTarget>>, IRqlFilter<TTarget> where TTarget: class
+    [SuppressMessage("Design", "CA1000:Do not declare static members on generic types", Justification = "Static factory methods are the intended fluent API entry points for this builder")]
+    public class RqlFilterBuilder<TTarget> : AbstractFilterBuilder<RqlFilterBuilder<TTarget>>, IRqlFilter<TTarget> where TTarget : class
     {
 
         public static RqlFilterBuilder<TTarget> Create()
@@ -66,7 +68,7 @@ namespace Pondhawk.Rql.Builder
         }
 
 
-        public static RqlFilterBuilder<TTarget> Where<TValue>( Expression<Func<TTarget, TValue>> prop )
+        public static RqlFilterBuilder<TTarget> Where<TValue>(Expression<Func<TTarget, TValue>> prop)
         {
             var builder = new RqlFilterBuilder<TTarget>().And(prop);
             return builder;
@@ -85,20 +87,20 @@ namespace Pondhawk.Rql.Builder
 
         }
 
-        public RqlFilterBuilder( RqlTree tree ) : base( tree )
+        public RqlFilterBuilder(RqlTree tree) : base(tree)
         {
 
         }
 
 
-        public RqlFilterBuilder<TTarget> And<TValue>( Expression<Func<TTarget, TValue>> prop )
+        public RqlFilterBuilder<TTarget> And<TValue>(Expression<Func<TTarget, TValue>> prop)
         {
 
             Guard.IsNotNull(prop);
             Guard.IsNotNull(prop.Body);
 
             if (prop.Body is not MemberExpression propExpr)
-                throw new ArgumentException("Targets of a builder must be a field or a property on the output model");
+                throw new ArgumentException("Targets of a builder must be a field or a property on the output model", nameof(prop));
 
             CurrentName = propExpr.Member.Name;
 
@@ -137,7 +139,7 @@ namespace Pondhawk.Rql.Builder
 
 
 
-        public static RqlFilterBuilder Where( string prop )
+        public static RqlFilterBuilder Where(string prop)
         {
 
             Guard.IsNotNullOrWhiteSpace(prop);
@@ -152,7 +154,7 @@ namespace Pondhawk.Rql.Builder
 
         }
 
-        public RqlFilterBuilder( RqlTree tree) : base(tree)
+        public RqlFilterBuilder(RqlTree tree) : base(tree)
         {
 
         }
@@ -163,7 +165,7 @@ namespace Pondhawk.Rql.Builder
         public bool IsAll => !HasCriteria;
 
 
-        public RqlFilterBuilder And( string prop )
+        public RqlFilterBuilder And(string prop)
         {
 
             Guard.IsNotNullOrWhiteSpace(prop);

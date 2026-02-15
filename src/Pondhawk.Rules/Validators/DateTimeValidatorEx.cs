@@ -23,6 +23,7 @@ SOFTWARE.
 */
 
 
+using System.Diagnostics.CodeAnalysis;
 using Humanizer;
 
 namespace Pondhawk.Rules.Validators;
@@ -30,6 +31,7 @@ namespace Pondhawk.Rules.Validators;
 /// <summary>
 /// DateTime validation extensions (e.g. Required, IsInThePast, IsInTheFuture).
 /// </summary>
+[SuppressMessage("Naming", "CA1711:Identifiers should not have incorrect suffix", Justification = "Ex suffix is an intentional domain convention for extension method classes")]
 public static class DateTimeValidatorEx
 {
 
@@ -52,7 +54,7 @@ public static class DateTimeValidatorEx
     public static IValidator<TFact, DateTime> IsEqualTo<TFact>(this IValidator<TFact, DateTime> validator, Func<TFact, DateTime> extractor) where TFact : class
     {
         var v = validator.Is((f, value) => extractor(f).CompareTo(value) == 0);
-        var propName = validator.PropertyName.Humanize(LetterCasing.Title); 
+        var propName = validator.PropertyName.Humanize(LetterCasing.Title);
         v.Otherwise($"{propName} must equal the specified value");
         return v;
     }

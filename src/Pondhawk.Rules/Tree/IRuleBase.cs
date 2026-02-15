@@ -33,10 +33,10 @@ public interface IRuleBase
 {
     int MaxAxisCount { get; }
 
-    bool HasRules( Type[] factTypes );
-    bool HasRules( Type[] factTypes, IEnumerable<string> namespaces );
+    bool HasRules(Type[] factTypes);
+    bool HasRules(Type[] factTypes, IEnumerable<string> namespaces);
 
-    ISet<IRule> FindRules( Type[] factTypes );
-    ISet<IRule> FindRules( Type[] factTypes, IEnumerable<string> namespaces );
+    ISet<IRule> FindRules(Type[] factTypes);
+    ISet<IRule> FindRules(Type[] factTypes, IEnumerable<string> namespaces);
 }
 

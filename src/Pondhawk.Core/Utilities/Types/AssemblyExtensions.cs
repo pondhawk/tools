@@ -33,7 +33,7 @@ namespace Pondhawk.Utilities.Types;
 public static class AssemblyExtensions
 {
 
-    public static Stream? GetResource( this Assembly target, string name )
+    public static Stream? GetResource(this Assembly target, string name)
     {
 
         Guard.IsNotNullOrEmpty(name);
@@ -42,57 +42,57 @@ public static class AssemblyExtensions
 
     }
 
-    public static IEnumerable<string> GetResourceNames( this Assembly target, Func<string, bool> filter )
+    public static IEnumerable<string> GetResourceNames(this Assembly target, Func<string, bool> filter)
     {
 
         Guard.IsNotNull(filter);
 
         var results = target.GetManifestResourceNames().Where(filter);
         return results;
-        
+
     }
 
-    public static IEnumerable<string> GetResourceNamesByPath( this Assembly target, string path )
+    public static IEnumerable<string> GetResourceNamesByPath(this Assembly target, string path)
     {
 
         Guard.IsNotNullOrEmpty(path);
 
 
-        bool Filter(string r) => r.StartsWith(path);
+        bool Filter(string r) => r.StartsWith(path, StringComparison.Ordinal);
 
         var results = target.GetManifestResourceNames().Where(Filter);
         return results;
 
-    }    
+    }
 
-    public static IEnumerable<string> GetResourceNamesByExt( this Assembly target, string extension )
+    public static IEnumerable<string> GetResourceNamesByExt(this Assembly target, string extension)
     {
 
         Guard.IsNotNullOrEmpty(extension);
 
-        bool Filter(string r) => r.EndsWith(extension);
+        bool Filter(string r) => r.EndsWith(extension, StringComparison.Ordinal);
 
-        var results = target.GetManifestResourceNames().Where( Filter );
+        var results = target.GetManifestResourceNames().Where(Filter);
         return results;
 
     }
 
 
-    public static IEnumerable<string> GetResourceNamesByPathAndExt( this Assembly target, string path, string extension )
+    public static IEnumerable<string> GetResourceNamesByPathAndExt(this Assembly target, string path, string extension)
     {
 
         Guard.IsNotNullOrEmpty(path);
         Guard.IsNotNullOrEmpty(extension);
 
-        bool Filter(string r) => r.StartsWith(path) && r.EndsWith(extension);
+        bool Filter(string r) => r.StartsWith(path, StringComparison.Ordinal) && r.EndsWith(extension, StringComparison.Ordinal);
 
-        var results = target.GetManifestResourceNames().Where( Filter );
+        var results = target.GetManifestResourceNames().Where(Filter);
         return results;
 
     }
 
 
-    public static IEnumerable<Type> GetFilteredTypes( this Assembly target, Func<Type, bool> filter )
+    public static IEnumerable<Type> GetFilteredTypes(this Assembly target, Func<Type, bool> filter)
     {
 
         Guard.IsNotNull(filter);
@@ -102,7 +102,7 @@ public static class AssemblyExtensions
 
     }
 
-    public static IEnumerable<Type> GetImplementations( this Assembly target, Type implements )
+    public static IEnumerable<Type> GetImplementations(this Assembly target, Type implements)
     {
 
         Guard.IsNotNull(implements);
@@ -110,23 +110,23 @@ public static class AssemblyExtensions
 
         bool Filter(Type t) => (t != implements) && (implements.IsAssignableFrom(t));
 
-        return target.GetTypes().Where( Filter );
+        return target.GetTypes().Where(Filter);
 
     }
 
 
-    public static IEnumerable<Type> GetTypesWithAttribute( this Assembly target, Type attribute )
+    public static IEnumerable<Type> GetTypesWithAttribute(this Assembly target, Type attribute)
     {
 
         Guard.IsNotNull(attribute);
 
         bool Filter(Type t) => t.GetCustomAttributes(attribute, false).Length > 0;
 
-        return target.GetTypes().Where( Filter );
+        return target.GetTypes().Where(Filter);
 
     }
 
-    public static IEnumerable<Type> GetImplementationsWithAttribute( this Assembly target, Type implements, Type attribute )
+    public static IEnumerable<Type> GetImplementationsWithAttribute(this Assembly target, Type implements, Type attribute)
     {
 
         Guard.IsNotNull(implements);
@@ -134,7 +134,7 @@ public static class AssemblyExtensions
 
         bool Predicate(Type t) => (t != implements) && (implements.IsAssignableFrom(t)) && (t.GetCustomAttributes(attribute, false).Length > 0);
 
-        return target.GetTypes().Where( Predicate );
+        return target.GetTypes().Where(Predicate);
 
     }
 

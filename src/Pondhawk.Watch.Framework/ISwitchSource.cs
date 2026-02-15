@@ -1,4 +1,4 @@
-/*
+﻿/*
 The MIT License (MIT)
 
 Copyright (c) 2025 Pond Hawk Technologies Inc.
@@ -23,6 +23,7 @@ SOFTWARE.
 */
 
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using Pondhawk.Watch.Framework.Switching;
 
 namespace Pondhawk.Watch.Framework
@@ -31,6 +32,8 @@ namespace Pondhawk.Watch.Framework
     {
         long Version { get; }
         void Start();
+
+        [SuppressMessage("Naming", "CA1716:Identifiers should not match keywords", Justification = "Stop is the established lifecycle method name in this API")]
         void Stop();
         ISwitch Lookup(string category);
         void Update(IEnumerable<SwitchDef> switches);

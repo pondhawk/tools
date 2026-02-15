@@ -33,26 +33,26 @@ public static class TypeExtensions
 {
 
 
-    public static string ToHexString( this byte[] bytes )
+    public static string ToHexString(this byte[] bytes)
     {
 
         Guard.IsNotNull(bytes);
 
-        var hex = BitConverter.ToString(bytes).Replace("-", "").ToLowerInvariant();
+        var hex = Convert.ToHexStringLower(bytes);
         return hex;
 
     }
 
 
-    public static string ToTimestampString( this DateTime source )
+    public static string ToTimestampString(this DateTime source)
     {
 
         var utc = source.ToUniversalTime();
 
-        var y = utc.Year.ToString().PadLeft(4,'0');
-        var m = utc.Month.ToString().PadLeft(2, '0');
-        var d = utc.Day.ToString().PadLeft(2, '0');
-        var t = utc.TimeOfDay.Ticks.ToString().PadLeft(20, '0');
+        var y = utc.Year.ToString(System.Globalization.CultureInfo.InvariantCulture).PadLeft(4, '0');
+        var m = utc.Month.ToString(System.Globalization.CultureInfo.InvariantCulture).PadLeft(2, '0');
+        var d = utc.Day.ToString(System.Globalization.CultureInfo.InvariantCulture).PadLeft(2, '0');
+        var t = utc.TimeOfDay.Ticks.ToString(System.Globalization.CultureInfo.InvariantCulture).PadLeft(20, '0');
 
         var ts = string.Join("", y, m, d, t);
         return ts;
@@ -61,13 +61,13 @@ public static class TypeExtensions
 
     public static string GetConciseName(this Type type)
     {
-        
+
         var conciseName = type.Name;
-        if (!type.IsGenericType) 
+        if (!type.IsGenericType)
             return conciseName;
 
         var iBacktick = conciseName.IndexOf('`');
-        if (iBacktick > 0) conciseName = 
+        if (iBacktick > 0) conciseName =
             conciseName.Remove(iBacktick);
 
         var genericParameters = type.GetGenericArguments().Select(x => x.GetConciseName());
@@ -86,7 +86,7 @@ public static class TypeExtensions
         if (string.IsNullOrWhiteSpace(conciseName))
             return "";
 
-        if( !type.IsGenericType )
+        if (!type.IsGenericType)
             return conciseName;
 
         var iBacktick = conciseName.IndexOf('`');

@@ -22,27 +22,27 @@
         public void SetWorkingDirectory(string template, params object[] args)
         {
 
-            var working = string.Format(template, args);
+            var working = string.Format(System.Globalization.CultureInfo.InvariantCulture, template, args);
 
             WorkingDirectory = working;
 
         }
 
-        public void SetExecutable( bool useShell, bool showWindow, string template, params object[] args)
+        public void SetExecutable(bool useShell, bool showWindow, string template, params object[] args)
         {
 
-            var executable = string.Format(template, args);
+            var executable = string.Format(System.Globalization.CultureInfo.InvariantCulture, template, args);
 
-            ExecutablePath  = executable;
+            ExecutablePath = executable;
             UseShellExecute = useShell;
-            ShowWindow      = showWindow;
+            ShowWindow = showWindow;
 
         }
 
-        public void SetArguments( string template, params object[] args )
+        public void SetArguments(string template, params object[] args)
         {
 
-            var arguments = string.Format(template, args);
+            var arguments = string.Format(System.Globalization.CultureInfo.InvariantCulture, template, args);
 
             Arguments = arguments;
 

@@ -1,4 +1,4 @@
-/*
+﻿/*
 The MIT License (MIT)
 
 Copyright (c) 2017 The Kampilan Group Inc.
@@ -30,7 +30,7 @@ namespace Pondhawk.Rules.Listeners;
 /// <summary>
 /// Creates <see cref="WatchEvaluationListener"/> instances using a configured <see cref="Microsoft.Extensions.Logging.ILoggerFactory"/>.
 /// </summary>
-public sealed class WatchEvaluationListenerFactory: IEvaluationListenerFactory
+public sealed class WatchEvaluationListenerFactory : IEvaluationListenerFactory
 {
 
     public ILoggerFactory LoggerFactory { get; set; } = NullLoggerFactory.Instance;
@@ -41,7 +41,7 @@ public sealed class WatchEvaluationListenerFactory: IEvaluationListenerFactory
     public IEvaluationListener CreateListener()
     {
         var logger = LoggerFactory.CreateLogger(Category);
-        return new WatchEvaluationListener( logger );
+        return new WatchEvaluationListener(logger);
     }
 
 }

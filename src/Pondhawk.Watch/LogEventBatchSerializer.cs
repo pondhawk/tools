@@ -1,4 +1,4 @@
-/*
+﻿/*
 The MIT License (MIT)
 
 Copyright (c) 2024 Pond Hawk Technologies Inc.
@@ -58,7 +58,7 @@ public static class LogEventBatchSerializer
         MemoryPackSerializer.Serialize(compressor, batch);
 
         var stream = Manager.GetStream();
-        await compressor.CopyToAsync(stream);
+        await compressor.CopyToAsync(stream).ConfigureAwait(false);
         stream.Position = 0;
 
         return stream;
@@ -73,7 +73,7 @@ public static class LogEventBatchSerializer
     {
         using var compressor = new BrotliCompressor();
         MemoryPackSerializer.Serialize(compressor, batch);
-        await compressor.CopyToAsync(target);
+        await compressor.CopyToAsync(target).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -83,15 +83,18 @@ public static class LogEventBatchSerializer
     /// <returns>The deserialized batch, or null if deserialization fails.</returns>
     public static async Task<LogEventBatch?> FromStream(Stream source)
     {
-        await using var stream = Manager.GetStream();
-        await source.CopyToAsync(stream);
-        stream.Position = 0;
+        var stream = Manager.GetStream();
+        await using (stream.ConfigureAwait(false))
+        {
+            await source.CopyToAsync(stream).ConfigureAwait(false);
+            stream.Position = 0;
 
-        using var decompressor = new BrotliDecompressor();
-        var ros = decompressor.Decompress(stream.GetReadOnlySequence());
+            using var decompressor = new BrotliDecompressor();
+            var ros = decompressor.Decompress(stream.GetReadOnlySequence());
 
-        var batch = MemoryPackSerializer.Deserialize<LogEventBatch>(ros);
-        return batch;
+            var batch = MemoryPackSerializer.Deserialize<LogEventBatch>(ros);
+            return batch;
+        }
     }
 
     /// <summary>
@@ -114,11 +117,3 @@ public static class LogEventBatchSerializer
         return JsonSerializer.Deserialize(json, LogEventBatchContext.Default.LogEventBatch);
     }
 }
-
-/// <summary>
-/// Source-generated JSON serialization context for LogEvent and LogEventBatch.
-/// </summary>
-[JsonSourceGenerationOptions(JsonSerializerDefaults.General)]
-[JsonSerializable(typeof(LogEvent))]
-[JsonSerializable(typeof(LogEventBatch))]
-public partial class LogEventBatchContext : JsonSerializerContext;

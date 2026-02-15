@@ -9,25 +9,25 @@ public abstract class BasePipelineStep<TContext> where TContext : class, IPipeli
 {
 
     public bool ContinueAfterFailure { get; set; }
-    
-    public async Task InvokeAsync(TContext context, Func<TContext, Task> next)
+
+    public async Task InvokeAsync(TContext context, Func<TContext, Task> continuation)
     {
 
         Guard.IsNotNull(context, nameof(context));
-        Guard.IsNotNull(next, nameof(next));
-        
+        Guard.IsNotNull(continuation, nameof(continuation));
+
         if (!ContinueAfterFailure && !context.Success)
             return;
 
-        
-        await Before(context);
-        
-        await next(context);
-        
-        if (!ContinueAfterFailure && !context.Success )
+
+        await Before(context).ConfigureAwait(false);
+
+        await continuation(context).ConfigureAwait(false);
+
+        if (!ContinueAfterFailure && !context.Success)
             return;
-        
-        await After(context);        
+
+        await After(context).ConfigureAwait(false);
 
     }
 
@@ -35,19 +35,19 @@ public abstract class BasePipelineStep<TContext> where TContext : class, IPipeli
     {
 
         Guard.IsNotNull(context, nameof(context));
-        
-        return Task.CompletedTask;        
-        
-    }    
-    
+
+        return Task.CompletedTask;
+
+    }
+
     protected virtual Task After(TContext context)
     {
 
         Guard.IsNotNull(context, nameof(context));
-        
+
         return Task.CompletedTask;
-        
-    }    
-    
-    
+
+    }
+
+
 }

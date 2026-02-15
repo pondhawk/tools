@@ -11,15 +11,15 @@
 
         void Started();
         bool HasStarted { get; }
-        bool WaitForStarted( TimeSpan interval );
+        bool WaitForStarted(TimeSpan interval);
 
         void RequestStop();
         bool MustStop { get; }
-        bool WaitForMustStop( TimeSpan interval );
+        bool WaitForMustStop(TimeSpan interval);
 
         void Stopped();
         bool HasStopped { get; }
-        bool WaitForStopped( TimeSpan interval );
+        bool WaitForStopped(TimeSpan interval);
 
         void Reset();
 

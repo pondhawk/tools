@@ -1,4 +1,4 @@
-/*
+﻿/*
 The MIT License (MIT)
 
 Copyright (c) 2024 Pond Hawk Technologies Inc.
@@ -23,6 +23,7 @@ SOFTWARE.
 */
 
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using Pondhawk.Watch.Framework.Utilities;
 
 namespace Pondhawk.Watch.Framework
@@ -31,6 +32,7 @@ namespace Pondhawk.Watch.Framework
     {
         public static readonly LogEventBatch Empty = new LogEventBatch();
 
+        [SuppressMessage("Naming", "CA1720:Identifier contains type name", Justification = "Domain-specific factory method name")]
         public static LogEventBatch Single(string domain, LogEvent one)
         {
             return new LogEventBatch { Domain = domain, Events = new List<LogEvent> { one } };
@@ -38,6 +40,6 @@ namespace Pondhawk.Watch.Framework
 
         public string Uid { get; set; } = Ulid.NewUlid();
         public string Domain { get; set; } = string.Empty;
-        public List<LogEvent> Events { get; set; } = new List<LogEvent>();
+        public IList<LogEvent> Events { get; set; } = new List<LogEvent>();
     }
 }

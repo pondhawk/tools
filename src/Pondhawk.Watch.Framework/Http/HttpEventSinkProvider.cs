@@ -1,4 +1,4 @@
-/*
+﻿/*
 The MIT License (MIT)
 
 Copyright (c) 2024 Pond Hawk Technologies Inc.
@@ -94,7 +94,7 @@ namespace Pondhawk.Watch.Framework.Http
             try
             {
                 FlushCriticalBuffer(batch);
-                await SendBatchAsync(batch, cancellationToken);
+                await SendBatchAsync(batch, cancellationToken).ConfigureAwait(false);
                 OnSuccess();
             }
             catch
@@ -108,7 +108,7 @@ namespace Pondhawk.Watch.Framework.Http
             var json = JsonConvert.SerializeObject(batch, WireSettings);
             using (var content = new StringContent(json, Encoding.UTF8, "application/json"))
             {
-                var response = await _client.PostAsync("api/sink", content, ct);
+                var response = await _client.PostAsync("api/sink", content, ct).ConfigureAwait(false);
                 response.EnsureSuccessStatusCode();
             }
         }

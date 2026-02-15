@@ -27,54 +27,29 @@ using Pondhawk.Rules;
 namespace Pondhawk.Rules.Validators;
 
 /// <summary>
-/// Validation interface for enumerable properties, providing collection-level condition checking.
-/// </summary>
-public interface IEnumerableValidator<out TFact, out TType>
-{
-
-    
-    string GroupName { get; }
-    string PropertyName { get; }
-   
-    
-    IEnumerableValidator<TFact, TType> Is( Func<TFact, IEnumerable<TType>, bool> condition );
-
-    IEnumerableValidator<TFact, TType> IsNot( Func<TFact, IEnumerable<TType>, bool> condition );
-
-    IValidationRule<TFact> Otherwise(string template, params Func<TFact, object>[] parameters);
-
-    IValidationRule<TFact> Otherwise(string group, string template, params Func<TFact, object>[] parameters);
-
-    IValidationRule<TFact> Otherwise(RuleEvent.EventCategory category, string group, string template, params Func<TFact, object>[] parameters);
-
-}
-
-
-
-/// <summary>
 /// Default implementation of <see cref="IEnumerableValidator{TFact, TType}"/> for enumerable property validation.
 /// </summary>
-public class EnumerableValidator<TFact, TType>( ValidationRule<TFact> rule, string group, string propertyName, Func<TFact, IEnumerable<TType>> extractor )
-    : BaseValidator<TFact>( rule, group ), IEnumerableValidator<TFact, TType>
+public class EnumerableValidator<TFact, TType>(ValidationRule<TFact> rule, string group, string propertyName, Func<TFact, IEnumerable<TType>> extractor)
+    : BaseValidator<TFact>(rule, group), IEnumerableValidator<TFact, TType>
 {
     public string GroupName { get; } = group;
     public string PropertyName { get; } = propertyName;
 
     protected Func<TFact, IEnumerable<TType>> Extractor { get; } = extractor;
 
-        
-    public IEnumerableValidator<TFact, TType> Is( Func<TFact, IEnumerable<TType>, bool> condition )
+
+    public IEnumerableValidator<TFact, TType> Is(Func<TFact, IEnumerable<TType>, bool> condition)
     {
         bool Cond(TFact f) => condition(f, Extractor(f));
-        Conditions.Add( Cond );
+        Conditions.Add(Cond);
         return this;
     }
 
-        
-    public IEnumerableValidator<TFact, TType> IsNot( Func<TFact, IEnumerable<TType>, bool> condition )
+
+    public IEnumerableValidator<TFact, TType> IsNot(Func<TFact, IEnumerable<TType>, bool> condition)
     {
         bool Cond(TFact f) => !condition(f, Extractor(f));
-        Conditions.Add( Cond );
+        Conditions.Add(Cond);
         return this;
     }
 }

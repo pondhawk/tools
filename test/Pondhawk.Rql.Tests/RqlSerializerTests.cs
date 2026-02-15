@@ -1,4 +1,4 @@
-using Pondhawk.Rql.Builder;
+﻿using Pondhawk.Rql.Builder;
 using Pondhawk.Rql.Parser;
 using Pondhawk.Rql.Serialization;
 using Shouldly;

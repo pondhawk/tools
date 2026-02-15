@@ -1,4 +1,4 @@
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 using Pondhawk.Logging.Serializers;
 using Serilog;
 using Serilog.Events;

@@ -1,4 +1,4 @@
-/*
+﻿/*
 The MIT License (MIT)
 
 Copyright (c) 2024 Pond Hawk Technologies Inc.
@@ -47,7 +47,7 @@ public class WatchSwitchSource : SwitchSource, IAsyncDisposable
     private readonly string _domain;
     private readonly TimeSpan _pollInterval;
     private readonly CancellationTokenSource _cts = new();
-    private readonly object _startLock = new();
+    private readonly Lock _startLock = new();
     private Task? _pollTask;
     private bool _started;
 
@@ -107,7 +107,7 @@ public class WatchSwitchSource : SwitchSource, IAsyncDisposable
         try
         {
             var url = $"api/switches?domain={Uri.EscapeDataString(_domain)}";
-            var response = await _client.GetFromJsonAsync<SwitchesResponse>(url, ct);
+            var response = await _client.GetFromJsonAsync<SwitchesResponse>(url, ct).ConfigureAwait(false);
 
             if (response?.Switches is not null)
             {
@@ -133,7 +133,7 @@ public class WatchSwitchSource : SwitchSource, IAsyncDisposable
     private async Task PollLoopAsync(CancellationToken ct)
     {
         // Initial fetch (primer)
-        await UpdateAsync(ct);
+        await UpdateAsync(ct).ConfigureAwait(false);
 
         if (!PollingEnabled)
             return;
@@ -142,8 +142,8 @@ public class WatchSwitchSource : SwitchSource, IAsyncDisposable
         {
             try
             {
-                await Task.Delay(_pollInterval, ct);
-                await UpdateAsync(ct);
+                await Task.Delay(_pollInterval, ct).ConfigureAwait(false);
+                await UpdateAsync(ct).ConfigureAwait(false);
             }
             catch (OperationCanceledException) when (ct.IsCancellationRequested)
             {
@@ -167,7 +167,7 @@ public class WatchSwitchSource : SwitchSource, IAsyncDisposable
         {
             try
             {
-                await _pollTask;
+                await _pollTask.ConfigureAwait(false);
             }
             catch (OperationCanceledException)
             {
@@ -176,5 +176,7 @@ public class WatchSwitchSource : SwitchSource, IAsyncDisposable
         }
 
         _cts.Dispose();
+        Dispose(true);
+        GC.SuppressFinalize(this);
     }
 }

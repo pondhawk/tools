@@ -31,14 +31,14 @@ public class FunctionalException : FluentException<FunctionalException>
 {
 
 
-    public FunctionalException( string message ) : base(message)
+    public FunctionalException(string message) : base(message)
     {
 
         Kind = ErrorKind.Functional;
 
     }
 
-    public FunctionalException( string message, Exception inner ) : base(message, inner)
+    public FunctionalException(string message, Exception inner) : base(message, inner)
     {
 
         Kind = ErrorKind.Functional;

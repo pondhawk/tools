@@ -37,10 +37,10 @@ namespace Pondhawk.Rules;
 /// <para>The extractor function (e.g. <c>p =&gt; p.Children</c>) is called during evaluation to get the collection.
 /// Each child that passes all conditions has its consequence fired.</para>
 /// </remarks>
-public sealed class ForeachRule<TParent,TFact>: AbstractRule
+public sealed class ForeachRule<TParent, TFact> : AbstractRule
 {
 
-    public ForeachRule( Func<TParent,IEnumerable<TFact>> extractor,  string setName, string ruleName ): base( setName, ruleName )
+    public ForeachRule(Func<TParent, IEnumerable<TFact>> extractor, string setName, string ruleName) : base(setName, ruleName)
     {
 
         Extractor = extractor;
@@ -58,15 +58,15 @@ public sealed class ForeachRule<TParent,TFact>: AbstractRule
     private Action<TFact> Consequence { get; set; }
     private Func<TParent, object> ModifyFunc { get; set; }
 
-    
-    public ForeachRule<TParent,TFact> WithSalience( int value )
+
+    public ForeachRule<TParent, TFact> WithSalience(int value)
     {
         Salience = value;
         return this;
     }
 
 
-    public ForeachRule<TParent, TFact> InMutex( string name )
+    public ForeachRule<TParent, TFact> InMutex(string name)
     {
         Mutex = name;
         return this;
@@ -74,27 +74,27 @@ public sealed class ForeachRule<TParent,TFact>: AbstractRule
 
 
 
-    public ForeachRule<TParent, TFact> WithInception( DateTime inception )
+    public ForeachRule<TParent, TFact> WithInception(DateTime inception)
     {
         Inception = inception;
         return this;
     }
 
-    
-    public ForeachRule<TParent, TFact> WithExpiration( DateTime expiration )
+
+    public ForeachRule<TParent, TFact> WithExpiration(DateTime expiration)
     {
         Expiration = expiration;
         return this;
     }
 
-    
+
     public ForeachRule<TParent, TFact> FireOnce()
     {
         OnlyFiresOnce = true;
         return this;
     }
 
-    
+
     public ForeachRule<TParent, TFact> FireAlways()
     {
         OnlyFiresOnce = false;
@@ -102,222 +102,222 @@ public sealed class ForeachRule<TParent,TFact>: AbstractRule
     }
 
 
-    
-    public ForeachRule<TParent, TFact> If( Func<TFact, bool> oCondition )
-    {
-        Conditions.Add( oCondition );
-        return this;
-    }
 
-    
-    public ForeachRule<TParent, TFact> And( Func<TFact, bool> oCondition )
+    public ForeachRule<TParent, TFact> If(Func<TFact, bool> oCondition)
     {
-        Conditions.Add( oCondition );
+        Conditions.Add(oCondition);
         return this;
     }
 
 
-    
-    public ForeachRule<TParent, TFact> Then( Action<TFact> oConsequence )
+    public ForeachRule<TParent, TFact> And(Func<TFact, bool> oCondition)
+    {
+        Conditions.Add(oCondition);
+        return this;
+    }
+
+
+
+    public ForeachRule<TParent, TFact> Then(Action<TFact> oConsequence)
     {
         Consequence = oConsequence;
         return this;
     }
 
-    
-    public ForeachRule<TParent, TFact> Then( string template, params Func<TFact, object>[] parameters )
+
+    public ForeachRule<TParent, TFact> Then(string template, params Func<TFact, object>[] parameters)
     {
-        Consequence = f => _BuildMessage( f, RuleEvent.EventCategory.Info, "", template, parameters );
+        Consequence = f => _BuildMessage(f, RuleEvent.EventCategory.Info, "", template, parameters);
         return this;
     }
 
-    
-    public ForeachRule<TParent, TFact> Then( string group, string template, params Func<TFact, object>[] parameters)
+
+    public ForeachRule<TParent, TFact> Then(string group, string template, params Func<TFact, object>[] parameters)
     {
         Consequence = f => _BuildMessage(f, RuleEvent.EventCategory.Info, group, template, parameters);
         return this;
     }
 
 
-    
-    public ForeachRule<TParent, TFact> Then( RuleEvent.EventCategory category, string group, string template, params Func<TFact, object>[] parameters )
-    {
-        Consequence = f => _BuildMessage( f, category, group, template, parameters );
-        return this;
-    }
 
-    
-    public ForeachRule<TParent, TFact> ThenAffirm( int weight )
+    public ForeachRule<TParent, TFact> Then(RuleEvent.EventCategory category, string group, string template, params Func<TFact, object>[] parameters)
     {
-        Consequence = f => HandleAffirm( weight );
+        Consequence = f => _BuildMessage(f, category, group, template, parameters);
         return this;
     }
 
 
-    public ForeachRule<TParent, TFact> ThenVeto( int weight )
+    public ForeachRule<TParent, TFact> ThenAffirm(int weight)
     {
-        Consequence = s => HandleVeto( weight );
+        Consequence = f => HandleAffirm(weight);
         return this;
     }
 
 
-    
-    public ForeachRule<TParent, TFact> Fire( Action<TFact> oConsequence )
+    public ForeachRule<TParent, TFact> ThenVeto(int weight)
     {
-        Conditions.Add( f => true );
+        Consequence = s => HandleVeto(weight);
+        return this;
+    }
+
+
+
+    public ForeachRule<TParent, TFact> Fire(Action<TFact> oConsequence)
+    {
+        Conditions.Add(f => true);
         Consequence = oConsequence;
         return this;
     }
 
-    
-    public ForeachRule<TParent, TFact> Fire( string template, params Func<TFact, object>[] parameters )
+
+    public ForeachRule<TParent, TFact> Fire(string template, params Func<TFact, object>[] parameters)
     {
-        Conditions.Add( f => true );
-        Consequence = f => _BuildMessage( f, RuleEvent.EventCategory.Info, "", template, parameters );
+        Conditions.Add(f => true);
+        Consequence = f => _BuildMessage(f, RuleEvent.EventCategory.Info, "", template, parameters);
         return this;
     }
 
-    
-    public ForeachRule<TParent, TFact> Fire( string group, string template, params Func<TFact, object>[] parameters)
+
+    public ForeachRule<TParent, TFact> Fire(string group, string template, params Func<TFact, object>[] parameters)
     {
         Conditions.Add(f => true);
         Consequence = f => _BuildMessage(f, RuleEvent.EventCategory.Info, group, template, parameters);
         return this;
     }
 
-    
-    public ForeachRule<TParent, TFact> Fire( RuleEvent.EventCategory category, string group, string template, params Func<TFact, object>[] parameters )
-    {
-        Conditions.Add( f => true );
-        Consequence = f => _BuildMessage( f, category, group, template, parameters );
-        return this;
-    }
 
-    
-    public ForeachRule<TParent, TFact> FireAffirm( int weight )
+    public ForeachRule<TParent, TFact> Fire(RuleEvent.EventCategory category, string group, string template, params Func<TFact, object>[] parameters)
     {
-        Conditions.Add( f => true );
-        Consequence = f => HandleAffirm( weight );
+        Conditions.Add(f => true);
+        Consequence = f => _BuildMessage(f, category, group, template, parameters);
         return this;
     }
 
 
-    public ForeachRule<TParent, TFact> FireVeto( int weight )
+    public ForeachRule<TParent, TFact> FireAffirm(int weight)
     {
-        Conditions.Add( f => true );
-        Consequence = f => HandleVeto( weight );
+        Conditions.Add(f => true);
+        Consequence = f => HandleAffirm(weight);
+        return this;
+    }
+
+
+    public ForeachRule<TParent, TFact> FireVeto(int weight)
+    {
+        Conditions.Add(f => true);
+        Consequence = f => HandleVeto(weight);
         return this;
     }
 
 
 
-    public ForeachRule<TParent, TFact> Otherwise( Action<TFact> oConsequence )
+    public ForeachRule<TParent, TFact> Otherwise(Action<TFact> oConsequence)
     {
         Negated = true;
         Consequence = oConsequence;
         return this;
     }
 
-    
-    public ForeachRule<TParent, TFact> Otherwise( string template, params Func<TFact, object>[] parameters )
+
+    public ForeachRule<TParent, TFact> Otherwise(string template, params Func<TFact, object>[] parameters)
     {
         Negated = true;
-        Consequence = f => _BuildMessage( f, RuleEvent.EventCategory.Info, "", template, parameters );
+        Consequence = f => _BuildMessage(f, RuleEvent.EventCategory.Info, "", template, parameters);
         return this;
     }
 
-    
-    public ForeachRule<TParent, TFact> Otherwise( string group, string template, params Func<TFact, object>[] parameters)
+
+    public ForeachRule<TParent, TFact> Otherwise(string group, string template, params Func<TFact, object>[] parameters)
     {
         Negated = true;
         Consequence = f => _BuildMessage(f, RuleEvent.EventCategory.Info, group, template, parameters);
         return this;
     }
 
-    
-    public ForeachRule<TParent, TFact> Otherwise(RuleEvent.EventCategory category, string group, string template, params Func<TFact, object>[] parameters )
-    {
-        Negated = true;
-        Consequence = f => _BuildMessage( f, category, group, template, parameters );
-        return this;
-    }
 
-    
-    public ForeachRule<TParent, TFact> OtherwiseAffirm( int weight )
+    public ForeachRule<TParent, TFact> Otherwise(RuleEvent.EventCategory category, string group, string template, params Func<TFact, object>[] parameters)
     {
         Negated = true;
-        Consequence = f => HandleAffirm( weight );
+        Consequence = f => _BuildMessage(f, category, group, template, parameters);
         return this;
     }
 
 
-    public ForeachRule<TParent, TFact> OtherwiseVeto( int weight )
+    public ForeachRule<TParent, TFact> OtherwiseAffirm(int weight)
     {
         Negated = true;
-        Consequence = f => HandleVeto( weight );
+        Consequence = f => HandleAffirm(weight);
         return this;
     }
 
-    
+
+    public ForeachRule<TParent, TFact> OtherwiseVeto(int weight)
+    {
+        Negated = true;
+        Consequence = f => HandleVeto(weight);
+        return this;
+    }
+
+
     public ForeachRule<TParent, TFact> Modifies()
     {
         ModifyFunc = f => f;
         return this;
     }
 
-    public ForeachRule<TParent, TFact> Modifies( Func<TParent, object> modifyFunc )
+    public ForeachRule<TParent, TFact> Modifies(Func<TParent, object> modifyFunc)
     {
         ModifyFunc = modifyFunc;
         return this;
     }
 
 
-    private void _BuildMessage( TFact fact, RuleEvent.EventCategory category, string group, string template,  Func<TFact, object>[] parameters )
+    private static void _BuildMessage(TFact fact, RuleEvent.EventCategory category, string group, string template, Func<TFact, object>[] parameters)
     {
         if (parameters.Length == 0)
         {
-            RuleThreadLocalStorage.CurrentContext.Event( category, group, template, fact );
+            RuleThreadLocalStorage.CurrentContext.Event(category, group, template, fact);
             return;
         }
 
         var markers = new object[parameters.Length];
         for (int i = 0; i < parameters.Length; i++)
         {
-            object o = parameters[i]( fact ) ?? "null";
+            object o = parameters[i](fact) ?? "null";
             markers[i] = o;
         }
 
-        string desc = string.Format( template, markers );
-        RuleThreadLocalStorage.CurrentContext.Event( category, group, desc, fact );
+        string desc = string.Format(System.Globalization.CultureInfo.InvariantCulture, template, markers);
+        RuleThreadLocalStorage.CurrentContext.Event(category, group, desc, fact);
     }
 
 
-    protected override IRule InternalEvaluate(  object[] offered )
+    protected override IRule InternalEvaluate(object[] offered)
     {
 
-        base.InternalEvaluate( offered );
+        base.InternalEvaluate(offered);
 
         var parent = (TParent)offered[0];
 
         List<TFact> trueFacts = [];
 
-        foreach( TFact fact in Extractor( parent ) )
+        foreach (TFact fact in Extractor(parent))
         {
 
-            foreach( var cond in Conditions )
+            foreach (var cond in Conditions)
             {
-                if( cond( fact ) == Negated )
+                if (cond(fact) == Negated)
                     break;
 
-                trueFacts.Add( fact );
+                trueFacts.Add(fact);
             }
 
         }
 
 
-        if( trueFacts.Count > 0 )
+        if (trueFacts.Count > 0)
         {
-            var sub = new SubRule<TParent,TFact>( trueFacts, Consequence, parent, ModifyFunc )
+            var sub = new SubRule<TParent, TFact>(trueFacts, Consequence, parent, ModifyFunc)
             {
                 Namespace = Namespace,
                 Name = Name,
@@ -336,7 +336,7 @@ public sealed class ForeachRule<TParent,TFact>: AbstractRule
     }
 
 
-    protected override void InternalFire( object[] offered )
+    protected override void InternalFire(object[] offered)
     {
 
     }

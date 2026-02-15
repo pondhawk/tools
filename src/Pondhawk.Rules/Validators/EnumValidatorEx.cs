@@ -1,3 +1,4 @@
+﻿using System.Diagnostics.CodeAnalysis;
 using Humanizer;
 
 namespace Pondhawk.Rules.Validators;
@@ -5,6 +6,7 @@ namespace Pondhawk.Rules.Validators;
 /// <summary>
 /// Enum validation extensions (e.g. IsInEnum, IsNotDefault).
 /// </summary>
+[SuppressMessage("Naming", "CA1711:Identifiers should not have incorrect suffix", Justification = "Ex suffix is an intentional domain convention for extension method classes")]
 public static class EnumValidatorEx
 {
 

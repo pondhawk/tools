@@ -44,7 +44,7 @@ public interface IBuilder
     /// Gets the rules that this builder defines. This is nomally called to add the
     /// rules to a rule set for eventual evealuation
     /// </summary>
-    void LoadRules( IRuleSink sink );
+    void LoadRules(IRuleSink sink);
 
 
 }

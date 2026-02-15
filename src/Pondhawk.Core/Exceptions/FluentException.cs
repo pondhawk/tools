@@ -29,7 +29,7 @@ namespace Pondhawk.Exceptions;
 /// <summary>
 /// Base exception with a fluent builder API for setting kind, error code, explanation, and details.
 /// </summary>
-public abstract class FluentException<TDescendant>: ExternalException where TDescendant: FluentException<TDescendant>
+public abstract class FluentException<TDescendant> : ExternalException where TDescendant : FluentException<TDescendant>
 {
 
     protected FluentException(string message) : base(message)
@@ -47,14 +47,14 @@ public abstract class FluentException<TDescendant>: ExternalException where TDes
         return (TDescendant)this;
     }
 
-    public TDescendant WithErrorCode( string code )
+    public TDescendant WithErrorCode(string code)
     {
         Guard.IsNotNull(code);
         ErrorCode = code;
         return (TDescendant)this;
     }
 
-    public TDescendant WithExplanation( string explanation )
+    public TDescendant WithExplanation(string explanation)
     {
         Guard.IsNotNull(explanation);
         Explanation = explanation;
@@ -62,7 +62,7 @@ public abstract class FluentException<TDescendant>: ExternalException where TDes
 
     }
 
-    public TDescendant WithCorrelationId( string correlationId)
+    public TDescendant WithCorrelationId(string correlationId)
     {
         Guard.IsNotNull(correlationId);
         CorrelationId = correlationId;
@@ -70,7 +70,7 @@ public abstract class FluentException<TDescendant>: ExternalException where TDes
 
     }
 
-    public TDescendant WithDetail( EventDetail detail)
+    public TDescendant WithDetail(EventDetail detail)
     {
 
         Guard.IsNotNull(detail);
@@ -80,7 +80,7 @@ public abstract class FluentException<TDescendant>: ExternalException where TDes
 
     }
 
-    public TDescendant WithDetails( IEnumerable<EventDetail> details)
+    public TDescendant WithDetails(IEnumerable<EventDetail> details)
     {
         Guard.IsNotNull(details);
 
@@ -91,7 +91,7 @@ public abstract class FluentException<TDescendant>: ExternalException where TDes
 
     }
 
-    public TDescendant With( IExceptionInfo info )
+    public TDescendant With(IExceptionInfo info)
     {
 
         Guard.IsNotNull(info);

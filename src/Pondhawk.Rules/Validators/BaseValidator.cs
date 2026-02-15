@@ -32,11 +32,11 @@ namespace Pondhawk.Rules.Validators;
 public abstract class BaseValidator<TFact>
 {
 
-        
-    protected BaseValidator( ValidationRule<TFact> rule, string group )
+
+    protected BaseValidator(ValidationRule<TFact> rule, string group)
     {
 
-        Rule  = rule;
+        Rule = rule;
         Group = group;
 
         Conditions = [];
@@ -50,41 +50,41 @@ public abstract class BaseValidator<TFact>
     private ValidationRule<TFact> Rule { get; }
 
 
-    public List<Func<TFact, bool>> Conditions { get; }
+    public IList<Func<TFact, bool>> Conditions { get; }
     public Action<TFact> Consequence { get; private set; }
 
 
-    public IValidationRule<TFact> Otherwise( string template, params Func<TFact, object>[] parameters )
+    public IValidationRule<TFact> Otherwise(string template, params Func<TFact, object>[] parameters)
     {
-        Consequence = f => _BuildMessage( f, RuleEvent.EventCategory.Violation, Group, template, parameters );
+        Consequence = f => _BuildMessage(f, RuleEvent.EventCategory.Violation, Group, template, parameters);
         return Rule;
     }
 
-    public IValidationRule<TFact> Otherwise( string group, string template, params Func<TFact, object>[] parameters)
+    public IValidationRule<TFact> Otherwise(string group, string template, params Func<TFact, object>[] parameters)
     {
         Consequence = f => _BuildMessage(f, RuleEvent.EventCategory.Violation, group, template, parameters);
         return Rule;
     }
 
-    public IValidationRule<TFact> Otherwise( RuleEvent.EventCategory category, string group, string template, params Func<TFact, object>[] parameters )
+    public IValidationRule<TFact> Otherwise(RuleEvent.EventCategory category, string group, string template, params Func<TFact, object>[] parameters)
     {
         Consequence = f => _BuildMessage(f, category, group, template, parameters);
         return Rule;
     }
 
 
-    private void _BuildMessage( TFact fact, RuleEvent.EventCategory category, string group, string template,  Func<TFact, object>[] parameters )
+    private static void _BuildMessage(TFact fact, RuleEvent.EventCategory category, string group, string template, Func<TFact, object>[] parameters)
     {
         int len = parameters.Length;
 
         var markers = new object[len];
-        for( int i = 0; i < len; i++ )
+        for (int i = 0; i < len; i++)
         {
-            object o = parameters[i]( fact ) ?? "null";
+            object o = parameters[i](fact) ?? "null";
             markers[i] = o;
         }
 
-        string desc = len == 0 ? template : string.Format( template, markers );
-        RuleThreadLocalStorage.CurrentContext.Event( category, group, desc );
+        string desc = len == 0 ? template : string.Format(System.Globalization.CultureInfo.InvariantCulture, template, markers);
+        RuleThreadLocalStorage.CurrentContext.Event(category, group, desc);
     }
 }

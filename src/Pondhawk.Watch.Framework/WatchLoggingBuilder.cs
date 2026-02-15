@@ -1,4 +1,4 @@
-/*
+﻿/*
 The MIT License (MIT)
 
 Copyright (c) 2024 Pond Hawk Technologies Inc.
@@ -33,7 +33,7 @@ using Pondhawk.Watch.Framework.Switching;
 
 namespace Pondhawk.Watch.Framework
 {
-    public class WatchLoggingBuilder
+    public class WatchLoggingBuilder : IDisposable
     {
         private readonly WatchLoggingOptions _options = new WatchLoggingOptions();
         private ISwitchSource _switchSource;
@@ -141,6 +141,12 @@ namespace Pondhawk.Watch.Framework
                 BatchSize = _options.BatchSize,
                 FlushInterval = _options.FlushInterval
             };
+        }
+
+        public void Dispose()
+        {
+            _httpClient?.Dispose();
+            GC.SuppressFinalize(this);
         }
     }
 }

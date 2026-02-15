@@ -26,19 +26,10 @@ using System.Linq.Expressions;
 using CommunityToolkit.Diagnostics;
 using Pondhawk.Rules.Builder;
 using Pondhawk.Rules.Evaluation;
-using Pondhawk.Rules.Validators;
 using Pondhawk.Rules.Util;
+using Pondhawk.Rules.Validators;
 
 namespace Pondhawk.Rules;
-
-/// <summary>
-/// Marker interface for validation rules targeting fact type <typeparamref name="TFact"/>.
-/// </summary>
-public interface IValidationRule<out TFact>: IRule
-{
-        
-}
-
 
 /// <summary>
 /// A validation rule for fact type <typeparamref name="TFact"/> built using the <c>Assert().Is().Otherwise()</c> fluent API.
@@ -47,7 +38,7 @@ public interface IValidationRule<out TFact>: IRule
 public class ValidationRule<TFact> : AbstractRule, IValidationRule<TFact>
 {
 
-    public ValidationRule( string setName, string ruleName ) : base( setName, ruleName )
+    public ValidationRule(string setName, string ruleName) : base(setName, ruleName)
     {
         Salience = int.MaxValue - 1000000;
 
@@ -57,21 +48,21 @@ public class ValidationRule<TFact> : AbstractRule, IValidationRule<TFact>
     }
 
 
-    protected List<Func<TFact, bool>> Predicates { get; private set; }
+    protected IList<Func<TFact, bool>> Predicates { get; private set; }
     protected BaseValidator<TFact> TypeValidator { get; private set; }
 
     private Action<TFact> CascadeAction { get; set; }
 
 
-        
-    public ValidationRule<TFact> WithSalience( int value )
+
+    public ValidationRule<TFact> WithSalience(int value)
     {
         Salience = (int.MaxValue - 1000000) + value;
         return this;
     }
 
-        
-    public ValidationRule<TFact> InMutex( string name )
+
+    public ValidationRule<TFact> InMutex(string name)
     {
         Guard.IsNotNullOrWhiteSpace(name);
 
@@ -80,23 +71,23 @@ public class ValidationRule<TFact> : AbstractRule, IValidationRule<TFact>
     }
 
 
-        
-    public ValidationRule<TFact> WithInception( DateTime inception )
+
+    public ValidationRule<TFact> WithInception(DateTime inception)
     {
         Inception = inception;
         return this;
     }
 
 
-        
-    public ValidationRule<TFact> WithExpiration( DateTime expiration )
+
+    public ValidationRule<TFact> WithExpiration(DateTime expiration)
     {
         Expiration = expiration;
         return this;
     }
 
-        
-    public ValidationRule<TFact> When( Func<TFact, bool> predicate )
+
+    public ValidationRule<TFact> When(Func<TFact, bool> predicate)
     {
         Guard.IsNotNull(predicate);
 
@@ -105,8 +96,8 @@ public class ValidationRule<TFact> : AbstractRule, IValidationRule<TFact>
     }
 
 
-        
-    public ValidationRule<TFact> And( Func<TFact, bool> predicate )
+
+    public ValidationRule<TFact> And(Func<TFact, bool> predicate)
     {
         Guard.IsNotNull(predicate);
 
@@ -115,7 +106,7 @@ public class ValidationRule<TFact> : AbstractRule, IValidationRule<TFact>
     }
 
 
-    public ValidationRule<TFact> Unless( Func<TFact, bool> predicate )
+    public ValidationRule<TFact> Unless(Func<TFact, bool> predicate)
     {
         Guard.IsNotNull(predicate);
 
@@ -125,7 +116,7 @@ public class ValidationRule<TFact> : AbstractRule, IValidationRule<TFact>
 
 
 
-    public IValidator<TFact, TType> Assert<TType>( Expression<Func<TFact, TType>> extractorEx )
+    public IValidator<TFact, TType> Assert<TType>(Expression<Func<TFact, TType>> extractorEx)
     {
         Guard.IsNotNull(extractorEx);
 
@@ -133,16 +124,16 @@ public class ValidationRule<TFact> : AbstractRule, IValidationRule<TFact>
 
         var propName = "";
         var groupName = factName;
-        if( extractorEx.Body is MemberExpression body )
+        if (extractorEx.Body is MemberExpression body)
         {
             propName = body.Member.Name;
             groupName = $"{factName}.{body.Member.Name}";
-            
+
         }
 
         var extractor = extractorEx.Compile();
 
-        var validator = new Validator<TFact, TType>( this, groupName, propName, extractor );
+        var validator = new Validator<TFact, TType>(this, groupName, propName, extractor);
         TypeValidator = validator;
 
         return validator;
@@ -150,7 +141,7 @@ public class ValidationRule<TFact> : AbstractRule, IValidationRule<TFact>
     }
 
 
-    public EnumerableValidator<TFact, TType> AssertOver<TType>( Expression<Func<TFact, IEnumerable<TType>>> extractorEx )
+    public EnumerableValidator<TFact, TType> AssertOver<TType>(Expression<Func<TFact, IEnumerable<TType>>> extractorEx)
     {
         Guard.IsNotNull(extractorEx);
 
@@ -158,17 +149,17 @@ public class ValidationRule<TFact> : AbstractRule, IValidationRule<TFact>
 
         var propName = "";
         var groupName = factName;
-        if( extractorEx.Body is MemberExpression body )
+        if (extractorEx.Body is MemberExpression body)
         {
             propName = body.Member.Name;
             groupName = $"{factName}.{body.Member.Name}";
-            
+
         }
 
 
         var extractor = extractorEx.Compile();
 
-        var validator = new EnumerableValidator<TFact, TType>( this, groupName, propName, extractor );
+        var validator = new EnumerableValidator<TFact, TType>(this, groupName, propName, extractor);
         TypeValidator = validator;
 
         return validator;
@@ -176,41 +167,41 @@ public class ValidationRule<TFact> : AbstractRule, IValidationRule<TFact>
     }
 
 
-    public void Cascade<TRef>(  Func<TFact, TRef> extractor ) where TRef : class
+    public void Cascade<TRef>(Func<TFact, TRef> extractor) where TRef : class
     {
         Guard.IsNotNull(extractor);
 
-        CascadeAction = f => RuleThreadLocalStorage.CurrentContext.InsertFact( extractor( f ) );
+        CascadeAction = f => RuleThreadLocalStorage.CurrentContext.InsertFact(extractor(f));
     }
 
 
-    public void CascadeAll<TChild>(  Func<TFact, IEnumerable<TChild>> extractor ) where TChild : class
+    public void CascadeAll<TChild>(Func<TFact, IEnumerable<TChild>> extractor) where TChild : class
     {
         Guard.IsNotNull(extractor);
 
-        CascadeAction = f => _CascadeCollection( extractor( f ) );
+        CascadeAction = f => _CascadeCollection(extractor(f));
     }
 
-    private void _CascadeCollection(  IEnumerable<object> children )
+    private static void _CascadeCollection(IEnumerable<object> children)
     {
-        foreach( var o in children )
-            RuleThreadLocalStorage.CurrentContext.InsertFact( o );
+        foreach (var o in children)
+            RuleThreadLocalStorage.CurrentContext.InsertFact(o);
     }
 
 
-    protected override IRule InternalEvaluate(  object[] offered  )
+    protected override IRule InternalEvaluate(object[] offered)
     {
-        base.InternalEvaluate( offered );
+        base.InternalEvaluate(offered);
 
         var fact = (TFact)offered[0];
 
-        if( CascadeAction is not null )
+        if (CascadeAction is not null)
             return this;
 
-        if( Predicates.Count > 0 && Predicates.Any( cond => !cond(fact) ) )
+        if (Predicates.Count > 0 && Predicates.Any(cond => !cond(fact)))
             return null;
 
-        if( TypeValidator.Conditions.Select( cond => cond( fact ) ).Any( result => !result ) )
+        if (TypeValidator.Conditions.Select(cond => cond(fact)).Any(result => !result))
             return this;
 
         return null;
@@ -218,15 +209,15 @@ public class ValidationRule<TFact> : AbstractRule, IValidationRule<TFact>
     }
 
 
-    protected override void InternalFire(  object[] offered )
+    protected override void InternalFire(object[] offered)
     {
-        base.InternalFire( offered );
+        base.InternalFire(offered);
 
         var fact = (TFact)offered[0];
 
-        if( CascadeAction is not null )
-            CascadeAction( fact );
+        if (CascadeAction is not null)
+            CascadeAction(fact);
         else
-            TypeValidator.Consequence( fact );
+            TypeValidator.Consequence(fact);
     }
 }

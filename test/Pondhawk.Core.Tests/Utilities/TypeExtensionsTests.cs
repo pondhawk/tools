@@ -1,4 +1,4 @@
-using Pondhawk.Utilities.Types;
+﻿using Pondhawk.Utilities.Types;
 using Shouldly;
 using Xunit;
 

@@ -23,11 +23,13 @@ SOFTWARE.
 */
 
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
-[assembly: InternalsVisibleTo( "Pondhawk.Rules.Tests" )]
+[assembly: InternalsVisibleTo("Pondhawk.Rules.Tests")]
 
 namespace Pondhawk.Rules.Evaluation;
 
+[StructLayout(LayoutKind.Auto)]
 internal readonly struct EvaluationStep
 {
     public int Priority { get; init; }

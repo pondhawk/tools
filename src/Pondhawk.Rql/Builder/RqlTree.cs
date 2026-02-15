@@ -9,6 +9,6 @@ public class RqlTree
     public bool HasCriteria => Criteria.Count > 0;
 
     /// <summary>The list of parsed predicates.</summary>
-    public List<IRqlPredicate> Criteria { get;  } = [];
+    public IList<IRqlPredicate> Criteria { get; } = [];
 
 }

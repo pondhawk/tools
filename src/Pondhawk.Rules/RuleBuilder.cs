@@ -57,8 +57,8 @@ namespace Pondhawk.Rules;
 public abstract class RuleBuilder : AbstractRuleBuilder, IBuilder
 {
 
-        
-    public virtual Rule<TFact> Rule<TFact>( params string[] tags )
+
+    public virtual Rule<TFact> Rule<TFact>(params string[] tags)
     {
 
         var nameSpace = GetType().Namespace;
@@ -83,15 +83,15 @@ public abstract class RuleBuilder : AbstractRuleBuilder, IBuilder
         rule.WithExpiration(DefaultExpiration);
 
 
-        Sinks.Add( t => t.Add( typeof(TFact), rule ) );
+        Sinks.Add(t => t.Add(typeof(TFact), rule));
 
         return rule;
 
     }
 
 
-        
-    public virtual ForeachRule<TFact, TChild> Rule<TFact,TChild>( Func<TFact, IEnumerable<TChild>> extractor, params string[] tags )
+
+    public virtual ForeachRule<TFact, TChild> Rule<TFact, TChild>(Func<TFact, IEnumerable<TChild>> extractor, params string[] tags)
     {
 
 
@@ -132,7 +132,7 @@ public abstract class RuleBuilder<TFact> : AbstractRuleBuilder, IBuilder
     }
 
 
-    public virtual Rule<TFact> Rule( params string[] tags)
+    public virtual Rule<TFact> Rule(params string[] tags)
     {
 
         var nameSpace = GetType().Namespace;
@@ -140,7 +140,7 @@ public abstract class RuleBuilder<TFact> : AbstractRuleBuilder, IBuilder
         var tagsSegment = tags.Length > 0 ? $":{string.Join(':', tags)}" : "";
         var ruleName = $"({typeof(TFact).GetConciseName()}){tagsSegment}";
 
-        var rule = new Rule<TFact>( fullSetName, ruleName );
+        var rule = new Rule<TFact>(fullSetName, ruleName);
 
         // Apply the default for FireOnce
         if (DefaultFireOnce)
@@ -150,20 +150,20 @@ public abstract class RuleBuilder<TFact> : AbstractRuleBuilder, IBuilder
 
 
         // Apply default salience
-        rule.WithSalience( DefaultSalience );
+        rule.WithSalience(DefaultSalience);
 
         // Apply default inception and expiration
-        rule.WithInception( DefaultInception );
-        rule.WithExpiration( DefaultExpiration );
+        rule.WithInception(DefaultInception);
+        rule.WithExpiration(DefaultExpiration);
 
-        Rules.Add( rule );
+        Rules.Add(rule);
 
         return rule;
     }
 
 
-        
-    public virtual ForeachRule<TFact, TChild> Rule<TChild>( Func<TFact, IEnumerable<TChild>> extractor, params string[] tags )
+
+    public virtual ForeachRule<TFact, TChild> Rule<TChild>(Func<TFact, IEnumerable<TChild>> extractor, params string[] tags)
     {
 
 
@@ -173,16 +173,16 @@ public abstract class RuleBuilder<TFact> : AbstractRuleBuilder, IBuilder
         var ruleName = $"({typeof(TFact).GetConciseName()}[{TypeExtensions.GetConciseName(typeof(TChild))}]){tagsSegment}";
 
 
-        var rule = new ForeachRule<TFact, TChild>( extractor, fullSetName, ruleName );
+        var rule = new ForeachRule<TFact, TChild>(extractor, fullSetName, ruleName);
 
         // Apply default salience
-        rule.WithSalience( DefaultSalience );
+        rule.WithSalience(DefaultSalience);
 
         // Apply default inception and expiration
-        rule.WithInception( DefaultInception );
-        rule.WithExpiration( DefaultExpiration );
+        rule.WithInception(DefaultInception);
+        rule.WithExpiration(DefaultExpiration);
 
-        Rules.Add( rule );
+        Rules.Add(rule);
 
         return rule;
 
@@ -223,8 +223,8 @@ public abstract class RuleBuilder<TFact1, TFact2> : AbstractRuleBuilder, IBuilde
     /// <returns>
     /// The newly created rule for the two given fact types of this builder
     /// </returns>
-        
-    public virtual Rule<TFact1, TFact2> AddRule( string ruleName )
+
+    public virtual Rule<TFact1, TFact2> AddRule(string ruleName)
     {
         Guard.IsNotNullOrEmpty(ruleName);
 
@@ -232,7 +232,7 @@ public abstract class RuleBuilder<TFact1, TFact2> : AbstractRuleBuilder, IBuilde
         var nameSpace = GetType().Namespace;
         var fqSetName = $"{nameSpace}.{SetName}";
 
-        var rule = new Rule<TFact1, TFact2>( fqSetName, ruleName );
+        var rule = new Rule<TFact1, TFact2>(fqSetName, ruleName);
 
         // Apply the default for FireOnce
         if (DefaultFireOnce)
@@ -241,18 +241,18 @@ public abstract class RuleBuilder<TFact1, TFact2> : AbstractRuleBuilder, IBuilde
             rule.FireAlways();
 
         // Apply default salience
-        rule.WithSalience( DefaultSalience );
+        rule.WithSalience(DefaultSalience);
 
         // Apply default inception and expiration
-        rule.WithInception( DefaultInception );
-        rule.WithExpiration( DefaultExpiration );
+        rule.WithInception(DefaultInception);
+        rule.WithExpiration(DefaultExpiration);
 
-        Rules.Add( rule );
+        Rules.Add(rule);
 
         return rule;
     }
 
-    public virtual Rule<TFact1, TFact2> Rule( string ruleName ) => AddRule( ruleName );
+    public virtual Rule<TFact1, TFact2> Rule(string ruleName) => AddRule(ruleName);
 
 }
 
@@ -277,7 +277,7 @@ public abstract class RuleBuilder<TFact1, TFact2, TFact3> : AbstractRuleBuilder,
     {
         Targets = [typeof(TFact1), typeof(TFact2), typeof(TFact3)];
     }
-        
+
 
     /// <summary>
     /// Adds a rule that reasons over the three fact types defined for this builder
@@ -289,8 +289,8 @@ public abstract class RuleBuilder<TFact1, TFact2, TFact3> : AbstractRuleBuilder,
     /// <returns>
     /// The newly created rule for the three given fact types of this builder
     /// </returns>
-        
-    public virtual Rule<TFact1, TFact2, TFact3> AddRule( string ruleName )
+
+    public virtual Rule<TFact1, TFact2, TFact3> AddRule(string ruleName)
     {
         Guard.IsNotNullOrEmpty(ruleName);
 
@@ -298,28 +298,28 @@ public abstract class RuleBuilder<TFact1, TFact2, TFact3> : AbstractRuleBuilder,
         var nameSpace = GetType().Namespace;
         var fqSetName = $"{nameSpace}.{SetName}";
 
-        var rule = new Rule<TFact1, TFact2, TFact3>( fqSetName, ruleName );
+        var rule = new Rule<TFact1, TFact2, TFact3>(fqSetName, ruleName);
 
         // Apply the default for FireOnce
-        if( DefaultFireOnce )
+        if (DefaultFireOnce)
             rule.FireOnce();
         else
             rule.FireAlways();
 
 
         // Apply default salience
-        rule.WithSalience( DefaultSalience );
+        rule.WithSalience(DefaultSalience);
 
         // Apply default inception and expiration
-        rule.WithInception( DefaultInception );
-        rule.WithExpiration( DefaultExpiration );
+        rule.WithInception(DefaultInception);
+        rule.WithExpiration(DefaultExpiration);
 
-        Rules.Add( rule );
+        Rules.Add(rule);
 
         return rule;
     }
 
-    public virtual Rule<TFact1, TFact2, TFact3> Rule( string ruleName ) => AddRule( ruleName );
+    public virtual Rule<TFact1, TFact2, TFact3> Rule(string ruleName) => AddRule(ruleName);
 }
 
 
@@ -359,8 +359,8 @@ public abstract class RuleBuilder<TFact1, TFact2, TFact3, TFact4> : AbstractRule
     /// <returns>
     /// The newly created rule for the four given fact types of this builder
     /// </returns>
-        
-    public virtual Rule<TFact1, TFact2, TFact3, TFact4> AddRule( string ruleName )
+
+    public virtual Rule<TFact1, TFact2, TFact3, TFact4> AddRule(string ruleName)
     {
         Guard.IsNotNullOrEmpty(ruleName);
 
@@ -368,27 +368,27 @@ public abstract class RuleBuilder<TFact1, TFact2, TFact3, TFact4> : AbstractRule
         var nameSpace = GetType().Namespace;
         var fqSetName = $"{nameSpace}.{SetName}";
 
-        var rule = new Rule<TFact1, TFact2, TFact3, TFact4>( fqSetName, ruleName );
+        var rule = new Rule<TFact1, TFact2, TFact3, TFact4>(fqSetName, ruleName);
 
         // Apply the default for FireOnce
-        if( DefaultFireOnce )
+        if (DefaultFireOnce)
             rule.FireOnce();
         else
             rule.FireAlways();
 
 
         // Apply default salience
-        rule.WithSalience( DefaultSalience );
+        rule.WithSalience(DefaultSalience);
 
         // Apply default inception and expiration
-        rule.WithInception( DefaultInception );
-        rule.WithExpiration( DefaultExpiration );
+        rule.WithInception(DefaultInception);
+        rule.WithExpiration(DefaultExpiration);
 
-        Rules.Add( rule );
+        Rules.Add(rule);
 
         return rule;
     }
 
-    public virtual Rule<TFact1, TFact2, TFact3, TFact4> Rule( string ruleName ) => AddRule( ruleName );
+    public virtual Rule<TFact1, TFact2, TFact3, TFact4> Rule(string ruleName) => AddRule(ruleName);
 
 }

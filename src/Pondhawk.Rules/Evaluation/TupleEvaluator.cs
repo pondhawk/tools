@@ -22,33 +22,35 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+using System.Diagnostics.CodeAnalysis;
 using Pondhawk.Rules.Builder;
 
 namespace Pondhawk.Rules.Evaluation;
 
-internal class TupleEvaluator( ISet<IRule> rules )
+[SuppressMessage("Design", "MA0051:Method is too long", Justification = "Evaluation loop requires sequential logic that is clearer as a single method")]
+internal class TupleEvaluator(ISet<IRule> rules)
 {
     private ISet<IRule> Rules { get; } = rules;
 
-    private readonly List<IRule> _fireableBuffer = new( rules.Count );
+    private readonly List<IRule> _fireableBuffer = new(rules.Count);
 
-    private EvaluationContext Context => RuleThreadLocalStorage.CurrentContext;
+    private static EvaluationContext Context => RuleThreadLocalStorage.CurrentContext;
 
-    public void Evaluate( object[] tuple )
+    public void Evaluate(object[] tuple)
     {
 
-        Context.Listener.BeginTupleEvaluation( tuple );
+        Context.Listener.BeginTupleEvaluation(tuple);
 
         Context.ResetBetweenTuples();
 
-        var fireableRules = _GetFireableRules( tuple );
+        var fireableRules = _GetFireableRules(tuple);
 
-        foreach( var rule in fireableRules )
+        foreach (var rule in fireableRules)
         {
             // Ignore rules that were excluded by a mutex
             // This check is also made in _Filter. A mutex may have occurred
             // during the processing of this fire list
-            if( (!string.IsNullOrEmpty(rule.Mutex)) && (Context.Mutexed.Contains( rule.Mutex )) )
+            if ((!string.IsNullOrEmpty(rule.Mutex)) && (Context.Mutexed.Contains(rule.Mutex)))
                 continue;
 
 
@@ -59,89 +61,89 @@ internal class TupleEvaluator( ISet<IRule> rules )
             // This rule is the winner in the exclusion
             // No other rule in this mutex will be called
             // for this tuple instance
-            if( !string.IsNullOrEmpty(rule.Mutex) )
-                _HandleMutxedRule( rule );
+            if (!string.IsNullOrEmpty(rule.Mutex))
+                _HandleMutxedRule(rule);
 
 
             Context.CurrentRuleName = rule.Name;
 
-            Context.Listener.FiringRule( rule );
+            Context.Listener.FiringRule(rule);
 
-            rule.FireRule( tuple );
+            rule.FireRule(tuple);
 
 
             // Handle fire once rules. Some rules should only 
             // be fired once per tuple instance.
-            if( rule.OnlyFiresOnce )
-                _HandleFireOnceRule( rule );
+            if (rule.OnlyFiresOnce)
+                _HandleFireOnceRule(rule);
 
 
             // Add this rule to the dictionary of fired rules. Useful for auditing and debugging
-            if( !Context.Results.FiredRules.ContainsKey( rule.Name ) )
+            if (!Context.Results.FiredRules.ContainsKey(rule.Name))
                 Context.Results.FiredRules[rule.Name] = 0;
 
             // Increment the fire count
             Context.Results.FiredRules[rule.Name]++;
 
 
-            Context.Listener.FiredRule( rule, Context.ModificationsOccurred );
+            Context.Listener.FiredRule(rule, Context.ModificationsOccurred);
 
 
             // Check that the MaxViolation limit has not been exceeded
             // Stop evaluating if it has
-            if( Context.ViolationsExceeded )
+            if (Context.ViolationsExceeded)
                 break;
 
             // Check for exhustion by either time or evaluation count
-            if( Context.IsExhausted )
+            if (Context.IsExhausted)
                 break;
 
             // If the rule signaled that it modified the fact
             // We need to re-evaluate and see if this change resulted 
             // in new rules being fired. 
-            if( Context.ModificationsOccurred )
+            if (Context.ModificationsOccurred)
                 break;
         }
 
 
-        Context.Listener.EndTupleEvaluation( tuple );
+        Context.Listener.EndTupleEvaluation(tuple);
 
     }
 
 
-    private void _HandleMutxedRule(  IRule rule )
+    private static void _HandleMutxedRule(IRule rule)
     {
-        Context.Mutexed.Add( rule.Mutex );
+        Context.Mutexed.Add(rule.Mutex);
         Context.Results.MutexWinners[rule.Mutex] = rule.Name;
     }
 
-    private void _HandleFireOnceRule( IRule rule )
+    private static void _HandleFireOnceRule(IRule rule)
     {
 
-        if ( !Context.FireOnceRules.TryGetValue( rule, out var set ) )
+        if (!Context.FireOnceRules.TryGetValue(rule, out var set))
         {
             set = new HashSet<long>();
             Context.FireOnceRules[rule] = set;
         }
 
-        set.Add( Context.CurrentIdentity );
+        set.Add(Context.CurrentIdentity);
     }
 
 
-    private List<IRule> _GetFireableRules( object[] facts )
+    private List<IRule> _GetFireableRules(object[] facts)
     {
         _fireableBuffer.Clear();
-        foreach( var rule in Rules )
+        foreach (var rule in Rules)
         {
-            var filtered = _Filter( rule, facts );
-            if( filtered is not null )
-                _fireableBuffer.Add( filtered );
+            var filtered = _Filter(rule, facts);
+            if (filtered is not null)
+                _fireableBuffer.Add(filtered);
         }
-        _fireableBuffer.Sort( static (a, b) => a.Salience.CompareTo( b.Salience ) );
+        _fireableBuffer.Sort(static (a, b) => a.Salience.CompareTo(b.Salience));
         return _fireableBuffer;
     }
 
-    private IRule _Filter(  IRule rule, object[] facts )
+    private static IRule _Filter(IRule rule, object[] facts)
     {
 
 

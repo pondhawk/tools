@@ -1,4 +1,4 @@
-namespace Pondhawk.Utilities.Process
+﻿namespace Pondhawk.Utilities.Process
 {
     public interface ILaunchRequest
     {

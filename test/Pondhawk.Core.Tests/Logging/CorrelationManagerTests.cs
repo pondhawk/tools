@@ -1,4 +1,4 @@
-using Pondhawk.Logging;
+﻿using Pondhawk.Logging;
 using Shouldly;
 using Xunit;
 

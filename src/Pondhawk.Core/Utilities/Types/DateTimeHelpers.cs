@@ -73,7 +73,7 @@ public static class DateTimeHelpers
     public static long ToTimestamp(DateTime target)
     {
 
-        if( target == default )
+        if (target == default)
             target = DateTime.Now;
 
         var ts = (long)(target.ToUniversalTime() - Epoch).TotalSeconds;
@@ -81,13 +81,13 @@ public static class DateTimeHelpers
         return ts;
 
     }
-    
+
     public static DateTime FromTimestamp(long ts) => Epoch.AddSeconds(ts).ToLocalTime();
 
-    public static long ToTimestampMilli(DateTime target=default) 
+    public static long ToTimestampMilli(DateTime target = default)
     {
 
-        if( target == default)
+        if (target == default)
             target = DateTime.Now;
 
         var ts = (long)(target.ToUniversalTime() - Epoch).TotalMilliseconds;
@@ -114,14 +114,14 @@ public static class DateTimeHelpers
     }
 
 
-    public static DateTime StartOfMonth( this DateTime dt )
+    public static DateTime StartOfMonth(this DateTime dt)
     {
 
 
-        var year  = dt.Year;
+        var year = dt.Year;
         var month = dt.Month;
-            
-        var start = new DateTime( year, month, 1, 0, 0, 0 );
+
+        var start = new DateTime(year, month, 1, 0, 0, 0);
 
         return start;
 
@@ -130,12 +130,12 @@ public static class DateTimeHelpers
     public static (DateTime begin, DateTime end) CalculateRange(int id, DateTime origin = default)
     {
 
-        if( id < 1 || id > AllModels.Count)
+        if (id < 1 || id > AllModels.Count)
             throw new ArgumentOutOfRangeException(nameof(id), id, "Id must be between 1 and " + AllModels.Count);
 
         var range = AllModels.ElementAt(id - 1);
 
-        return CalculateRange( range.RangeKind, origin );
+        return CalculateRange(range.RangeKind, origin);
 
     }
 
@@ -147,9 +147,9 @@ public static class DateTimeHelpers
             throw new ArgumentOutOfRangeException(nameof(id), id, "Id must be between 1 and " + AllModels.Count);
 
         var range = AllModels.ElementAt(id - 1);
-        var (begin,end) = CalculateRange(range.RangeKind, origin);
+        var (begin, end) = CalculateRange(range.RangeKind, origin);
 
-        return ( (long)(begin.ToUniversalTime() - Epoch).TotalSeconds, (long)(end.ToUniversalTime() - Epoch).TotalSeconds );
+        return ((long)(begin.ToUniversalTime() - Epoch).TotalSeconds, (long)(end.ToUniversalTime() - Epoch).TotalSeconds);
 
     }
 
@@ -157,7 +157,7 @@ public static class DateTimeHelpers
     public static (long begin, long end) CalculateTimestamps(DateTimeRange range, DateTime origin = default)
     {
 
-        var (begin,end) = CalculateRange(range, origin);
+        var (begin, end) = CalculateRange(range, origin);
 
         return ((long)(begin.ToUniversalTime() - Epoch).TotalSeconds, (long)(end.ToUniversalTime() - Epoch).TotalSeconds);
 
@@ -226,7 +226,7 @@ public static class DateTimeHelpers
         (monthStart, (monthStart + TimeSpan.FromDays(32)).StartOfMonth());
 
 
-    public static IDateTimeRange From( DateTimeRange range )
+    public static IDateTimeRange From(DateTimeRange range)
     {
         return PastModels.SingleOrDefault(r => r.RangeKind == range) ?? FutureModels.Single(r => r.RangeKind == range);
     }

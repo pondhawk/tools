@@ -22,6 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+using System.Diagnostics.CodeAnalysis;
 using CommunityToolkit.Diagnostics;
 using Pondhawk.Rules.Builder;
 using Pondhawk.Rules.Exceptions;
@@ -36,18 +37,19 @@ namespace Pondhawk.Rules.Evaluation;
 public abstract class AbstractEvaluator : IEvaluator
 {
 
-    public EvaluationResults Evaluate( params object[] facts ) => EvaluateAll( facts );
+    public EvaluationResults Evaluate(params object[] facts) => EvaluateAll(facts);
 
-    public EvaluationResults EvaluateAll( IEnumerable<object> facts )
+    public EvaluationResults EvaluateAll(IEnumerable<object> facts)
     {
         var context = BuildContext();
-        context.Space.AddAll( facts );
+        context.Space.AddAll(facts);
 
-        return Evaluate( context );
+        return Evaluate(context);
     }
 
-    
-    public EvaluationResults Evaluate( EvaluationContext context )
+
+    [SuppressMessage("Design", "MA0051:Method is too long", Justification = "Core evaluation loop requires sequential logic that is clearer as a single method")]
+    public EvaluationResults Evaluate(EvaluationContext context)
     {
         Guard.IsNotNull(context);
 
@@ -55,7 +57,7 @@ public abstract class AbstractEvaluator : IEvaluator
         //**************************************************
         // Prepare the context for evaluation
         //**************************************************
-        var plan = new EvaluationPlan( GetRuleBase(), GetNamespaces(), context.Space );
+        var plan = new EvaluationPlan(GetRuleBase(), GetNamespaces(), context.Space);
         plan.Build();
 
         RuleThreadLocalStorage.CurrentContext = context;
@@ -77,14 +79,14 @@ public abstract class AbstractEvaluator : IEvaluator
             {
                 nextStep = plan.Next();
 
-                if( nextStep.Signature != 0 )
+                if (nextStep.Signature != 0)
                 {
                     // If the tuple signature has not changed
                     // the existing evaluator engine can be used
                     // given that the facts are processed
                     // in order by the signature this is a big 
                     // optimization
-                    if( nextStep.Signature != lastSignature )
+                    if (nextStep.Signature != lastSignature)
                     {
                         evaluator = null;
                         lastSignature = nextStep.Signature;
@@ -92,26 +94,26 @@ public abstract class AbstractEvaluator : IEvaluator
 
                     // Decode the selector into the pre-allocated buffer
                     // Each index points to the required fact in the factspace
-                    int arity = Helpers.DecodeSelector( nextStep.Selector, context.SelectorBuffer );
+                    int arity = Helpers.DecodeSelector(nextStep.Selector, context.SelectorBuffer);
 
                     object[] currentTuple = context.TupleBuffers[arity - 1];
-                    if( !context.Space.GetTuple( context.SelectorBuffer, arity, currentTuple ) )
+                    if (!context.Space.GetTuple(context.SelectorBuffer, arity, currentTuple))
                         continue;
 
 
-                    if( evaluator == null )
+                    if (evaluator == null)
                     {
                         var factTypes = currentTuple.Select(f => f.GetType()).ToArray();
 
-                        ISet<IRule> rules = GetRuleBase().FindRules( factTypes, GetNamespaces() );
-                        evaluator = new( rules );
+                        ISet<IRule> rules = GetRuleBase().FindRules(factTypes, GetNamespaces());
+                        evaluator = new(rules);
                     }
 
 
                     // Setup the context with the current selector and the current identity
                     // translated from the selectorIndices for this tuple
-                    context.Space.GetIdentityFromSelector( context.SelectorBuffer, arity, context.IdentityBuffer );
-                    long identity = Helpers.EncodeSelector( context.IdentityBuffer, arity );
+                    context.Space.GetIdentityFromSelector(context.SelectorBuffer, arity, context.IdentityBuffer);
+                    long identity = Helpers.EncodeSelector(context.IdentityBuffer, arity);
 
                     context.CurrentIdentity = identity;
                     context.CurrentSelector = nextStep.Selector;
@@ -119,11 +121,11 @@ public abstract class AbstractEvaluator : IEvaluator
                     context.CurrentArity = arity;
 
                     // Finally evaluate this tuple against the rules for this signature
-                    evaluator.Evaluate( currentTuple );
+                    evaluator.Evaluate(currentTuple);
 
 
                     // Stop if the Maximum allowed violation count has been met for excceded
-                    if( context.ViolationsExceeded )
+                    if (context.ViolationsExceeded)
                         break;
 
                     // Stop if Exhustion has occurred
@@ -140,7 +142,7 @@ public abstract class AbstractEvaluator : IEvaluator
 
 
                 }
-            } while( nextStep.Signature != 0 );
+            } while (nextStep.Signature != 0);
         }
         finally
         {
@@ -149,7 +151,7 @@ public abstract class AbstractEvaluator : IEvaluator
             context.Results.Completed = DateTime.Now;
 
             context.Listener.EndEvaluation();
-            
+
             // Clear the current context from TLS
             RuleThreadLocalStorage.ClearCurrentContext();
 
@@ -157,19 +159,19 @@ public abstract class AbstractEvaluator : IEvaluator
 
 
         // Exhustion has occured due to excessive time or evaluation count
-        if( context.IsExhausted )
-            throw new EvaluationExhaustedException( context.Results );
+        if (context.IsExhausted)
+            throw new EvaluationExhaustedException(context.Results);
 
 
         // Throw an exception if no rules were evaluated
         // Throwing the exception is the default behavior
-        if( (context.ThrowNoRulesException) && (context.Results.TotalEvaluated == 0) )
-            throw new NoRulesEvaluatedException( context.Results );
+        if ((context.ThrowNoRulesException) && (context.Results.TotalEvaluated == 0))
+            throw new NoRulesEvaluatedException(context.Results);
 
         // Throw an exception if the events includes any violations
         // Throwing the exception is the default behavior
-        if( (context.ThrowValidationException) && (context.Results.HasViolations) )
-            throw new ViolationsExistException( context.Results );
+        if ((context.ThrowValidationException) && (context.Results.HasViolations))
+            throw new ViolationsExistException(context.Results);
 
         return context.Results;
     }
@@ -178,7 +180,7 @@ public abstract class AbstractEvaluator : IEvaluator
 
     protected abstract IEnumerable<string> GetNamespaces();
 
-    
+
     protected virtual EvaluationContext BuildContext() => new();
 }
 

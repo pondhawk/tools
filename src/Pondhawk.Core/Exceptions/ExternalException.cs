@@ -28,23 +28,23 @@ namespace Pondhawk.Exceptions
     /// <summary>
     /// Base exception for external/application-facing errors with error kind, code, explanation, and event details.
     /// </summary>
-    public abstract class ExternalException: Exception
+    public abstract class ExternalException : Exception
     {
 
 
-        protected ExternalException( string message ): base(message)
+        protected ExternalException(string message) : base(message)
         {
 
-            ErrorCode   = GetType().Name.Replace( "Exception", "" );
+            ErrorCode = GetType().Name.Replace("Exception", "");
             Explanation = message;
 
         }
 
 
-        protected ExternalException( string message, Exception inner ): base( message, inner )
+        protected ExternalException(string message, Exception inner) : base(message, inner)
         {
 
-            ErrorCode   = GetType().Name.Replace("Exception", "");
+            ErrorCode = GetType().Name.Replace("Exception", "");
             Explanation = message;
 
             if (inner is not InternalException intra)
@@ -52,17 +52,17 @@ namespace Pondhawk.Exceptions
 
             InnerExplanation = intra.Explanation;
 
-            foreach ( var detail in intra.Details )
-                Details.Add( detail );
+            foreach (var detail in intra.Details)
+                Details.Add(detail);
 
         }
 
-        protected ExternalException( IExceptionInfo info ) : base(info.Explanation)
+        protected ExternalException(IExceptionInfo info) : base(info.Explanation)
         {
 
-            Kind             = info.Kind;
-            ErrorCode        = GetType().Name.Replace("Exception", "");
-            Explanation      = info.Explanation;
+            Kind = info.Kind;
+            ErrorCode = GetType().Name.Replace("Exception", "");
+            Explanation = info.Explanation;
             InnerExplanation = info.Explanation;
 
             Details = new List<EventDetail>(info.Details);
@@ -71,7 +71,7 @@ namespace Pondhawk.Exceptions
 
 
 
-        public ErrorKind Kind        { get; protected set; } = ErrorKind.System;
+        public ErrorKind Kind { get; protected set; } = ErrorKind.System;
         public string ErrorCode { get; protected set; }
         public string Explanation { get; protected set; }
         public string InnerExplanation { get; protected set; } = "";

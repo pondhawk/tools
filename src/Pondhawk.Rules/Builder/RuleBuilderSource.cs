@@ -1,4 +1,4 @@
-/*
+﻿/*
 The MIT License (MIT)
 
 Copyright (c) 2017 The Kampilan Group Inc.
@@ -30,21 +30,21 @@ namespace Pondhawk.Rules.Builder;
 /// <summary>
 /// Discovers and collects <see cref="IBuilder"/> types from assemblies or explicit type lists.
 /// </summary>
-public class RuleBuilderSource: IRuleBuilderSource
+public class RuleBuilderSource : IRuleBuilderSource
 {
 
     private static Func<Type, bool> Predicate { get; } = t => typeof(IBuilder).IsAssignableFrom(t);
 
-    public void AddTypes( params Assembly[] assemblies )
+    public void AddTypes(params Assembly[] assemblies)
     {
 
         Guard.IsNotNull(assemblies);
 
-        foreach ( var type in assemblies.SelectMany(a=>a.GetTypes()).Where(Predicate) )
+        foreach (var type in assemblies.SelectMany(a => a.GetTypes()).Where(Predicate))
             Types.Add(type);
     }
 
-    public void AddTypes( params Type[] types )
+    public void AddTypes(params Type[] types)
     {
 
         Guard.IsNotNull(types);
@@ -53,16 +53,16 @@ public class RuleBuilderSource: IRuleBuilderSource
             Types.Add(type);
     }
 
-    public void AddTypes( IEnumerable<Type> candidates )
+    public void AddTypes(IEnumerable<Type> candidates)
     {
 
         Guard.IsNotNull(candidates);
 
-        foreach (var type in candidates.Where( Predicate ) )
+        foreach (var type in candidates.Where(Predicate))
             Types.Add(type);
     }
 
-    private HashSet<Type> Types { get; } = new ();
+    private HashSet<Type> Types { get; } = new();
 
     public IEnumerable<Type> GetTypes()
     {

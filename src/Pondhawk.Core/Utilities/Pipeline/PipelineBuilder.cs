@@ -2,7 +2,7 @@
 
 namespace Pondhawk.Utilities.Pipeline;
 
-internal sealed class PipelineBuilder<TContext>: IPipelineBuilder<TContext> where TContext : class, IPipelineContext
+internal sealed class PipelineBuilder<TContext> : IPipelineBuilder<TContext> where TContext : class, IPipelineContext
 {
 
     private readonly List<IPipelineStep<TContext>> _steps = new();
@@ -24,12 +24,12 @@ internal sealed class PipelineBuilder<TContext>: IPipelineBuilder<TContext> wher
         Guard.IsNotNull(step, nameof(step));
 
         _steps.Add(step);
-        
+
         return this;
-        
+
     }
 
-    
+
     /// <summary>
     /// Builds and returns a fully constructed pipeline instance. The pipeline consists of
     /// the configured steps, executed in the order they were added, and provides a mechanism
@@ -43,7 +43,7 @@ internal sealed class PipelineBuilder<TContext>: IPipelineBuilder<TContext> wher
     {
 
         return new Pipeline<TContext>(_steps);
-        
+
     }
-    
+
 }

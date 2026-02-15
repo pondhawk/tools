@@ -1,4 +1,4 @@
-/*
+﻿/*
 The MIT License (MIT)
 
 Copyright (c) 2024 Pond Hawk Technologies Inc.
@@ -22,6 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.Logging;
 
 namespace Pondhawk.Watch.Framework
@@ -30,6 +31,8 @@ namespace Pondhawk.Watch.Framework
     {
         public static readonly EventId MethodEntry = new EventId(1001, "MethodEntry");
         public static readonly EventId MethodExit = new EventId(1002, "MethodExit");
+
+        [SuppressMessage("Naming", "CA1720:Identifier contains type name", Justification = "Domain-specific event identifier for object logging")]
         public static readonly EventId Object = new EventId(1003, "Object");
         public static readonly EventId Payload = new EventId(1004, "Payload");
     }

@@ -1,4 +1,4 @@
-using System.Reflection;
+﻿using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using Pondhawk.Rules.Builder;
 using Pondhawk.Rules.Factory;

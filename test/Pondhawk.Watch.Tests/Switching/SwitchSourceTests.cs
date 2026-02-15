@@ -1,4 +1,4 @@
-using System.Drawing;
+﻿using System.Drawing;
 using Serilog.Events;
 using Shouldly;
 using Xunit;

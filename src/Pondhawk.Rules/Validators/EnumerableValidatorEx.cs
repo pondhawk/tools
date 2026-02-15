@@ -23,6 +23,7 @@ SOFTWARE.
 */
 
 
+using System.Diagnostics.CodeAnalysis;
 using Humanizer;
 
 namespace Pondhawk.Rules.Validators;
@@ -30,6 +31,7 @@ namespace Pondhawk.Rules.Validators;
 /// <summary>
 /// Enumerable validation extensions (e.g. Required, IsNotEmpty, HasMinCount).
 /// </summary>
+[SuppressMessage("Naming", "CA1711:Identifiers should not have incorrect suffix", Justification = "Ex suffix is an intentional domain convention for extension method classes")]
 public static class EnumerableValidatorEx
 {
 

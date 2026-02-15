@@ -3,7 +3,7 @@
 /// <summary>
 /// Default implementation of <see cref="IDateTimeRange"/> that calculates begin/end from a <see cref="DateTimeRange"/> kind.
 /// </summary>
-public class DateTimeRangeModel: IDateTimeRange
+public class DateTimeRangeModel : IDateTimeRange
 {
 
 

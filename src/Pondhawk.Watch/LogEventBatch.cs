@@ -1,4 +1,4 @@
-/*
+﻿/*
 The MIT License (MIT)
 
 Copyright (c) 2024 Pond Hawk Technologies Inc.
@@ -22,6 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+using System.Diagnostics.CodeAnalysis;
 using MemoryPack;
 
 namespace Pondhawk.Watch;
@@ -53,6 +54,7 @@ public partial class LogEventBatch
     /// <param name="domain">The domain identifier.</param>
     /// <param name="one">The single event to include.</param>
     /// <returns>A new batch containing the event.</returns>
+    [SuppressMessage("CA1720", "CA1720:IdentifiersShouldNotContainTypeNames", Justification = "Single is the domain name for creating a batch with one event")]
     public static LogEventBatch Single(string domain, LogEvent one)
     {
         return new LogEventBatch { Domain = domain, Events = [one] };
@@ -72,5 +74,5 @@ public partial class LogEventBatch
     /// <summary>
     /// Gets or sets the list of events in this batch.
     /// </summary>
-    public List<LogEvent> Events { get; set; } = [];
+    public IList<LogEvent> Events { get; set; } = [];
 }

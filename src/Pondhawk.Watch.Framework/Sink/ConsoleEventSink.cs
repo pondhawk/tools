@@ -1,4 +1,4 @@
-/*
+﻿/*
 The MIT License (MIT)
 
 Copyright (c) 2024 Pond Hawk Technologies Inc.
@@ -23,6 +23,7 @@ SOFTWARE.
 */
 
 using System;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -49,7 +50,7 @@ namespace Pondhawk.Watch.Framework.Sink
 
         private static void WriteEvent(LogEvent le)
         {
-            var timestamp = le.Occurred.ToString("HH:mm:ss.fff");
+            var timestamp = le.Occurred.ToString("HH:mm:ss.fff", CultureInfo.InvariantCulture);
             var levelStr = GetLevelString((Level)le.Level);
             var indent = new string(' ', Math.Max(0, le.Nesting * 2));
 

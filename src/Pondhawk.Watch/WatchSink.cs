@@ -1,4 +1,4 @@
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Net.Http.Headers;
 using System.Text.Json;
@@ -42,7 +42,7 @@ public sealed class WatchSink : ILogEventSink, IDisposable, IAsyncDisposable
     // Circuit breaker state
     private int _consecutiveFailures;
     private DateTime _circuitOpenUntil = DateTime.MinValue;
-    private readonly object _circuitLock = new();
+    private readonly Lock _circuitLock = new();
 
     // Critical event buffer
     private readonly ConcurrentQueue<LogEvent> _criticalBuffer = new();
@@ -140,7 +140,7 @@ public sealed class WatchSink : ILogEventSink, IDisposable, IAsyncDisposable
             {
                 batch.Clear();
 
-                if (!await reader.WaitToReadAsync())
+                if (!await reader.WaitToReadAsync().ConfigureAwait(false))
                     break;
 
                 using var timeoutCts = new CancellationTokenSource(_flushInterval);
@@ -153,7 +153,7 @@ public sealed class WatchSink : ILogEventSink, IDisposable, IAsyncDisposable
                         {
                             batch.Add(logEvent);
                         }
-                        else if (!await reader.WaitToReadAsync(timeoutCts.Token))
+                        else if (!await reader.WaitToReadAsync(timeoutCts.Token).ConfigureAwait(false))
                         {
                             break;
                         }
@@ -166,7 +166,7 @@ public sealed class WatchSink : ILogEventSink, IDisposable, IAsyncDisposable
 
                 if (batch.Count > 0)
                 {
-                    await FlushBatchAsync(batch);
+                    await FlushBatchAsync(batch).ConfigureAwait(false);
                 }
             }
         }
@@ -189,7 +189,7 @@ public sealed class WatchSink : ILogEventSink, IDisposable, IAsyncDisposable
 
         if (watchBatch.Events.Count > 0)
         {
-            await SendBatchAsync(watchBatch);
+            await SendBatchAsync(watchBatch).ConfigureAwait(false);
         }
     }
 
@@ -207,16 +207,18 @@ public sealed class WatchSink : ILogEventSink, IDisposable, IAsyncDisposable
             // Add any buffered critical events to this batch
             FlushCriticalBuffer(batch);
 
-            await using var stream = await LogEventBatchSerializer.ToStream(batch);
+            var stream = await LogEventBatchSerializer.ToStream(batch).ConfigureAwait(false);
+            await using (stream.ConfigureAwait(false))
+            {
+                using var content = new StreamContent(stream);
+                content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
+                content.Headers.Add("X-Domain", _domain);
 
-            using var content = new StreamContent(stream);
-            content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
-            content.Headers.Add("X-Domain", _domain);
+                var response = await _client.PostAsync("api/sink", content, CancellationToken.None).ConfigureAwait(false);
+                response.EnsureSuccessStatusCode();
 
-            var response = await _client.PostAsync("api/sink", content, CancellationToken.None);
-            response.EnsureSuccessStatusCode();
-
-            OnSuccess();
+                OnSuccess();
+            }
         }
         catch
         {
@@ -285,8 +287,8 @@ public sealed class WatchSink : ILogEventSink, IDisposable, IAsyncDisposable
             buffered.Add(e);
         }
 
-        if (buffered.Count > 0)
-            batch.Events.InsertRange(0, buffered);
+        for (var i = 0; i < buffered.Count; i++)
+            batch.Events.Insert(i, buffered[i]);
     }
 
     private LogEvent? ConvertEvent(SerilogEvent serilogEvent)
@@ -306,7 +308,7 @@ public sealed class WatchSink : ILogEventSink, IDisposable, IAsyncDisposable
             Level = (int)serilogEvent.Level,
             Color = sw.Color.ToArgb(),
             Tag = sw.Tag,
-            Title = serilogEvent.RenderMessage(),
+            Title = serilogEvent.RenderMessage(System.Globalization.CultureInfo.InvariantCulture),
             CorrelationId = GetCorrelationId(),
             Occurred = serilogEvent.Timestamp.UtcDateTime
         };
@@ -375,7 +377,7 @@ public sealed class WatchSink : ILogEventSink, IDisposable, IAsyncDisposable
     private static string? BuildStructuredPayload(SerilogEvent logEvent)
     {
         var properties = logEvent.Properties
-            .Where(p => p.Key != "SourceContext" &&
+            .Where(p => !string.Equals(p.Key, "SourceContext", StringComparison.Ordinal) &&
                         !p.Key.StartsWith("Watch.", StringComparison.Ordinal))
             .ToList();
 
@@ -384,7 +386,7 @@ public sealed class WatchSink : ILogEventSink, IDisposable, IAsyncDisposable
 
         try
         {
-            var dict = new Dictionary<string, object?>();
+            var dict = new Dictionary<string, object?>(StringComparer.Ordinal);
             foreach (var prop in properties)
             {
                 dict[prop.Key] = ConvertPropertyValue(prop.Value);
@@ -404,10 +406,11 @@ public sealed class WatchSink : ILogEventSink, IDisposable, IAsyncDisposable
         {
             ScalarValue sv => sv.Value,
             SequenceValue seq => seq.Elements.Select(ConvertPropertyValue).ToList(),
-            StructureValue str => str.Properties.ToDictionary(p => p.Name, p => ConvertPropertyValue(p.Value)),
+            StructureValue str => str.Properties.ToDictionary(p => p.Name, p => ConvertPropertyValue(p.Value), StringComparer.Ordinal),
             DictionaryValue dv => dv.Elements.ToDictionary(
                 kvp => ConvertPropertyValue(kvp.Key)?.ToString() ?? "",
-                kvp => ConvertPropertyValue(kvp.Value)),
+                kvp => ConvertPropertyValue(kvp.Value),
+                StringComparer.Ordinal),
             _ => value.ToString()
         };
     }
@@ -440,7 +443,7 @@ public sealed class WatchSink : ILogEventSink, IDisposable, IAsyncDisposable
 
         try
         {
-            await _flushCompleted.Task.WaitAsync(TimeSpan.FromSeconds(10));
+            await _flushCompleted.Task.WaitAsync(TimeSpan.FromSeconds(10)).ConfigureAwait(false);
         }
         catch
         {

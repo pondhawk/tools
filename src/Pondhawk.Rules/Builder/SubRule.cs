@@ -26,7 +26,7 @@ using Pondhawk.Rules.Evaluation;
 
 namespace Pondhawk.Rules.Builder;
 
-internal class SubRule<TParent,TFact>( IEnumerable<TFact> facts, Action<TFact> consequence, TParent parent, Func<TParent,object> modifyFunc ) : IRule
+internal class SubRule<TParent, TFact>(IEnumerable<TFact> facts, Action<TFact> consequence, TParent parent, Func<TParent, object> modifyFunc) : IRule
 {
     private IEnumerable<TFact> Facts { get; } = facts;
     private Action<TFact> Consequence { get; } = consequence;
@@ -42,25 +42,25 @@ internal class SubRule<TParent,TFact>( IEnumerable<TFact> facts, Action<TFact> c
     public DateTime Inception { get; set; }
     public DateTime Expiration { get; set; }
 
-        
-    public IRule EvaluateRule( object[] fact ) => this;
 
-    public void FireRule( object[] offered )
+    public IRule EvaluateRule(object[] fact) => this;
+
+    public void FireRule(object[] offered)
     {
 
-        foreach( var fact in Facts )
-            Consequence( fact );
+        foreach (var fact in Facts)
+            Consequence(fact);
 
         if (ModifyFunc is not null)
         {
-            var modified = ModifyFunc( Parent );
-            if( modified is Array arr )
+            var modified = ModifyFunc(Parent);
+            if (modified is Array arr)
             {
                 foreach (var o in arr)
-                    RuleThreadLocalStorage.CurrentContext.ModifyFact( o );
+                    RuleThreadLocalStorage.CurrentContext.ModifyFact(o);
             }
             else if (modified is not null)
-                RuleThreadLocalStorage.CurrentContext.ModifyFact( modified );
+                RuleThreadLocalStorage.CurrentContext.ModifyFact(modified);
         }
 
         RuleThreadLocalStorage.CurrentContext.Results.TotalFired++;

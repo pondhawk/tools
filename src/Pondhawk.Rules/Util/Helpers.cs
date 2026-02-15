@@ -27,16 +27,16 @@ namespace Pondhawk.Rules.Util;
 
 internal static class Helpers
 {
-    internal static int EncodeSignature( byte[] signatureIndices )
+    internal static int EncodeSignature(byte[] signatureIndices)
     {
         int signature = 0;
-        for( int i = 0; i < signatureIndices.Length; i++ )
+        for (int i = 0; i < signatureIndices.Length; i++)
             signature |= (signatureIndices[i] + 1) << (i * 8);
         return signature;
     }
 
 
-    internal static byte[] DecodeSignature( int signature )
+    internal static byte[] DecodeSignature(int signature)
     {
         int b0 = signature & 0xFF;
         int b1 = (signature >> 8) & 0xFF;
@@ -46,25 +46,25 @@ internal static class Helpers
         int len = b0 == 0 ? 0 : b1 == 0 ? 1 : b2 == 0 ? 2 : b3 == 0 ? 3 : 4;
 
         var signatureIndices = new byte[len];
-        if( len > 0 ) signatureIndices[0] = (byte)(b0 - 1);
-        if( len > 1 ) signatureIndices[1] = (byte)(b1 - 1);
-        if( len > 2 ) signatureIndices[2] = (byte)(b2 - 1);
-        if( len > 3 ) signatureIndices[3] = (byte)(b3 - 1);
+        if (len > 0) signatureIndices[0] = (byte)(b0 - 1);
+        if (len > 1) signatureIndices[1] = (byte)(b1 - 1);
+        if (len > 2) signatureIndices[2] = (byte)(b2 - 1);
+        if (len > 3) signatureIndices[3] = (byte)(b3 - 1);
 
         return signatureIndices;
     }
 
 
-    internal static long EncodeSelector( int[] selectorIndices )
+    internal static long EncodeSelector(int[] selectorIndices)
     {
         long selector = 0;
-        for( int i = 0; i < selectorIndices.Length; i++ )
+        for (int i = 0; i < selectorIndices.Length; i++)
             selector |= (long)(ushort)selectorIndices[i] << (i * 16);
         return selector;
     }
 
 
-    internal static int[] DecodeSelector( long selector )
+    internal static int[] DecodeSelector(long selector)
     {
         int v0 = (int)(selector & 0xFFFF);
         int v1 = (int)((selector >> 16) & 0xFFFF);
@@ -74,16 +74,16 @@ internal static class Helpers
         int len = v0 == 0 ? 0 : v1 == 0 ? 1 : v2 == 0 ? 2 : v3 == 0 ? 3 : 4;
 
         var selectorIndices = new int[len];
-        if( len > 0 ) selectorIndices[0] = v0;
-        if( len > 1 ) selectorIndices[1] = v1;
-        if( len > 2 ) selectorIndices[2] = v2;
-        if( len > 3 ) selectorIndices[3] = v3;
+        if (len > 0) selectorIndices[0] = v0;
+        if (len > 1) selectorIndices[1] = v1;
+        if (len > 2) selectorIndices[2] = v2;
+        if (len > 3) selectorIndices[3] = v3;
 
         return selectorIndices;
     }
 
 
-    internal static int DecodeSelector( long selector, int[] buffer )
+    internal static int DecodeSelector(long selector, int[] buffer)
     {
         buffer[0] = (int)(selector & 0xFFFF);
         buffer[1] = (int)((selector >> 16) & 0xFFFF);
@@ -94,10 +94,10 @@ internal static class Helpers
     }
 
 
-    internal static long EncodeSelector( int[] buffer, int length )
+    internal static long EncodeSelector(int[] buffer, int length)
     {
         long selector = 0;
-        for( int i = 0; i < length; i++ )
+        for (int i = 0; i < length; i++)
             selector |= (long)(ushort)buffer[i] << (i * 16);
         return selector;
     }

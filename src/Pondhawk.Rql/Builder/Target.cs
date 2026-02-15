@@ -34,22 +34,22 @@ namespace Pondhawk.Rql.Builder
     {
 
 
-        public static bool operator ==( Target target, string candidate )
+        public static bool operator ==(Target target, string candidate)
         {
             if (target is null || string.IsNullOrWhiteSpace(target.Name) || string.IsNullOrWhiteSpace(candidate))
                 return false;
 
-            return string.Compare(target.Name, candidate, StringComparison.InvariantCultureIgnoreCase) == 0;
+            return string.Equals(target.Name, candidate, StringComparison.OrdinalIgnoreCase);
 
         }
 
-        public static bool operator !=( Target target, string candidate)
+        public static bool operator !=(Target target, string candidate)
         {
 
             if (target is null || string.IsNullOrWhiteSpace(target.Name) || string.IsNullOrWhiteSpace(candidate))
                 return true;
 
-            return string.Compare(target.Name, candidate, StringComparison.InvariantCultureIgnoreCase) != 0;
+            return !string.Equals(target.Name, candidate, StringComparison.OrdinalIgnoreCase);
 
         }
 
@@ -57,15 +57,15 @@ namespace Pondhawk.Rql.Builder
         public string Name { get; } = name;
 
 
-        protected bool Equals( Target other )
+        protected bool Equals(Target other)
         {
             Guard.IsNotNull(other);
 
-            return string.Equals(Name, other.Name);
+            return string.Equals(Name, other.Name, StringComparison.Ordinal);
 
         }
 
-        public override bool Equals( object? obj)
+        public override bool Equals(object? obj)
         {
 
             if (ReferenceEquals(null, obj)) return false;
@@ -78,7 +78,7 @@ namespace Pondhawk.Rql.Builder
 
         public override int GetHashCode()
         {
-            return Name.GetHashCode();
+            return Name.GetHashCode(StringComparison.Ordinal);
         }
 
 

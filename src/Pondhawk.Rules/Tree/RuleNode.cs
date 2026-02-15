@@ -48,23 +48,23 @@ internal sealed class RuleNode
 
     internal void Build()
     {
-        if( _branches is not null && _branches.Count > 0 )
+        if (_branches is not null && _branches.Count > 0)
         {
-            var cache = new Dictionary<Type, List<RuleNode>>( _branches.Count );
-            foreach( var requestType in _branches.Keys )
-                cache[requestType] = _BuildBranchMatches( requestType );
+            var cache = new Dictionary<Type, List<RuleNode>>(_branches.Count);
+            foreach (var requestType in _branches.Keys)
+                cache[requestType] = _BuildBranchMatches(requestType);
 
             _branchMatchCache = cache;
 
-            foreach( var node in _branches.Values )
+            foreach (var node in _branches.Values)
                 node.Build();
         }
     }
 
-    public RuleNode GetOrAddBranch( Type target )
+    public RuleNode GetOrAddBranch(Type target)
     {
         var branches = Branches;
-        if( branches.TryGetValue( target, out var existing ) )
+        if (branches.TryGetValue(target, out var existing))
             return existing;
 
         var node = new RuleNode { Target = target };
@@ -72,50 +72,50 @@ internal sealed class RuleNode
         return node;
     }
 
-    public List<RuleNode> GetMatchingBranches( Type requestType )
+    public List<RuleNode> GetMatchingBranches(Type requestType)
     {
-        if( _branches is null || _branches.Count == 0 )
+        if (_branches is null || _branches.Count == 0)
             return [];
 
-        if( _branchMatchCache.TryGetValue( requestType, out var cached ) )
+        if (_branchMatchCache.TryGetValue(requestType, out var cached))
             return cached;
 
-        return _BuildBranchMatches( requestType );
+        return _BuildBranchMatches(requestType);
     }
 
-    private List<RuleNode> _BuildBranchMatches( Type requestType )
+    private List<RuleNode> _BuildBranchMatches(Type requestType)
     {
         var matches = new List<RuleNode>();
-        foreach( var node in _branches.Values )
-            if( node.Target.IsAssignableFrom( requestType ) )
-                matches.Add( node );
+        foreach (var node in _branches.Values)
+            if (node.Target.IsAssignableFrom(requestType))
+                matches.Add(node);
         return matches;
     }
 
-    public bool HasRules( List<string> namespaces )
+    public bool HasRules(List<string> namespaces)
     {
-        if( !_hasRules )
+        if (!_hasRules)
             return false;
 
-        return namespaces.Count == 0 || namespaces.Exists( n => _namespaces.Contains( n ) );
+        return namespaces.Count == 0 || namespaces.Exists(n => _namespaces.Contains(n));
     }
 
-    public void AddRules(  IEnumerable<IRule> source )
+    public void AddRules(IEnumerable<IRule> source)
     {
         Guard.IsNotNull(source);
 
         _hasRules = true;
-        foreach( IRule r in source )
+        foreach (IRule r in source)
         {
-            Namespaces.Add( r.Namespace );
-            Rules.Add( r );
+            Namespaces.Add(r.Namespace);
+            Rules.Add(r);
         }
     }
 
 
     public void Clear()
     {
-        if( _hasRules )
+        if (_hasRules)
         {
             Namespaces.Clear();
             Rules.Clear();
@@ -123,9 +123,9 @@ internal sealed class RuleNode
             _hasRules = false;
         }
 
-        if( _branches is not null )
+        if (_branches is not null)
         {
-            foreach( var n in _branches.Values )
+            foreach (var n in _branches.Values)
                 n.Clear();
 
             _branches.Clear();

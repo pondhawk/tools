@@ -32,8 +32,8 @@ namespace Pondhawk.Rules.Tree;
 public interface IRuleSink
 {
 
-    void Add( Type factType, IRule rules );
-    void Add( Type[] factTypes, IEnumerable<IRule> rules );
+    void Add(Type factType, IRule rules);
+    void Add(Type[] factTypes, IEnumerable<IRule> rules);
 
 
 }

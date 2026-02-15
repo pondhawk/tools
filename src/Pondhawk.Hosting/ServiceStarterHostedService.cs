@@ -1,4 +1,4 @@
-using Microsoft.Extensions.Hosting;
+﻿using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace Pondhawk.Hosting;
@@ -38,7 +38,7 @@ internal sealed partial class ServiceStarterHostedService : IHostedService
             LogServiceStarting(serviceName);
             try
             {
-                await descriptor.StartAction(service, cancellationToken);
+                await descriptor.StartAction(service, cancellationToken).ConfigureAwait(false);
                 LogServiceStarted(serviceName);
             }
             catch (Exception ex)
@@ -69,7 +69,7 @@ internal sealed partial class ServiceStarterHostedService : IHostedService
             LogServiceStopping(serviceName);
             try
             {
-                await descriptor.StopAction(service, cancellationToken);
+                await descriptor.StopAction(service, cancellationToken).ConfigureAwait(false);
                 LogServiceStopped(serviceName);
             }
             catch (Exception ex)

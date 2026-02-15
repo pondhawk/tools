@@ -43,69 +43,69 @@ public sealed class FactSpace
 
     internal int TypeCount => Schema.Count;
 
-        
-    internal int[] GetIdentityFromSelector( int[] selectorIndices )
+
+    internal int[] GetIdentityFromSelector(int[] selectorIndices)
     {
         int len = selectorIndices.Length;
 
         var identityIndices = new int[len];
-        for( int i = 0; i < len; i++ )
+        for (int i = 0; i < len; i++)
             identityIndices[i] = SelectorMap[selectorIndices[i]];
 
         return identityIndices;
     }
 
 
-    private void _InternalAdd(  object fact, int identity )
+    private void _InternalAdd(object fact, int identity)
     {
-        if( SelectorMap.Count >= 65535 )
-            throw new InvalidOperationException( "Evaluation is limited to 65535 facts at a time." );
+        if (SelectorMap.Count >= 65535)
+            throw new InvalidOperationException("Evaluation is limited to 65535 facts at a time.");
 
         Type factType = fact.GetType();
 
-        if( !SchemaMap.TryGetValue( factType, out var schema ) )
+        if (!SchemaMap.TryGetValue(factType, out var schema))
         {
-            schema = new Schema {FactType = factType};
+            schema = new Schema { FactType = factType };
 
             SchemaMap[factType] = schema;
-            Schema.Add( schema );
+            Schema.Add(schema);
         }
 
         // Add the new facts identity to the reference map
         SelectorMap[NextPosition] = identity;
 
         // Add this reference to the schema for this type
-        schema.Members.Add( NextPosition );
+        schema.Members.Add(NextPosition);
 
         NextPosition++;
     }
 
 
-        
-    internal Type[] GetFactTypes( byte[] signatureIndices )
+
+    internal Type[] GetFactTypes(byte[] signatureIndices)
     {
         int len = signatureIndices.Length;
 
         var types = new Type[len];
 
-        for( int i = 0; i < len; i++ )
+        for (int i = 0; i < len; i++)
             types[i] = Schema[signatureIndices[i]].FactType;
 
         return types;
     }
 
 
-        
-    internal object[] GetTuple( int[] selectorIndices )
+
+    internal object[] GetTuple(int[] selectorIndices)
     {
         int count = selectorIndices.Length;
 
         var tuple = new object[count];
-        for( int i = 0; i < count; i++ )
+        for (int i = 0; i < count; i++)
         {
             int selectorIndex = selectorIndices[i];
 
-            if( SelectorMap.TryGetValue( selectorIndex, out var identityIndex ) )
+            if (SelectorMap.TryGetValue(selectorIndex, out var identityIndex))
                 tuple[i] = Facts[identityIndex];
             else
                 return null;
@@ -115,11 +115,11 @@ public sealed class FactSpace
     }
 
 
-    internal bool GetTuple( int[] selectorIndices, int length, object[] tuple )
+    internal bool GetTuple(int[] selectorIndices, int length, object[] tuple)
     {
-        for( int i = 0; i < length; i++ )
+        for (int i = 0; i < length; i++)
         {
-            if( SelectorMap.TryGetValue( selectorIndices[i], out var identityIndex ) )
+            if (SelectorMap.TryGetValue(selectorIndices[i], out var identityIndex))
                 tuple[i] = Facts[identityIndex];
             else
                 return false;
@@ -128,38 +128,38 @@ public sealed class FactSpace
     }
 
 
-    internal void GetIdentityFromSelector( int[] selectorIndices, int length, int[] identityIndices )
+    internal void GetIdentityFromSelector(int[] selectorIndices, int length, int[] identityIndices)
     {
-        for( int i = 0; i < length; i++ )
+        for (int i = 0; i < length; i++)
             identityIndices[i] = SelectorMap[selectorIndices[i]];
     }
 
 
-    internal void InsertFact( object fact ) => Add( fact );
+    internal void InsertFact(object fact) => Add(fact);
 
-    internal void ModifyFact( int selectorIndex )
+    internal void ModifyFact(int selectorIndex)
     {
         var identityIndex = SelectorMap[selectorIndex];
-        SelectorMap.Remove( selectorIndex );
+        SelectorMap.Remove(selectorIndex);
 
         var fact = Facts[identityIndex];
 
-        _InternalAdd( fact, identityIndex );
+        _InternalAdd(fact, identityIndex);
 
     }
 
-    internal void RetractFact( int reference )
+    internal void RetractFact(int reference)
     {
-        SelectorMap.Remove( reference );
+        SelectorMap.Remove(reference);
     }
 
 
-    public void Add( params object[] facts )
+    public void Add(params object[] facts)
     {
-        AddAll( facts );
+        AddAll(facts);
     }
 
-    public void AddAll( IEnumerable<object> facts )
+    public void AddAll(IEnumerable<object> facts)
     {
 
         foreach (var f in facts.Where(f => !Guard.Contains(f)))

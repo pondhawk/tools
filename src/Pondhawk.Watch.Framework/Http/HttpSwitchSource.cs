@@ -1,4 +1,4 @@
-/*
+﻿/*
 The MIT License (MIT)
 
 Copyright (c) 2024 Pond Hawk Technologies Inc.
@@ -122,6 +122,7 @@ namespace Pondhawk.Watch.Framework.Http
             if (_disposed) return;
             _disposed = true;
             Stop();
+            GC.SuppressFinalize(this);
         }
     }
 }

@@ -1,4 +1,4 @@
-/*
+﻿/*
 The MIT License (MIT)
 
 Copyright (c) 2024 Pond Hawk Technologies Inc.
@@ -57,7 +57,7 @@ namespace Pondhawk.Watch.Framework.Sink
         {
             var deadline = DateTime.UtcNow + (timeout ?? TimeSpan.FromSeconds(2));
             while (_events.Count < count && DateTime.UtcNow < deadline)
-                await Task.Delay(25);
+                await Task.Delay(25).ConfigureAwait(false);
             return _events.ToList();
         }
 

@@ -1,4 +1,4 @@
-namespace Pondhawk.Rules.Tests;
+﻿namespace Pondhawk.Rules.Tests;
 
 public class Person
 {

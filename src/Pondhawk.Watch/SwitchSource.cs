@@ -1,4 +1,4 @@
-/*
+﻿/*
 The MIT License (MIT)
 
 Copyright (c) 2025 Pond Hawk Technologies Inc.
@@ -24,6 +24,7 @@ SOFTWARE.
 
 using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using CommunityToolkit.Diagnostics;
 using Serilog.Events;
@@ -48,10 +49,11 @@ namespace Pondhawk.Watch;
 /// is released to ensure readers see a consistent state.
 /// </para>
 /// </remarks>
-public class SwitchSource
+public class SwitchSource : IDisposable
 {
     private long _version;
     private readonly ReaderWriterLockSlim _switchLock = new();
+    private bool _disposed;
 
     /// <summary>
     /// Gets the current version number. Incremented after each Update().
@@ -76,7 +78,7 @@ public class SwitchSource
     /// <summary>
     /// Gets the dictionary of switches keyed by pattern.
     /// </summary>
-    protected IDictionary<string, Switch> Switches { get; set; } = new ConcurrentDictionary<string, Switch>();
+    protected IDictionary<string, Switch> Switches { get; set; } = new ConcurrentDictionary<string, Switch>(StringComparer.Ordinal);
 
     /// <summary>
     /// Gets the current switch definitions.
@@ -176,6 +178,7 @@ public class SwitchSource
     /// <summary>
     /// Stops the switch source. Override for cleanup.
     /// </summary>
+    [SuppressMessage("CA1716", "CA1716:IdentifiersShouldNotConflictWithKeywords", Justification = "Stop is the established domain name for lifecycle management in this API")]
     public virtual void Stop()
     {
     }
@@ -255,7 +258,7 @@ public class SwitchSource
     {
         Guard.IsNotNull(switchSource);
 
-        var switches = new ConcurrentDictionary<string, Switch>();
+        var switches = new ConcurrentDictionary<string, Switch>(StringComparer.Ordinal);
         var pKeys = new List<string>();
 
         foreach (var def in switchSource.Where(s => !s.IsQuiet))
@@ -318,5 +321,29 @@ public class SwitchSource
             return null;
 
         return Switches.TryGetValue(match, out var psw) ? psw : null;
+    }
+
+    /// <summary>
+    /// Releases the resources used by the SwitchSource.
+    /// </summary>
+    /// <param name="disposing">True if called from Dispose; false if called from a finalizer.</param>
+    protected virtual void Dispose(bool disposing)
+    {
+        if (_disposed)
+            return;
+
+        if (disposing)
+        {
+            _switchLock.Dispose();
+        }
+
+        _disposed = true;
+    }
+
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
     }
 }

@@ -1,4 +1,4 @@
-/*
+﻿/*
 The MIT License (MIT)
 
 Copyright (c) 2024 Pond Hawk Technologies Inc.
@@ -22,6 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
 using MemoryPack;
 
@@ -121,6 +122,7 @@ public partial class LogEvent
     /// </summary>
     [JsonIgnore]
     [MemoryPackIgnore]
+    [SuppressMessage("CA1720", "CA1720:IdentifiersShouldNotContainTypeNames", Justification = "Object is the established domain name for this property in the Watch logging pipeline")]
     public object? Object { get; set; }
 
     /// <summary>

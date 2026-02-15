@@ -1,4 +1,4 @@
-/*
+﻿/*
 The MIT License (MIT)
 
 Copyright (c) 2024 Pond Hawk Technologies Inc.
@@ -32,20 +32,21 @@ namespace Pondhawk.Watch.Framework.Utilities
     public static class MessageTemplate
     {
         private static readonly Regex PlaceholderPattern = new Regex(
-            @"\{([^{}:]+)(?::[^{}]*)?\}",
-            RegexOptions.Compiled);
+            @"\{(?<name>[^{}:]+)(?::[^{}]*)?\}",
+            RegexOptions.Compiled | RegexOptions.ExplicitCapture,
+            TimeSpan.FromSeconds(1));
 
         public static string[] GetPlaceholderNames(string template)
         {
             if (string.IsNullOrEmpty(template))
-                return new string[0];
+                return Array.Empty<string>();
 
             var matches = PlaceholderPattern.Matches(template);
             var names = new string[matches.Count];
 
             for (int i = 0; i < matches.Count; i++)
             {
-                names[i] = matches[i].Groups[1].Value;
+                names[i] = matches[i].Groups["name"].Value;
             }
 
             return names;
@@ -73,9 +74,9 @@ namespace Pondhawk.Watch.Framework.Utilities
             return result.ToString();
         }
 
-        public static Dictionary<string, object> BuildDictionary(string[] names, object[] values)
+        public static IDictionary<string, object> BuildDictionary(string[] names, object[] values)
         {
-            var dict = new Dictionary<string, object>();
+            var dict = new Dictionary<string, object>(StringComparer.Ordinal);
 
             for (int i = 0; i < Math.Min(names.Length, values.Length); i++)
             {

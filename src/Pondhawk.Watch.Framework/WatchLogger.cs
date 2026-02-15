@@ -1,4 +1,4 @@
-/*
+﻿/*
 The MIT License (MIT)
 
 Copyright (c) 2024 Pond Hawk Technologies Inc.
@@ -170,15 +170,15 @@ namespace Pondhawk.Watch.Framework
             return Ulid.NewUlid();
         }
 
-        private string BuildPayload<TState>(TState state)
+        private static string BuildPayload<TState>(TState state)
         {
             if (state is IReadOnlyList<KeyValuePair<string, object>> kvps)
             {
-                var dict = new Dictionary<string, object>();
+                var dict = new Dictionary<string, object>(StringComparer.Ordinal);
 
                 foreach (var kvp in kvps)
                 {
-                    if (kvp.Key == "{OriginalFormat}")
+                    if (string.Equals(kvp.Key, "{OriginalFormat}", StringComparison.Ordinal))
                         continue;
 
                     dict[kvp.Key] = kvp.Value;

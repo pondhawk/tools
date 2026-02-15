@@ -1,4 +1,4 @@
-/*
+﻿/*
 The MIT License (MIT)
 
 Copyright (c) 2017 The Kampilan Group Inc.
@@ -30,7 +30,7 @@ namespace Pondhawk.Rules.Exceptions;
 public sealed class ViolationsExistException : Exception
 {
 
-    public ViolationsExistException( EvaluationResults result ) : base( "Violation events occurred during evaluation" )
+    public ViolationsExistException(EvaluationResults result) : base("Violation events occurred during evaluation")
     {
         Result = result;
     }
@@ -39,7 +39,7 @@ public sealed class ViolationsExistException : Exception
 
     public IEnumerable<RuleEvent> Violations
     {
-        get { return Result.Events.Where( e => e.Category == RuleEvent.EventCategory.Violation ); }
+        get { return Result.Events.Where(e => e.Category == RuleEvent.EventCategory.Violation); }
     }
 
 }

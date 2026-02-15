@@ -27,55 +27,29 @@ using Pondhawk.Rules;
 namespace Pondhawk.Rules.Validators;
 
 /// <summary>
-/// Fluent validation interface for asserting conditions on a property of type <typeparamref name="TType"/>
-/// extracted from fact type <typeparamref name="TFact"/>. Use <c>Is()</c>/<c>IsNot()</c> to define conditions
-/// and <c>Otherwise()</c> to specify the violation message.
-/// </summary>
-public interface IValidator<out TFact, out TType>
-{
-
-    string GroupName { get; }
-    string PropertyName { get; }
-    
-    
-    IValidator<TFact, TType> Is( Func<TFact, TType, bool> condition );
-
-    IValidator<TFact, TType> IsNot( Func<TFact, TType, bool> condition );
-
-    IValidationRule<TFact> Otherwise( string template, params Func<TFact, object>[] parameters );
-
-    IValidationRule<TFact> Otherwise( string group, string template, params Func<TFact, object>[] parameters );
-
-    IValidationRule<TFact> Otherwise( RuleEvent.EventCategory category, string group, string template, params Func<TFact, object>[] parameters );
-
-
-}
-
-
-/// <summary>
 /// Default implementation of <see cref="IValidator{TFact, TType}"/> for single-value property validation.
 /// </summary>
-public class Validator<TFact, TType>( ValidationRule<TFact> rule, string group, string propertyName, Func<TFact, TType> extractor )
-    : BaseValidator<TFact>( rule, group ), IValidator<TFact,TType>
+public class Validator<TFact, TType>(ValidationRule<TFact> rule, string group, string propertyName, Func<TFact, TType> extractor)
+    : BaseValidator<TFact>(rule, group), IValidator<TFact, TType>
 {
     public string GroupName { get; } = group;
     public string PropertyName { get; } = propertyName;
 
     protected Func<TFact, TType> Extractor { get; } = extractor;
 
-        
-    public IValidator<TFact, TType> Is( Func<TFact, TType, bool> condition )
+
+    public IValidator<TFact, TType> Is(Func<TFact, TType, bool> condition)
     {
         bool Cond(TFact f) => condition(f, Extractor(f));
-        Conditions.Add( Cond );
+        Conditions.Add(Cond);
         return this;
     }
 
-        
-    public IValidator<TFact, TType> IsNot( Func<TFact, TType, bool> condition )
+
+    public IValidator<TFact, TType> IsNot(Func<TFact, TType, bool> condition)
     {
         bool Cond(TFact f) => !condition(f, Extractor(f));
-        Conditions.Add( Cond );
+        Conditions.Add(Cond);
         return this;
     }
 

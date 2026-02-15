@@ -27,10 +27,10 @@ namespace Pondhawk.Exceptions;
 /// <summary>
 /// Base exception for internal/system errors with an explanation and optional event details.
 /// </summary>
-public class InternalException: Exception
+public class InternalException : Exception
 {
 
-    public  InternalException( string message ): base(message)
+    public InternalException(string message) : base(message)
     {
         Explanation = message;
     }

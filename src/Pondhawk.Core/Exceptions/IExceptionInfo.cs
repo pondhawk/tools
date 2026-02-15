@@ -10,6 +10,6 @@ public interface IExceptionInfo
     string ErrorCode { get; }
     string Explanation { get; }
 
-    List<EventDetail> Details { get; }
+    IList<EventDetail> Details { get; }
 
 }

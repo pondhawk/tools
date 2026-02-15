@@ -1,4 +1,4 @@
-/*
+﻿/*
 The MIT License (MIT)
 
 Copyright (c) 2024 Pond Hawk Technologies Inc.
@@ -22,8 +22,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-using System.Collections.Generic;
-
 namespace Pondhawk.Watch.Framework.Http
 {
     public class SwitchDto
@@ -32,10 +30,5 @@ namespace Pondhawk.Watch.Framework.Http
         public string Tag { get; set; } = string.Empty;
         public int Level { get; set; }
         public int Color { get; set; }
-    }
-
-    public class SwitchesResponse
-    {
-        public List<SwitchDto> Switches { get; set; } = new List<SwitchDto>();
     }
 }

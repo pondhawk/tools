@@ -1,4 +1,4 @@
-/*
+﻿/*
 The MIT License (MIT)
 
 Copyright (c) 2024 Pond Hawk Technologies Inc.
@@ -34,7 +34,7 @@ namespace Pondhawk.Watch.Framework
 {
     public sealed class WatchLoggerProvider : ILoggerProvider
     {
-        private readonly ConcurrentDictionary<string, WatchLogger> _loggers = new ConcurrentDictionary<string, WatchLogger>();
+        private readonly ConcurrentDictionary<string, WatchLogger> _loggers = new ConcurrentDictionary<string, WatchLogger>(StringComparer.Ordinal);
         private readonly ConcurrentQueue<LogEvent> _queue = new ConcurrentQueue<LogEvent>();
         private readonly Timer _flushTimer;
         private int _flushing;

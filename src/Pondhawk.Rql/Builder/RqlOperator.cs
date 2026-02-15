@@ -1,7 +1,7 @@
 ﻿namespace Pondhawk.Rql.Builder
 {
 
-    
+
     /// <summary>
     /// The set of comparison operators supported by RQL predicates.
     /// </summary>

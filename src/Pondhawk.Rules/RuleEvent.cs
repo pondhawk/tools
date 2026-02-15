@@ -1,4 +1,4 @@
-namespace Pondhawk.Rules;
+﻿namespace Pondhawk.Rules;
 
 /// <summary>
 /// An event emitted by a rule consequence — informational message, warning, or validation violation.
@@ -26,9 +26,9 @@ public sealed class RuleEvent : IEquatable<RuleEvent>
             return false;
 
         return Category == other.Category &&
-               RuleName == other.RuleName &&
-               Group == other.Group &&
-               Message == other.Message;
+               string.Equals(RuleName, other.RuleName, StringComparison.Ordinal) &&
+               string.Equals(Group, other.Group, StringComparison.Ordinal) &&
+               string.Equals(Message, other.Message, StringComparison.Ordinal);
     }
 
     public override bool Equals(object obj) => Equals(obj as RuleEvent);

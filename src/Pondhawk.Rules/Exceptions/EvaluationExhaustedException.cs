@@ -1,4 +1,4 @@
-/*
+﻿/*
 The MIT License (MIT)
 
 Copyright (c) 2017 The Kampilan Group Inc.
@@ -30,7 +30,7 @@ namespace Pondhawk.Rules.Exceptions;
 public sealed class EvaluationExhaustedException : Exception
 {
 
-    public EvaluationExhaustedException( EvaluationResults result ): base( "The current evaluation ended due to excessive duration or evaluation count. Check the results for circular rules. (FiredRules count very high)" )
+    public EvaluationExhaustedException(EvaluationResults result) : base("The current evaluation ended due to excessive duration or evaluation count. Check the results for circular rules. (FiredRules count very high)")
     {
         Result = result;
     }

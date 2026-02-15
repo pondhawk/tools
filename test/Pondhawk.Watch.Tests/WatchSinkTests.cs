@@ -1,11 +1,11 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Net;
-using WatchCorrelationManager = Pondhawk.Logging.CorrelationManager;
 using Pondhawk.Watch.Tests.Http;
 using Serilog.Events;
 using Shouldly;
 using Xunit;
 using SerilogEvent = Serilog.Events.LogEvent;
+using WatchCorrelationManager = Pondhawk.Logging.CorrelationManager;
 
 namespace Pondhawk.Watch.Tests;
 

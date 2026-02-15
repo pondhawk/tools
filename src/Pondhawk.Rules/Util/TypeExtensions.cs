@@ -1,4 +1,4 @@
-namespace Pondhawk.Rules.Util;
+﻿namespace Pondhawk.Rules.Util;
 
 internal static class TypeExtensions
 {

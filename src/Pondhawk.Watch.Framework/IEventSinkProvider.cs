@@ -1,4 +1,4 @@
-/*
+﻿/*
 The MIT License (MIT)
 
 Copyright (c) 2024 Pond Hawk Technologies Inc.
@@ -22,6 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -30,6 +31,8 @@ namespace Pondhawk.Watch.Framework
     public interface IEventSinkProvider
     {
         void Start();
+
+        [SuppressMessage("Naming", "CA1716:Identifiers should not match keywords", Justification = "Stop is the established lifecycle method name in this API")]
         void Stop();
         Task Accept(LogEventBatch batch, CancellationToken cancellationToken = default);
     }

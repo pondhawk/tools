@@ -47,40 +47,40 @@ public class EventDetail
     public class Comparer : IEqualityComparer<EventDetail>
     {
 
-        public bool Equals( EventDetail? x, EventDetail? y)
+        public bool Equals(EventDetail? x, EventDetail? y)
         {
 
             if (x is null || y is null)
                 return false;
 
-            var eq = (x.Category == y.Category) && (x.RuleName == y.RuleName) && (x.Group == y.Group) && (x.Explanation == y.Explanation);
+            var eq = (x.Category == y.Category) && string.Equals(x.RuleName, y.RuleName, StringComparison.Ordinal) && string.Equals(x.Group, y.Group, StringComparison.Ordinal) && string.Equals(x.Explanation, y.Explanation, StringComparison.Ordinal);
             return eq;
 
         }
 
-        public int GetHashCode( EventDetail obj)
+        public int GetHashCode(EventDetail obj)
         {
             return HashCode.Combine(obj.Category, obj.RuleName, obj.Group, obj.Explanation);
         }
 
     }
 
-    public static IEnumerable<EventDetail> DeDup( IEnumerable<EventDetail> source )
+    public static IEnumerable<EventDetail> DeDup(IEnumerable<EventDetail> source)
     {
-        var set = new HashSet<EventDetail>( new Comparer() );
+        var set = new HashSet<EventDetail>(new Comparer());
 
-        set.UnionWith( source );
+        set.UnionWith(source);
 
         return set;
 
     }
 
-    public static IEnumerable<EventDetail> Merge( IEnumerable<EventDetail> source1, IEnumerable<EventDetail> source2 )
+    public static IEnumerable<EventDetail> Merge(IEnumerable<EventDetail> source1, IEnumerable<EventDetail> source2)
     {
 
         var set = new HashSet<EventDetail>(new Comparer());
-        set.UnionWith( source1 );
-        set.UnionWith( source2 );
+        set.UnionWith(source1);
+        set.UnionWith(source2);
 
         return set;
 
@@ -109,36 +109,36 @@ public class EventDetail
     public string Explanation { get; set; } = "";
 
 
-    public EventDetail WithCategory( EventCategory category )
+    public EventDetail WithCategory(EventCategory category)
     {
         Category = category;
         return this;
     }
 
-    public EventDetail WithRuleName( string ruleName )
+    public EventDetail WithRuleName(string ruleName)
     {
         Guard.IsNotNull(ruleName);
         RuleName = ruleName;
         return this;
     }
 
-    public EventDetail WithGroup( string group )
+    public EventDetail WithGroup(string group)
     {
         Guard.IsNotNull(group);
         Group = group;
         return this;
     }
 
-    public EventDetail WithSource( object source )
+    public EventDetail WithSource(object source)
     {
         Guard.IsNotNull(source);
 
-        Source = source.ToString()??"";
+        Source = source.ToString() ?? "";
 
         return this;
     }
 
-    public EventDetail WithExplanation( string message )
+    public EventDetail WithExplanation(string message)
     {
         Guard.IsNotNull(message);
         Explanation = message;

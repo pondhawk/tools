@@ -1,4 +1,4 @@
-/*
+﻿/*
 The MIT License (MIT)
 
 Copyright (c) 2024 Pond Hawk Technologies Inc.
@@ -23,6 +23,7 @@ SOFTWARE.
 */
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using Newtonsoft.Json;
 
 namespace Pondhawk.Watch.Framework
@@ -44,6 +45,7 @@ namespace Pondhawk.Watch.Framework
         public string ErrorType { get; set; }
 
         [JsonIgnore]
+        [SuppressMessage("Naming", "CA1720:Identifier contains type name", Justification = "Domain-specific name for the logged object")]
         public object Object { get; set; }
 
         [JsonIgnore]

@@ -1,4 +1,4 @@
-/*
+﻿/*
 The MIT License (MIT)
 
 Copyright (c) 2017 The Kampilan Group Inc.
@@ -30,7 +30,7 @@ namespace Pondhawk.Rules.Exceptions;
 public sealed class NoRulesEvaluatedException : Exception
 {
 
-    public NoRulesEvaluatedException( EvaluationResults result ) : base( "The current evaluation ended without evaluating any rules. (TotalEvaluated == 0)" )
+    public NoRulesEvaluatedException(EvaluationResults result) : base("The current evaluation ended without evaluating any rules. (TotalEvaluated == 0)")
     {
         Result = result;
     }

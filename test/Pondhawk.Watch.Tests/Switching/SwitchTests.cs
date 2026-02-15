@@ -17,7 +17,6 @@ public class SwitchTests
         sw.Level.ShouldBe(LogEventLevel.Error);
         sw.Color.ShouldBe(Color.White);
         sw.Tag.ShouldBe("");
-        sw.IsQuiet.ShouldBeFalse();
     }
 
     [Fact]

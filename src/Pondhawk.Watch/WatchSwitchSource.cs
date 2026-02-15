@@ -123,7 +123,6 @@ public class WatchSwitchSource : SwitchSource
                     Pattern = s.Pattern,
                     Tag = s.Tag,
                     Level = s.Level > (int)LogEventLevel.Fatal ? LogEventLevel.Fatal : (LogEventLevel)s.Level,
-                    IsQuiet = s.Level > (int)LogEventLevel.Fatal,
                     Color = Color.FromArgb(s.Color)
                 }).ToList();
 

@@ -67,11 +67,6 @@ public class SwitchDef
     public LogEventLevel Level { get; set; } = LogEventLevel.Error;
 
     /// <summary>
-    /// Gets or sets whether this switch suppresses all logging.
-    /// </summary>
-    public bool IsQuiet { get; set; }
-
-    /// <summary>
     /// Gets or sets the color for log events matching this switch.
     /// </summary>
     public Color Color { get; set; } = Color.LightGray;

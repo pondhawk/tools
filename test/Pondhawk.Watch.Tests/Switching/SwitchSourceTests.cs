@@ -226,23 +226,6 @@ public class SwitchSourceTests
     }
 
     [Fact]
-    public void Update_QuietSwitches_AreExcluded()
-    {
-        var source = new SwitchSource();
-
-        var defs = new List<SwitchDef>
-        {
-            new() { Pattern = "Quiet", Level = LogEventLevel.Debug, Color = Color.Red, IsQuiet = true },
-            new() { Pattern = "Active", Level = LogEventLevel.Debug, Color = Color.Green }
-        };
-
-        source.Update(defs);
-
-        source.Lookup("Active.Sub").Pattern.ShouldBe("Active");
-        source.Lookup("Quiet.Sub").ShouldBeSameAs(source.DefaultSwitch);
-    }
-
-    [Fact]
     public void Update_Null_Throws()
     {
         var source = new SwitchSource();

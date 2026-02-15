@@ -65,21 +65,6 @@ public class WatchSinkTests
         handler.Requests.Count.ShouldBe(1);
     }
 
-    // --- ConvertEvent: quiet switch filters event ---
-
-    [Fact]
-    public async Task ConvertEvent_QuietSwitch_FiltersEvent()
-    {
-        var handler = new MockHttpHandler();
-        handler.RespondWith(HttpStatusCode.OK);
-        var source = new SwitchSource { DefaultSwitch = new Switch { IsQuiet = true } };
-        var sink = new WatchSink(CreateClient(handler), source, "test");
-
-        await sink.FlushBatchAsync(MakeEventList(sourceContext: "MyApp.Service"));
-
-        handler.Requests.Count.ShouldBe(0);
-    }
-
     // --- ConvertEvent: level below threshold filters event ---
 
     [Fact]

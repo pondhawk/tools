@@ -116,19 +116,19 @@ public class WatchSwitchSourceTests
     }
 
     [Fact]
-    public async Task UpdateAsync_LevelAboveFatal_MarkedAsQuiet()
+    public async Task UpdateAsync_LevelAboveFatal_ClampsToFatal()
     {
         var handler = new MockHttpHandler();
         handler.RespondWith(HttpStatusCode.OK, CreateSwitchesJson(
-            new SwitchDto { Pattern = "Quiet", Level = 999, Color = 0 }
+            new SwitchDto { Pattern = "HighLevel", Level = 999, Color = 0 }
         ));
 
         var source = new WatchSwitchSource(CreateClient(handler), "test");
 
         await source.UpdateAsync();
 
-        // Quiet switches are excluded by SwitchSource.Update, so Lookup returns default
-        source.Lookup("Quiet.Something").ShouldBeSameAs(source.DefaultSwitch);
+        // Level > 5 should clamp to Fatal
+        source.Lookup("HighLevel.Something").Level.ShouldBe(LogEventLevel.Fatal);
     }
 
     [Fact]

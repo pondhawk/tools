@@ -310,9 +310,6 @@ public sealed class WatchSink : ILogEventSink, IDisposable
         var category = GetCategory(serilogEvent);
         var sw = _switchSource.Lookup(category);
 
-        if (sw.IsQuiet)
-            return null;
-
         if (serilogEvent.Level < sw.Level)
             return null;
 

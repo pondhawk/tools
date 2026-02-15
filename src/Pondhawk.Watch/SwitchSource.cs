@@ -149,7 +149,6 @@ public class SwitchSource : IDisposable
             Pattern = p.Value.Pattern,
             Tag = p.Value.Tag,
             Level = p.Value.Level,
-            IsQuiet = p.Value.IsQuiet,
             Color = p.Value.Color
         }).ToList();
 
@@ -261,7 +260,7 @@ public class SwitchSource : IDisposable
         var switches = new ConcurrentDictionary<string, Switch>(StringComparer.Ordinal);
         var pKeys = new List<string>();
 
-        foreach (var def in switchSource.Where(s => !s.IsQuiet))
+        foreach (var def in switchSource)
         {
             var sw = new Switch
             {

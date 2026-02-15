@@ -37,8 +37,14 @@ namespace Pondhawk.Rules.Evaluation;
 public abstract class AbstractEvaluator : IEvaluator
 {
 
+    /// <summary>Evaluates rules against the specified facts.</summary>
+    /// <param name="facts">The facts to evaluate.</param>
+    /// <returns>The aggregated evaluation results.</returns>
     public EvaluationResults Evaluate(params object[] facts) => EvaluateAll(facts);
 
+    /// <summary>Evaluates rules against all facts in the collection.</summary>
+    /// <param name="facts">The facts to evaluate.</param>
+    /// <returns>The aggregated evaluation results.</returns>
     public EvaluationResults EvaluateAll(IEnumerable<object> facts)
     {
         var context = BuildContext();
@@ -48,6 +54,7 @@ public abstract class AbstractEvaluator : IEvaluator
     }
 
 
+    /// <inheritdoc />
     [SuppressMessage("Design", "MA0051:Method is too long", Justification = "Core evaluation loop requires sequential logic that is clearer as a single method")]
     public EvaluationResults Evaluate(EvaluationContext context)
     {
@@ -176,11 +183,16 @@ public abstract class AbstractEvaluator : IEvaluator
         return context.Results;
     }
 
+    /// <summary>Gets the rule base used for evaluation.</summary>
+    /// <returns>The rule base.</returns>
     protected abstract IRuleBase GetRuleBase();
 
+    /// <summary>Gets the namespace filters to apply during evaluation.</summary>
+    /// <returns>The namespace filter strings.</returns>
     protected abstract IEnumerable<string> GetNamespaces();
 
-
+    /// <summary>Creates a new evaluation context for this evaluator.</summary>
+    /// <returns>A new evaluation context.</returns>
     protected virtual EvaluationContext BuildContext() => new();
 }
 

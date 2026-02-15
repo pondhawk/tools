@@ -1,20 +1,23 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
+    <TargetFrameworks>net10.0;netstandard2.0</TargetFrameworks>
+    <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
     <Title>Pondhawk Watch</Title>
     <Description>Serilog sink for structured logging with rich UI visualization via Watch Server</Description>
     <Authors>Pond Hawk Technologies Inc.</Authors>
     <Company>Pond Hawk Technologies Inc.</Company>
     <Copyright>Pond Hawk Technologies Inc. (c) 2026</Copyright>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <PackageIcon>pht-small-logo.png</PackageIcon>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <RepositoryUrl>https://github.com/pondhawk/pondhawk-tools</RepositoryUrl>
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
     <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)' != 'netstandard2.0'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <ItemGroup>
@@ -26,18 +29,24 @@
     <None Include="README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 
+  <!-- Common packages for all targets -->
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Diagnostics" />
-    <PackageReference Include="MemoryPack" />
-    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" />
-    <PackageReference Include="Microsoft.Extensions.Http" />
-    <PackageReference Include="Microsoft.Extensions.Logging" />
     <PackageReference Include="Microsoft.IO.RecyclableMemoryStream" />
     <PackageReference Include="Serilog" />
+    <PackageReference Include="Ulid" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Pondhawk.Core\Pondhawk.Core.csproj" />
+  <!-- MemoryPack only on .NET 7+ -->
+  <ItemGroup Condition="'$(TargetFramework)' != 'netstandard2.0'">
+    <PackageReference Include="MemoryPack" />
+  </ItemGroup>
+
+  <!-- Additional NuGet packages needed on netstandard2.0 -->
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+    <PackageReference Include="System.Threading.Channels" />
+    <PackageReference Include="System.Text.Json" />
+    <PackageReference Include="System.Net.Http.Json" />
   </ItemGroup>
 
 </Project>

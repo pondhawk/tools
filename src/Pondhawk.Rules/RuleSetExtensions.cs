@@ -21,6 +21,10 @@ public static class RuleSetExtensions
     private static readonly IReadOnlyDictionary<string, List<RuleEvent>> EmptyGrouped = new Dictionary<string, List<RuleEvent>>(StringComparer.Ordinal);
 
 
+    /// <summary>Evaluates rules against the specified facts with exceptions suppressed.</summary>
+    /// <param name="rules">The rule set to evaluate.</param>
+    /// <param name="facts">The facts to evaluate.</param>
+    /// <returns>The evaluation results.</returns>
     public static EvaluationResults Evaluate(this IRuleSet rules, params object[] facts)
     {
 
@@ -35,6 +39,10 @@ public static class RuleSetExtensions
     }
 
 
+    /// <summary>Evaluates rules against all facts in the collection with exceptions suppressed.</summary>
+    /// <param name="rules">The rule set to evaluate.</param>
+    /// <param name="fact">The facts to evaluate.</param>
+    /// <returns>The evaluation results.</returns>
     public static EvaluationResults Evaluate(this IRuleSet rules, IEnumerable<object> fact)
     {
 
@@ -49,6 +57,11 @@ public static class RuleSetExtensions
     }
 
 
+    /// <summary>Validates a single subject and returns <c>true</c> if no violations are found.</summary>
+    /// <param name="rules">The rule set to use for validation.</param>
+    /// <param name="subject">The subject to validate.</param>
+    /// <param name="violations">When this method returns <c>false</c>, contains the list of violation events.</param>
+    /// <returns><c>true</c> if validation passed with no violations; otherwise <c>false</c>.</returns>
     public static bool TryValidate(this IRuleSet rules, object subject, out IReadOnlyList<RuleEvent> violations)
     {
 
@@ -72,6 +85,11 @@ public static class RuleSetExtensions
     }
 
 
+    /// <summary>Validates all subjects and returns <c>true</c> if no violations are found.</summary>
+    /// <param name="rules">The rule set to use for validation.</param>
+    /// <param name="subjects">The subjects to validate.</param>
+    /// <param name="violations">When this method returns <c>false</c>, contains the list of violation events.</param>
+    /// <returns><c>true</c> if validation passed with no violations; otherwise <c>false</c>.</returns>
     public static bool TryValidate(this IRuleSet rules, IEnumerable<object> subjects, out IReadOnlyList<RuleEvent> violations)
     {
 
@@ -95,6 +113,10 @@ public static class RuleSetExtensions
     }
 
 
+    /// <summary>Validates the specified facts and returns a structured <see cref="ValidationResult"/>.</summary>
+    /// <param name="rules">The rule set to use for validation.</param>
+    /// <param name="facts">The facts to validate.</param>
+    /// <returns>A validation result containing validity status, violations, and grouped violations.</returns>
     public static ValidationResult Validate(this IRuleSet rules, params object[] facts)
     {
         var ec = rules.GetEvaluationContext();

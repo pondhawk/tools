@@ -58,6 +58,10 @@ public abstract class RuleBuilder : AbstractRuleBuilder, IBuilder
 {
 
 
+    /// <summary>Creates a new single-fact rule and registers it with this builder.</summary>
+    /// <typeparam name="TFact">The fact type the rule operates on.</typeparam>
+    /// <param name="tags">Optional tags appended to the rule name for identification.</param>
+    /// <returns>The newly created rule for fluent configuration.</returns>
     public virtual Rule<TFact> Rule<TFact>(params string[] tags)
     {
 
@@ -91,6 +95,12 @@ public abstract class RuleBuilder : AbstractRuleBuilder, IBuilder
 
 
 
+    /// <summary>Creates a new foreach rule that iterates over children extracted from a parent fact.</summary>
+    /// <typeparam name="TFact">The parent fact type.</typeparam>
+    /// <typeparam name="TChild">The child fact type to iterate over.</typeparam>
+    /// <param name="extractor">A function that extracts the child collection from the parent fact.</param>
+    /// <param name="tags">Optional tags appended to the rule name for identification.</param>
+    /// <returns>The newly created foreach rule for fluent configuration.</returns>
     public virtual ForeachRule<TFact, TChild> Rule<TFact, TChild>(Func<TFact, IEnumerable<TChild>> extractor, params string[] tags)
     {
 
@@ -122,16 +132,19 @@ public abstract class RuleBuilder : AbstractRuleBuilder, IBuilder
 /// <summary>
 /// Base class for defining rules that operate on a single fact type.
 /// </summary>
+/// <typeparam name="TFact">The fact type that rules in this builder reason over.</typeparam>
 public abstract class RuleBuilder<TFact> : AbstractRuleBuilder, IBuilder
 {
 
-
+    /// <summary>Initializes a new instance of the <see cref="RuleBuilder{TFact}"/> class.</summary>
     protected RuleBuilder()
     {
         Targets = [typeof(TFact)];
     }
 
-
+    /// <summary>Creates a new single-fact rule and registers it with this builder.</summary>
+    /// <param name="tags">Optional tags appended to the rule name for identification.</param>
+    /// <returns>The newly created rule for fluent configuration.</returns>
     public virtual Rule<TFact> Rule(params string[] tags)
     {
 
@@ -163,6 +176,11 @@ public abstract class RuleBuilder<TFact> : AbstractRuleBuilder, IBuilder
 
 
 
+    /// <summary>Creates a new foreach rule that iterates over children extracted from the builder's fact type.</summary>
+    /// <typeparam name="TChild">The child fact type to iterate over.</typeparam>
+    /// <param name="extractor">A function that extracts the child collection from the fact.</param>
+    /// <param name="tags">Optional tags appended to the rule name for identification.</param>
+    /// <returns>The newly created foreach rule for fluent configuration.</returns>
     public virtual ForeachRule<TFact, TChild> Rule<TChild>(Func<TFact, IEnumerable<TChild>> extractor, params string[] tags)
     {
 
@@ -207,7 +225,7 @@ public abstract class RuleBuilder<TFact> : AbstractRuleBuilder, IBuilder
 public abstract class RuleBuilder<TFact1, TFact2> : AbstractRuleBuilder, IBuilder
 {
 
-
+    /// <summary>Initializes a new instance of the <see cref="RuleBuilder{TFact1, TFact2}"/> class.</summary>
     protected RuleBuilder()
     {
         Targets = [typeof(TFact1), typeof(TFact2)];
@@ -252,6 +270,9 @@ public abstract class RuleBuilder<TFact1, TFact2> : AbstractRuleBuilder, IBuilde
         return rule;
     }
 
+    /// <summary>Creates a new two-fact rule with the specified name.</summary>
+    /// <param name="ruleName">The name of the rule.</param>
+    /// <returns>The newly created rule for fluent configuration.</returns>
     public virtual Rule<TFact1, TFact2> Rule(string ruleName) => AddRule(ruleName);
 
 }
@@ -272,7 +293,7 @@ public abstract class RuleBuilder<TFact1, TFact2> : AbstractRuleBuilder, IBuilde
 /// over</typeparam>
 public abstract class RuleBuilder<TFact1, TFact2, TFact3> : AbstractRuleBuilder, IBuilder
 {
-
+    /// <summary>Initializes a new instance of the <see cref="RuleBuilder{TFact1, TFact2, TFact3}"/> class.</summary>
     protected RuleBuilder()
     {
         Targets = [typeof(TFact1), typeof(TFact2), typeof(TFact3)];
@@ -319,6 +340,9 @@ public abstract class RuleBuilder<TFact1, TFact2, TFact3> : AbstractRuleBuilder,
         return rule;
     }
 
+    /// <summary>Creates a new three-fact rule with the specified name.</summary>
+    /// <param name="ruleName">The name of the rule.</param>
+    /// <returns>The newly created rule for fluent configuration.</returns>
     public virtual Rule<TFact1, TFact2, TFact3> Rule(string ruleName) => AddRule(ruleName);
 }
 
@@ -341,7 +365,7 @@ public abstract class RuleBuilder<TFact1, TFact2, TFact3> : AbstractRuleBuilder,
 public abstract class RuleBuilder<TFact1, TFact2, TFact3, TFact4> : AbstractRuleBuilder, IBuilder
 {
 
-
+    /// <summary>Initializes a new instance of the <see cref="RuleBuilder{TFact1, TFact2, TFact3, TFact4}"/> class.</summary>
     protected RuleBuilder()
     {
         Targets = [typeof(TFact1), typeof(TFact2), typeof(TFact3), typeof(TFact4)];
@@ -389,6 +413,9 @@ public abstract class RuleBuilder<TFact1, TFact2, TFact3, TFact4> : AbstractRule
         return rule;
     }
 
+    /// <summary>Creates a new four-fact rule with the specified name.</summary>
+    /// <param name="ruleName">The name of the rule.</param>
+    /// <returns>The newly created rule for fluent configuration.</returns>
     public virtual Rule<TFact1, TFact2, TFact3, TFact4> Rule(string ruleName) => AddRule(ruleName);
 
 }

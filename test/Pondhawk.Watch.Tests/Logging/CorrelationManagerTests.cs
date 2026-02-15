@@ -1,8 +1,8 @@
-﻿using Pondhawk.Logging;
+﻿using Pondhawk.Watch;
 using Shouldly;
 using Xunit;
 
-namespace Pondhawk.Core.Tests.Logging;
+namespace Pondhawk.Watch.Tests.Logging;
 
 public class CorrelationManagerTests
 {

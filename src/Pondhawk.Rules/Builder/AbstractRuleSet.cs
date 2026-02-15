@@ -31,31 +31,36 @@ namespace Pondhawk.Rules.Builder;
 /// </summary>
 public abstract class AbstractRuleSet : AbstractEvaluator, IRuleSet
 {
+    /// <summary>Initializes a new instance of the <see cref="AbstractRuleSet"/> class with default threshold of zero.</summary>
     protected AbstractRuleSet()
     {
         DecisionThreshold = 0;
     }
 
+    /// <inheritdoc />
     public int DecisionThreshold { get; set; }
 
-
+    /// <inheritdoc />
     public Func<object, bool> Predicate => fact => Decide(fact);
 
+    /// <inheritdoc />
     public virtual bool Decide(params object[] facts)
     {
         EvaluationResults result = Evaluate(facts);
         return result.Score >= DecisionThreshold;
     }
 
+    /// <inheritdoc />
     public virtual bool Decide(int threshold, params object[] facts)
     {
         EvaluationResults result = Evaluate(facts);
         return result.Score >= threshold;
     }
 
-
+    /// <inheritdoc />
     public abstract EvaluationContext GetEvaluationContext();
 
+    /// <inheritdoc />
     public IEnumerable<string> GetNamespaceFilters() => GetNamespaces();
 
 }

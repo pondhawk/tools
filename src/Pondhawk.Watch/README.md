@@ -18,7 +18,7 @@ Log.Logger = new LoggerConfiguration()
 ### Use the Logging API
 
 ```csharp
-using Pondhawk.Logging;
+using Pondhawk.Watch;
 
 public class OrderService
 {
@@ -86,7 +86,7 @@ Events flow: Serilog `ILogger` -> WatchSink (Channel queue) -> Background batch 
 
 Switch-based filtering checks the source context pattern against configured switches. Longest prefix match wins. Version-based invalidation ensures cached loggers see switch updates without recreation.
 
-Depends on `Pondhawk.Core` for the logging API types (`SerilogExtensions`, `MethodLogger`, `PayloadType`, `SensitiveAttribute`).
+Fully standalone -- no dependency on Pondhawk.Core. Logging API types (`SerilogExtensions`, `MethodLogger`, `PayloadType`, `SensitiveAttribute`) are included directly.
 
 ## Documentation
 

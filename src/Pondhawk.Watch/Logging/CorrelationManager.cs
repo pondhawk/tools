@@ -24,7 +24,7 @@ SOFTWARE.
 
 using System.Diagnostics;
 
-namespace Pondhawk.Logging;
+namespace Pondhawk.Watch;
 
 /// <summary>
 /// Provides correlation context for logging operations.

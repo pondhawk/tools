@@ -1,11 +1,10 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using System.Net;
 using Pondhawk.Watch.Tests.Http;
 using Serilog.Events;
 using Shouldly;
 using Xunit;
 using SerilogEvent = Serilog.Events.LogEvent;
-using WatchCorrelationManager = Pondhawk.Logging.CorrelationManager;
 
 namespace Pondhawk.Watch.Tests;
 
@@ -261,6 +260,7 @@ public class WatchSinkTests
 
     // --- DisposeAsync ---
 
+#if NET10_0_OR_GREATER
     [Fact]
     public async Task DisposeAsync_Succeeds()
     {
@@ -269,6 +269,7 @@ public class WatchSinkTests
 
         await sink.DisposeAsync();
     }
+#endif
 
     // --- Dispose is idempotent ---
 
@@ -306,7 +307,9 @@ public class WatchSinkTests
         handler.RespondWith(HttpStatusCode.OK);
         var sink = new WatchSink(CreateClient(handler), CreateSwitchSource(), "test");
 
-        using var scope = WatchCorrelationManager.Begin("test-correlation-123");
+        using var activity = new Activity("TestCorrelation");
+        activity.SetBaggage("watch.correlation", "test-correlation-123");
+        activity.Start();
 
         await sink.FlushBatchAsync(MakeEventList(sourceContext: "MyApp"));
 
@@ -329,7 +332,7 @@ public class WatchSinkTests
 
         handler.Requests.Count.ShouldBe(1);
 
-        var correlation = activity.GetBaggageItem(WatchCorrelationManager.BaggageKey);
+        var correlation = activity.GetBaggageItem("watch.correlation");
         correlation.ShouldNotBeNullOrEmpty();
     }
 }

@@ -32,6 +32,10 @@ namespace Pondhawk.Exceptions
     {
 
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ExternalException"/> class with the specified message.
+        /// </summary>
+        /// <param name="message">The error message.</param>
         protected ExternalException(string message) : base(message)
         {
 
@@ -41,6 +45,11 @@ namespace Pondhawk.Exceptions
         }
 
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ExternalException"/> class with the specified message and inner exception.
+        /// </summary>
+        /// <param name="message">The error message.</param>
+        /// <param name="inner">The inner exception that caused this exception.</param>
         protected ExternalException(string message, Exception inner) : base(message, inner)
         {
 
@@ -57,6 +66,10 @@ namespace Pondhawk.Exceptions
 
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ExternalException"/> class from an <see cref="IExceptionInfo"/>.
+        /// </summary>
+        /// <param name="info">The exception info to populate this exception from.</param>
         protected ExternalException(IExceptionInfo info) : base(info.Explanation)
         {
 
@@ -71,14 +84,35 @@ namespace Pondhawk.Exceptions
 
 
 
+        /// <summary>
+        /// Gets the classification of this error.
+        /// </summary>
         public ErrorKind Kind { get; protected set; } = ErrorKind.System;
+
+        /// <summary>
+        /// Gets the error code, derived from the exception type name by default.
+        /// </summary>
         public string ErrorCode { get; protected set; }
+
+        /// <summary>
+        /// Gets the human-readable explanation of the error.
+        /// </summary>
         public string Explanation { get; protected set; }
+
+        /// <summary>
+        /// Gets the explanation from the inner exception, if available.
+        /// </summary>
         public string InnerExplanation { get; protected set; } = "";
 
+        /// <summary>
+        /// Gets the correlation identifier for tracing this error across systems.
+        /// </summary>
         public string CorrelationId { get; protected set; } = "";
 
 
+        /// <summary>
+        /// Gets the list of <see cref="EventDetail"/> instances associated with this exception.
+        /// </summary>
         public IList<EventDetail> Details { get; protected set; } = new List<EventDetail>();
 
     }

@@ -154,11 +154,15 @@ public sealed class FactSpace
     }
 
 
+    /// <summary>Adds one or more facts to the fact space.</summary>
+    /// <param name="facts">The facts to add.</param>
     public void Add(params object[] facts)
     {
         AddAll(facts);
     }
 
+    /// <summary>Adds all facts from the collection to the fact space.</summary>
+    /// <param name="facts">The facts to add.</param>
     public void AddAll(IEnumerable<object> facts)
     {
 

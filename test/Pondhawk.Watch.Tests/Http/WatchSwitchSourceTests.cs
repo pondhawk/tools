@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Text;
 using System.Text.Json;
 using Serilog.Events;
@@ -217,7 +217,7 @@ public class WatchSwitchSourceTests
             new SwitchDto { Pattern = "App", Level = (int)LogEventLevel.Information, Color = 0 }
         ));
 
-        await using var source = new WatchSwitchSource(CreateClient(handler), "test")
+        using var source = new WatchSwitchSource(CreateClient(handler), "test")
         {
             PollingEnabled = false // disable polling to avoid background tasks
         };
@@ -237,7 +237,7 @@ public class WatchSwitchSourceTests
         var handler = new MockHttpHandler();
         handler.RespondWith(HttpStatusCode.OK, CreateSwitchesJson());
 
-        await using var source = new WatchSwitchSource(CreateClient(handler), "test")
+        using var source = new WatchSwitchSource(CreateClient(handler), "test")
         {
             PollingEnabled = false
         };
@@ -259,7 +259,7 @@ public class WatchSwitchSourceTests
         var handler = new MockHttpHandler();
         handler.RespondWith(HttpStatusCode.OK, CreateSwitchesJson());
 
-        await using var source = new WatchSwitchSource(CreateClient(handler), "test", TimeSpan.FromMilliseconds(50))
+        using var source = new WatchSwitchSource(CreateClient(handler), "test", TimeSpan.FromMilliseconds(50))
         {
             PollingEnabled = true
         };
@@ -281,7 +281,7 @@ public class WatchSwitchSourceTests
         var handler = new MockHttpHandler();
         handler.RespondWith(HttpStatusCode.OK, CreateSwitchesJson());
 
-        await using var source = new WatchSwitchSource(CreateClient(handler), "test", TimeSpan.FromMilliseconds(50))
+        using var source = new WatchSwitchSource(CreateClient(handler), "test", TimeSpan.FromMilliseconds(50))
         {
             PollingEnabled = true
         };
@@ -311,6 +311,7 @@ public class WatchSwitchSourceTests
 
     // --- DisposeAsync ---
 
+#if NET10_0_OR_GREATER
     [Fact]
     public async Task DisposeAsync_StopsPolling()
     {
@@ -338,6 +339,7 @@ public class WatchSwitchSourceTests
 
         await source.DisposeAsync();
     }
+#endif
 
     // --- Domain encoding ---
 

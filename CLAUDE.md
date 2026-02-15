@@ -22,36 +22,33 @@ dotnet build src/Pondhawk.Rules.EFCore/Pondhawk.Rules.EFCore.csproj
 - **.NET 10** targeting `net10.0` (SDK 10.0.103)
 - **Central package management** via `Directory.Packages.props`
 - **Nullable reference types** enabled in Core and Watch projects
-- Autofac is used for DI registration (`AutofacExtensions`)
-
 ## Architecture
 
 This repository contains class libraries under `src/` that form the **Pondhawk** toolkit by Pond Hawk Technologies:
 
 ### Pondhawk.Core — Shared Foundation
 
-Core utilities, logging API, and pipeline infrastructure. Key subsystems:
+Core utilities, pipeline infrastructure, and common exception types. Key subsystems:
 
-- **Logging** (`Pondhawk.Logging` namespace): `SerilogExtensions` is the primary Watch logging API with extensions on both `Serilog.ILogger` and `object`:
-  - **`object.GetLogger()`** — returns a `Serilog.ILogger` with `SourceContext` set to the concise full name of the object's type (e.g. `MyApp.Services.Repository<Order>`)
-  - **`object.EnterMethod()`** — shorthand that calls `GetLogger().EnterMethod()` for method tracing scopes
-  - **`ILogger.EnterMethod()`** — creates a disposable method tracing scope with automatic entry/exit logging and elapsed time
+- **Utilities**: Pipeline infrastructure (`IServiceCollection`-based DI registration), process utilities, type extensions.
+- **Exceptions**: Common exception types.
+
+### Pondhawk.Watch — Serilog Sink + Logging API (standalone, multi-targeted)
+
+A Serilog `ILogEventSink` with Channel-based batching, plus the full Watch logging API. Fully standalone — no dependency on Pondhawk.Core. Multi-targeted: `net10.0` and `netstandard2.0`.
+
+- **Logging API** (`Pondhawk.Watch` namespace): `SerilogExtensions` provides extensions on both `Serilog.ILogger` and `object`:
+  - **`object.GetLogger()`** — returns a `Serilog.ILogger` with `SourceContext` set to the concise full name of the object's type
+  - **`object.EnterMethod()`** / **`ILogger.EnterMethod()`** — disposable method tracing scope with automatic entry/exit logging and elapsed time (.NET 7+ only)
   - **`ILogger.Inspect(name, value)`** — logs a name/value pair as `"{Name} = {Value}"` at Debug level
   - **`ILogger.LogObject(value)`** — serializes an object to JSON payload
   - **`ILogger.LogJson/LogSql/LogXml/LogYaml/LogText(title, content)`** — typed payload logging with syntax highlighting hints
-  - Also: `WatchSwitchConfig` (switch-based level filtering), `WatchPropertyNames` (Serilog property constants), serializers (`JsonObjectSerializer`), `PayloadType` enum, `[Sensitive]` attribute, `CorrelationManager`.
-- **Utilities**: Pipeline infrastructure, process utilities, type extensions.
-- **Exceptions**: Common exception types.
-
-### Pondhawk.Watch — Serilog Sink + Watch Infrastructure
-
-A Serilog `ILogEventSink` with Channel-based batching for the Watch structured logging pipeline. Depends on `Pondhawk.Core` for the logging API types.
-
-- **WatchSink**: `ILogEventSink` implementation with unbounded Channel batching. Converts Serilog events to Watch `LogEvent` instances with switch-based filtering.
+  - Also: `WatchSwitchConfig`, `WatchPropertyNames`, serializers (`JsonObjectSerializer`), `PayloadType` enum, `[Sensitive]` attribute, `CorrelationManager`.
+- **WatchSink**: `ILogEventSink` implementation with unbounded Channel batching. Converts Serilog events to Watch `LogEvent` instances with switch-based filtering. Circuit breaker for HTTP resilience.
 - **WatchSinkExtensions**: Serilog `LoggerConfiguration` extension method for configuring the Watch sink.
-- **Switching**: Dynamic log level control via `ISwitch`/`ISwitchSource` with pattern matching.
-- **Sink**: Console, Monitor, and HTTP event sinks with circuit breaker.
-- **LogEvent/LogEventBatch**: MemoryPack-serializable event model.
+- **Switching**: Dynamic log level control via `SwitchSource`/`SwitchDef` with pattern matching. `WatchSwitchSource` polls a Watch Server for switch configuration.
+- **LogEvent/LogEventBatch**: Event model with dual serialization: MemoryPack+Brotli on .NET 7+ (`#if NET7_0_OR_GREATER`), System.Text.Json on netstandard2.0.
+- **netstandard2.0 note**: `MethodLogger` and `EnterMethod()` require .NET 7+ (Serilog ILogger default interface methods). All other logging APIs (GetLogger, LogObject, LogJson, etc.) work on all targets.
 
 ### Pondhawk.Rules — Rule Engine (standalone, no Core dependency)
 
@@ -105,19 +102,16 @@ Lightweight service lifecycle management for `Microsoft.Extensions.Hosting`. Sta
 ### Dependency Graph
 
 ```
-Pondhawk.Core (foundation — logging API, Serilog extensions, utilities)
-  ↑
-Pondhawk.Watch ──→ Pondhawk.Core
-
-Pondhawk.Rules        (standalone)
+Pondhawk.Core     (foundation — pipeline infrastructure, utilities, exceptions)
+Pondhawk.Watch    (standalone — logging API, Serilog sink, multi-targeted net10.0+netstandard2.0)
+Pondhawk.Rules    (standalone)
 Pondhawk.Rules.EFCore ──→ Pondhawk.Rules
-Pondhawk.Rql          (standalone)
-Pondhawk.Hosting      (standalone)
+Pondhawk.Rql      (standalone)
+Pondhawk.Hosting  (standalone)
 ```
 
 ## Conventions
 
 - Namespaces match project/folder structure: `Pondhawk.Rules`, `Pondhawk.Rules.Builder`, `Pondhawk.Rules.Evaluation`, `Pondhawk.Rql`, `Pondhawk.Rql.Builder`, `Pondhawk.Rql.Parser`, `Pondhawk.Rql.Serialization`, `Pondhawk.Hosting`
-- Exception: `Pondhawk.Core` project uses `RootNamespace=Pondhawk`; logging files use the `Pondhawk.Logging` namespace
-- Autofac is used for DI registration (`AutofacExtensions`)
-- `LangVersion` varies: `default` in Rules and Hosting, `latestmajor` in Rql
+- Exception: `Pondhawk.Core` project uses `RootNamespace=Pondhawk`
+- `LangVersion` varies: `default` in Rules and Hosting, `latestmajor` in Rql, `latest` in Watch

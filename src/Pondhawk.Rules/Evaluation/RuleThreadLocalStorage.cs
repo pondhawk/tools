@@ -31,12 +31,14 @@ public static class RuleThreadLocalStorage
 {
     [ThreadStatic] private static EvaluationContext _currentContext;
 
+    /// <summary>Gets or sets the current <see cref="EvaluationContext"/> for the executing thread.</summary>
     public static EvaluationContext CurrentContext
     {
         get => _currentContext;
         set => _currentContext = value;
     }
 
+    /// <summary>Clears the current evaluation context from thread-local storage.</summary>
     public static void ClearCurrentContext()
     {
         CurrentContext = null;

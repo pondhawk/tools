@@ -1,4 +1,4 @@
-﻿using Shouldly;
+using Shouldly;
 using Xunit;
 
 namespace Pondhawk.Watch.Tests;
@@ -34,7 +34,7 @@ public class LogEventBatchSerializerTests
         };
     }
 
-    // --- Binary (MemoryPack+Brotli) round-trip ---
+    // --- Binary/Stream round-trip ---
 
     [Fact]
     public async Task ToStream_FromStream_RoundTrip_PreservesAllFields()
@@ -114,7 +114,7 @@ public class LogEventBatchSerializerTests
         restored.Events[2].Title.ShouldBe("third");
     }
 
-    // --- Binary ToStream with target stream ---
+    // --- ToStream with target stream ---
 
     [Fact]
     public async Task ToStream_WithTargetStream_WritesData()
@@ -240,7 +240,7 @@ public class LogEventBatchSerializerTests
         restored.Events[2].Title.ShouldBe("c");
     }
 
-    // --- MemoryPack-ignored fields are excluded ---
+    // --- Non-serializable fields are excluded ---
 
     [Fact]
     public async Task Binary_IgnoresNonSerializableFields()

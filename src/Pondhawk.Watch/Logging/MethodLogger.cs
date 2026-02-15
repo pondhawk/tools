@@ -1,10 +1,12 @@
-﻿using System.Diagnostics;
+﻿#if NET7_0_OR_GREATER
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using Serilog;
 using Serilog.Core;
 using Serilog.Events;
+using SerilogLogEvent = Serilog.Events.LogEvent;
 
-namespace Pondhawk.Logging;
+namespace Pondhawk.Watch;
 
 /// <summary>
 /// A disposable ILogger wrapper returned by EnterMethod.
@@ -32,6 +34,9 @@ public sealed class MethodLogger : ILogger, IDisposable
         _tracing = tracing;
     }
 
+    /// <summary>
+    /// Logs method exit with elapsed time and sets <c>Watch.Nesting</c> to -1.
+    /// </summary>
     public void Dispose()
     {
         if (_disposed)
@@ -48,28 +53,61 @@ public sealed class MethodLogger : ILogger, IDisposable
         }
     }
 
-    // ILogger — context methods
+    /// <inheritdoc />
     public ILogger ForContext(ILogEventEnricher enricher) => _logger.ForContext(enricher);
+
+    /// <inheritdoc />
     public ILogger ForContext(IEnumerable<ILogEventEnricher> enrichers) => _logger.ForContext(enrichers);
+
+    /// <inheritdoc />
     public ILogger ForContext(string propertyName, object? value, bool destructureObjects = false) => _logger.ForContext(propertyName, value, destructureObjects);
+
+    /// <inheritdoc />
     public ILogger ForContext<TSource>() => _logger.ForContext<TSource>();
+
+    /// <inheritdoc />
     public ILogger ForContext(Type source) => _logger.ForContext(source);
 
-    // ILogger — core write methods
-    public void Write(LogEvent logEvent) => _logger.Write(logEvent);
+    /// <inheritdoc />
+    public void Write(SerilogLogEvent logEvent) => _logger.Write(logEvent);
+
+    /// <inheritdoc />
     public void Write(LogEventLevel level, string messageTemplate) => _logger.Write(level, messageTemplate);
+
+    /// <inheritdoc />
     public void Write<T>(LogEventLevel level, string messageTemplate, T propertyValue) => _logger.Write(level, messageTemplate, propertyValue);
+
+    /// <inheritdoc />
     public void Write<T0, T1>(LogEventLevel level, string messageTemplate, T0 propertyValue0, T1 propertyValue1) => _logger.Write(level, messageTemplate, propertyValue0, propertyValue1);
+
+    /// <inheritdoc />
     public void Write<T0, T1, T2>(LogEventLevel level, string messageTemplate, T0 propertyValue0, T1 propertyValue1, T2 propertyValue2) => _logger.Write(level, messageTemplate, propertyValue0, propertyValue1, propertyValue2);
+
+    /// <inheritdoc />
     public void Write(LogEventLevel level, string messageTemplate, params object?[]? propertyValues) => _logger.Write(level, messageTemplate, propertyValues);
+
+    /// <inheritdoc />
     public void Write(LogEventLevel level, Exception? exception, string messageTemplate) => _logger.Write(level, exception, messageTemplate);
+
+    /// <inheritdoc />
     public void Write<T>(LogEventLevel level, Exception? exception, string messageTemplate, T propertyValue) => _logger.Write(level, exception, messageTemplate, propertyValue);
+
+    /// <inheritdoc />
     public void Write<T0, T1>(LogEventLevel level, Exception? exception, string messageTemplate, T0 propertyValue0, T1 propertyValue1) => _logger.Write(level, exception, messageTemplate, propertyValue0, propertyValue1);
+
+    /// <inheritdoc />
     public void Write<T0, T1, T2>(LogEventLevel level, Exception? exception, string messageTemplate, T0 propertyValue0, T1 propertyValue1, T2 propertyValue2) => _logger.Write(level, exception, messageTemplate, propertyValue0, propertyValue1, propertyValue2);
+
+    /// <inheritdoc />
     public void Write(LogEventLevel level, Exception? exception, string messageTemplate, params object?[]? propertyValues) => _logger.Write(level, exception, messageTemplate, propertyValues);
 
-    // ILogger — utility methods
+    /// <inheritdoc />
     public bool IsEnabled(LogEventLevel level) => _logger.IsEnabled(level);
+
+    /// <inheritdoc />
     public bool BindMessageTemplate(string messageTemplate, object?[]? propertyValues, [NotNullWhen(true)] out MessageTemplate? parsedTemplate, [NotNullWhen(true)] out IEnumerable<LogEventProperty>? boundProperties) => _logger.BindMessageTemplate(messageTemplate, propertyValues, out parsedTemplate, out boundProperties);
+
+    /// <inheritdoc />
     public bool BindProperty(string? propertyName, object? value, bool destructureObjects, [NotNullWhen(true)] out LogEventProperty? property) => _logger.BindProperty(propertyName, value, destructureObjects, out property);
 }
+#endif

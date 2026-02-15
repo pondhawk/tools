@@ -1,13 +1,12 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using System.Text.Json.Serialization;
-using Pondhawk.Logging.Utilities;
 
-namespace Pondhawk.Logging.Serializers;
+namespace Pondhawk.Watch;
 
 /// <summary>
 /// JSON converter for Attribute objects.
 /// </summary>
-internal class AttributeJsonConverter : JsonConverter<Attribute>
+internal sealed class AttributeJsonConverter : JsonConverter<Attribute>
 {
     public override Attribute? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {

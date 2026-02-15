@@ -13,6 +13,10 @@ public sealed class EntityValidationException : Exception
     /// </summary>
     public ValidationResult ValidationResult { get; }
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="EntityValidationException"/> class with the specified validation result.
+    /// </summary>
+    /// <param name="validationResult">The validation result containing the violations.</param>
     public EntityValidationException(ValidationResult validationResult)
         : base(FormatMessage(validationResult))
     {

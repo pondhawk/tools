@@ -12,12 +12,26 @@ namespace Pondhawk.Rql.Builder
     {
 
 
+        /// <summary>
+        /// Initializes a new <see cref="RqlPredicate"/> with a single value and an explicit data type.
+        /// </summary>
+        /// <param name="op">The comparison operator.</param>
+        /// <param name="name">The target field name.</param>
+        /// <param name="dataType">The CLR type of the value.</param>
+        /// <param name="value">The operand value.</param>
         public RqlPredicate(RqlOperator op, string name, Type dataType, object value) : base(op, name, value)
         {
             DataType = dataType;
         }
 
 
+        /// <summary>
+        /// Initializes a new <see cref="RqlPredicate"/> with multiple values and an explicit data type.
+        /// </summary>
+        /// <param name="op">The comparison operator.</param>
+        /// <param name="name">The target field name.</param>
+        /// <param name="dataType">The CLR type of the values.</param>
+        /// <param name="values">The operand values.</param>
         public RqlPredicate(RqlOperator op, string name, Type dataType, IEnumerable<object> values) : base(op, name, values)
         {
             DataType = dataType;
@@ -35,6 +49,12 @@ namespace Pondhawk.Rql.Builder
 
         private IReadOnlyList<object>? _cachedValues;
 
+        /// <summary>
+        /// Initializes a new <see cref="RqlPredicate{TType}"/> with a single value.
+        /// </summary>
+        /// <param name="op">The comparison operator.</param>
+        /// <param name="name">The target field name.</param>
+        /// <param name="value">The operand value.</param>
         public RqlPredicate(RqlOperator op, string name, TType value)
         {
 
@@ -52,6 +72,12 @@ namespace Pondhawk.Rql.Builder
         }
 
 
+        /// <summary>
+        /// Initializes a new <see cref="RqlPredicate{TType}"/> with multiple values.
+        /// </summary>
+        /// <param name="op">The comparison operator.</param>
+        /// <param name="name">The target field name.</param>
+        /// <param name="values">The operand values.</param>
         public RqlPredicate(RqlOperator op, string name, IEnumerable<TType> values)
         {
 
@@ -67,16 +93,22 @@ namespace Pondhawk.Rql.Builder
         }
 
 
+        /// <inheritdoc />
         public RqlOperator Operator { get; set; }
 
+        /// <inheritdoc />
         public Target Target { get; set; }
 
+        /// <inheritdoc />
         public Type DataType { get; set; }
 
+        /// <summary>The strongly-typed list of operand values for this predicate.</summary>
         public IList<TType> Values { get; }
 
+        /// <inheritdoc />
         IReadOnlyList<object> IRqlPredicate.Values => _cachedValues ??= Values.Cast<object>().ToList();
 
+        /// <summary>Gets or sets the primary operand value (the first element in <see cref="Values"/>).</summary>
         public TType Value
         {
             get => (Values.Count > 0 ? Values[0] : default!);

@@ -1,9 +1,9 @@
-﻿using Autofac;
 using CommunityToolkit.Diagnostics;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Pondhawk.Utilities.Pipeline;
 
-internal class RegisterPipelineStep<TContext>(ContainerBuilder builder) : IRegisterPipelineStep<TContext> where TContext : class, IPipelineContext
+internal sealed class RegisterPipelineStep<TContext>(IServiceCollection services) : IRegisterPipelineStep<TContext> where TContext : class, IPipelineContext
 {
 
     IRegisterPipelineStep<TContext> IRegisterPipelineStep<TContext>.Add<TStep>() => Add<TStep>();
@@ -11,11 +11,9 @@ internal class RegisterPipelineStep<TContext>(ContainerBuilder builder) : IRegis
     public IRegisterPipelineStep<TContext> Add<TStep>() where TStep : class, IPipelineStep<TContext>
     {
 
-        Guard.IsNotNull(builder, nameof(builder));
+        Guard.IsNotNull(services, nameof(services));
 
-        builder.RegisterType<TStep>()
-            .As<IPipelineStep<TContext>>()
-            .InstancePerDependency();
+        services.AddTransient<IPipelineStep<TContext>, TStep>();
 
         return this;
 

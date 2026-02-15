@@ -1,6 +1,6 @@
-﻿namespace Pondhawk.Utilities.Pipeline;
+namespace Pondhawk.Utilities.Pipeline;
 
-internal class ActionPipelineStep<TContext>(Func<TContext, Task> action) : IPipelineStep<TContext> where TContext : class, IPipelineContext
+internal sealed class ActionPipelineStep<TContext>(Func<TContext, Task> action) : IPipelineStep<TContext> where TContext : class, IPipelineContext
 {
 
     public bool ContinueAfterFailure { get; set; }

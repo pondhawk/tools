@@ -18,6 +18,12 @@ public class Pipeline<TContext> where TContext : class, IPipelineContext
         _steps = steps;
     }
 
+    /// <summary>
+    /// Executes the pipeline by running all registered steps around the specified action, with automatic failure tracking.
+    /// </summary>
+    /// <param name="context">The pipeline context shared across all steps.</param>
+    /// <param name="action">The core action to execute within the pipeline.</param>
+    /// <returns>A task representing the asynchronous pipeline execution.</returns>
     public async Task ExecuteAsync(TContext context, Func<TContext, Task> action)
     {
 

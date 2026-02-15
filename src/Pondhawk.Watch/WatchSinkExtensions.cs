@@ -1,8 +1,6 @@
-﻿using CommunityToolkit.Diagnostics;
-using Pondhawk.Logging;
+using CommunityToolkit.Diagnostics;
 using Serilog;
 using Serilog.Configuration;
-using Serilog.Events;
 
 namespace Pondhawk.Watch;
 
@@ -32,17 +30,6 @@ public static class WatchSinkExtensions
         Guard.IsNotNull(config);
         Guard.IsNotNull(httpClient);
         Guard.IsNotNull(switchSource);
-
-        WatchSwitchConfig.IsEnabledFunc = (category, serilogLevel) =>
-        {
-            var sw = switchSource.Lookup(category);
-            if (sw.IsQuiet)
-                return false;
-
-            return serilogLevel >= sw.Level;
-        };
-
-        SerilogExtensions.Default = new LoggerSource();
 
         switchSource.Start();
 

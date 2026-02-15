@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 
 Copyright (c) 2024 Pond Hawk Technologies Inc.
@@ -24,7 +24,9 @@ SOFTWARE.
 
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
+#if NET7_0_OR_GREATER
 using MemoryPack;
+#endif
 
 namespace Pondhawk.Watch;
 
@@ -37,7 +39,7 @@ namespace Pondhawk.Watch;
 /// Logger -> Channel -> Batch -> Sink
 /// </para>
 /// <para>
-/// Fields are optimized for MemoryPack serialization. Non-serializable fields
+/// On .NET 7+, fields are optimized for MemoryPack serialization. Non-serializable fields
 /// (Object, Error, ErrorContext) are marked with MemoryPackIgnore and are
 /// processed by the serializers before transmission.
 /// </para>
@@ -46,8 +48,12 @@ namespace Pondhawk.Watch;
 /// be created and populated by a single thread before being queued.
 /// </para>
 /// </remarks>
+#if NET7_0_OR_GREATER
 [MemoryPackable]
 public partial class LogEvent
+#else
+public class LogEvent
+#endif
 {
     /// <summary>
     /// Gets the logger category (typically a fully-qualified type name).
@@ -121,7 +127,9 @@ public partial class LogEvent
     /// Not serialized - processed by IWatchObjectSerializer before transmission.
     /// </summary>
     [JsonIgnore]
+#if NET7_0_OR_GREATER
     [MemoryPackIgnore]
+#endif
     [SuppressMessage("CA1720", "CA1720:IdentifiersShouldNotContainTypeNames", Justification = "Object is the established domain name for this property in the Watch logging pipeline")]
     public object? Object { get; set; }
 
@@ -130,7 +138,9 @@ public partial class LogEvent
     /// Not serialized - processed by IWatchExceptionSerializer before transmission.
     /// </summary>
     [JsonIgnore]
+#if NET7_0_OR_GREATER
     [MemoryPackIgnore]
+#endif
     public Exception? Error { get; set; }
 
     /// <summary>
@@ -138,6 +148,8 @@ public partial class LogEvent
     /// Not serialized - used during exception processing.
     /// </summary>
     [JsonIgnore]
+#if NET7_0_OR_GREATER
     [MemoryPackIgnore]
+#endif
     public object? ErrorContext { get; set; }
 }

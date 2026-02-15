@@ -25,8 +25,8 @@ Pondhawk Tools is a collection of class libraries built by [Pond Hawk Technologi
 | **Pondhawk.Rules** | Forward-chaining rule engine with type-based fact matching, scoring, and validation |
 | **Pondhawk.Rules.EFCore** | EF Core `SaveChangesInterceptor` that validates entities through Rules before save |
 | **Pondhawk.Rql** | Resource Query Language — filtering DSL with fluent builder, parser, and SQL/LINQ serialization |
-| **Pondhawk.Core** | Shared foundation — Serilog logging extensions, pipeline infrastructure, utilities |
-| **Pondhawk.Watch** | Serilog sink with Channel-based batching and circuit-breaker resilience |
+| **Pondhawk.Core** | Shared foundation — pipeline infrastructure, utilities, exception types |
+| **Pondhawk.Watch** | Serilog logging API + sink with Channel-based batching and circuit-breaker resilience |
 | **Pondhawk.Watch.Framework** | Shared Watch types, sinks, and switch infrastructure (targets `netstandard2.0`) |
 | **Pondhawk.Hosting** | `AddSingletonWithStart<T>()` pattern for co-locating service registration with startup logic |
 
@@ -367,29 +367,37 @@ var (sql, args) = filter.ToSqlWhere();
 
 ### Pondhawk.Core
 
-Serilog logging extensions for structured diagnostics. Provides `GetLogger()` on any object, disposable method tracing, and typed payload logging.
+Pipeline infrastructure, type utilities, and common exception types. Uses `IServiceCollection`-based DI registration.
 
 ```csharp
-// Get a logger scoped to the current type
-var log = this.GetLogger();
+// Register pipeline with DI
+services.AddPipelineFactory();
+services.AddPipeline<OrderContext>(steps => steps
+    .Add<ValidateStep>()
+    .Add<CalculateTaxStep>()
+    .Add<SaveStep>());
+```
 
-// Method tracing with automatic entry/exit and elapsed time
+### Pondhawk.Watch
+
+Serilog logging API + `ILogEventSink` with unbounded `Channel<T>` batching and circuit-breaker resilience. Provides `GetLogger()` on any object, disposable method tracing, typed payload logging, and the Watch sink.
+
+```csharp
+using Pondhawk.Watch;
+
+// Configure the Serilog sink
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.WatchSink(httpClient, switchSource, domain: "MyApp")
+    .CreateLogger();
+
+// Logging API
+var log = this.GetLogger();
 using (log.EnterMethod())
 {
     log.Inspect("orderId", orderId);        // logs "orderId = 123" at Debug
     log.LogObject("payload", order);        // serializes object to JSON
     log.LogSql("query", sqlText);           // typed payload with syntax hint
 }
-```
-
-### Pondhawk.Watch
-
-A Serilog `ILogEventSink` with unbounded `Channel<T>` batching and circuit-breaker resilience for the Watch structured logging pipeline.
-
-```csharp
-Log.Logger = new LoggerConfiguration()
-    .WriteTo.WatchSink(httpClient, switchSource, domain: "MyApp")
-    .CreateLogger();
 ```
 
 ### Pondhawk.Hosting
@@ -412,11 +420,9 @@ Shared types for the Watch pipeline targeting `netstandard2.0`: `LogEvent`, `Log
 ## Dependency Graph
 
 ```
-Pondhawk.Core              (foundation — Serilog extensions, utilities)
-    ^
-    |
-Pondhawk.Watch ────────> Pondhawk.Core
-Pondhawk.Watch.Framework   (standalone — netstandard2.0)
+Pondhawk.Core              (foundation — pipeline, utilities, exceptions)
+Pondhawk.Watch             (standalone — logging API, Serilog sink)
+Pondhawk.Watch.Framework   (standalone — M.E.Logging provider, netstandard2.0)
 
 Pondhawk.Rules             (standalone)
     ^

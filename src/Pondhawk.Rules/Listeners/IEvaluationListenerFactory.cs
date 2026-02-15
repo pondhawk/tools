@@ -29,6 +29,10 @@ namespace Pondhawk.Rules.Listeners;
 /// </summary>
 public interface IEvaluationListenerFactory
 {
+    /// <summary>
+    /// Creates a new <see cref="IEvaluationListener"/> instance for tracing a rule evaluation session.
+    /// </summary>
+    /// <returns>A new evaluation listener.</returns>
     IEvaluationListener CreateListener();
 }
 

@@ -10,6 +10,13 @@ namespace Pondhawk.Rules.Validators;
 public static class EnumValidatorEx
 {
 
+    /// <summary>
+    /// Validates that the enum property has a defined value in the <typeparamref name="TEnum"/> enumeration.
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <typeparam name="TEnum">The enum type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, TEnum> IsInEnum<TFact, TEnum>(this IValidator<TFact, TEnum> validator)
         where TFact : class where TEnum : struct, Enum
     {
@@ -19,6 +26,14 @@ public static class EnumValidatorEx
         return v;
     }
 
+    /// <summary>
+    /// Validates that the string property is a valid name of the <typeparamref name="TEnum"/> enumeration.
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <typeparam name="TEnum">The enum type whose names to check against.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <param name="ignoreCase">Whether to ignore case when parsing the enum name.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, string> IsEnumName<TFact, TEnum>(this IValidator<TFact, string> validator, bool ignoreCase = false)
         where TFact : class where TEnum : struct, Enum
     {

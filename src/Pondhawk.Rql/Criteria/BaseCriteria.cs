@@ -16,8 +16,10 @@ public class BaseCriteria : ICriteria
     [JsonExtensionData]
     private Dictionary<string, JsonElement> Overposts { get; } = new(StringComparer.Ordinal);
 
+    /// <summary>Returns <c>true</c> if the deserialized payload contained properties not defined on this criteria type.</summary>
     public bool IsOverposted() => Overposts.Count > 0;
 
+    /// <summary>Returns the names of any properties that were present in the payload but not defined on this criteria type.</summary>
     public IEnumerable<string> GetOverpostNames() => Overposts.Keys;
 
 

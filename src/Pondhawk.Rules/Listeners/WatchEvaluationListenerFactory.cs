@@ -33,11 +33,18 @@ namespace Pondhawk.Rules.Listeners;
 public sealed class WatchEvaluationListenerFactory : IEvaluationListenerFactory
 {
 
+    /// <summary>
+    /// Gets or sets the logger factory used to create loggers for evaluation listeners. Defaults to <see cref="NullLoggerFactory.Instance"/>.
+    /// </summary>
     public ILoggerFactory LoggerFactory { get; set; } = NullLoggerFactory.Instance;
 
+    /// <summary>
+    /// Gets or sets the logging category name passed to the logger factory.
+    /// </summary>
     public string Category { get; set; } = string.Empty;
 
 
+    /// <inheritdoc />
     public IEvaluationListener CreateListener()
     {
         var logger = LoggerFactory.CreateLogger(Category);

@@ -103,7 +103,7 @@ public class WatchSinkHttpTests
         await sink.FlushBatchAsync(MakeSerilogEvents("hello"));
 
         var request = handler.Requests[0];
-        request.Content.Headers.ContentType.MediaType.ShouldBe("application/octet-stream");
+        request.Content.Headers.ContentType.MediaType.ShouldBe(LogEventBatchSerializer.ContentType);
         request.Content.Headers.GetValues("X-Domain").ShouldContain("my-domain");
     }
 

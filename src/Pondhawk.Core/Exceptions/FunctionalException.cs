@@ -31,6 +31,10 @@ public class FunctionalException : FluentException<FunctionalException>
 {
 
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="FunctionalException"/> class with the specified message.
+    /// </summary>
+    /// <param name="message">The error message describing the functional error.</param>
     public FunctionalException(string message) : base(message)
     {
 
@@ -38,6 +42,11 @@ public class FunctionalException : FluentException<FunctionalException>
 
     }
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="FunctionalException"/> class with the specified message and inner exception.
+    /// </summary>
+    /// <param name="message">The error message describing the functional error.</param>
+    /// <param name="inner">The inner exception that caused this exception.</param>
     public FunctionalException(string message, Exception inner) : base(message, inner)
     {
 

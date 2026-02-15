@@ -1,13 +1,12 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using System.Text.Json.Serialization;
-using Pondhawk.Logging.Utilities;
 
-namespace Pondhawk.Logging.Serializers;
+namespace Pondhawk.Watch;
 
 /// <summary>
 /// JSON converter for Type objects.
 /// </summary>
-internal class TypeJsonConverter : JsonConverter<Type>
+internal sealed class TypeJsonConverter : JsonConverter<Type>
 {
     public override Type? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {

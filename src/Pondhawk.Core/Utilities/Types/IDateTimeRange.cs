@@ -11,17 +11,39 @@ namespace Pondhawk.Utilities.Types
     public interface IDateTimeRange
     {
 
+        /// <summary>
+        /// Gets the unique identifier for this date/time range.
+        /// </summary>
         int Id { get; }
 
+        /// <summary>
+        /// Gets the <see cref="DateTimeRange"/> kind that defines this range.
+        /// </summary>
         DateTimeRange RangeKind { get; }
 
+        /// <summary>
+        /// Gets the human-readable label for this date/time range.
+        /// </summary>
         string Label { get; }
 
+        /// <summary>
+        /// Gets the begin date/time of this range.
+        /// </summary>
         DateTime Begin { get; }
+
+        /// <summary>
+        /// Gets the begin date/time as a Unix timestamp in seconds.
+        /// </summary>
         long BeginTimestamp { get; }
 
-
+        /// <summary>
+        /// Gets the end date/time of this range.
+        /// </summary>
         DateTime End { get; }
+
+        /// <summary>
+        /// Gets the end date/time as a Unix timestamp in seconds.
+        /// </summary>
         long EndTimestamp { get; }
     }
 

@@ -54,17 +54,23 @@ public sealed class RuleSetFactory
 
     private readonly Lazy<bool> _initialized;
 
+    /// <summary>Initializes a new instance of the <see cref="RuleSetFactory"/> class.</summary>
     public RuleSetFactory()
     {
         _initialized = new Lazy<bool>(() => { DoStart(); return true; });
     }
 
-
+    /// <summary>Gets or sets the factory used to create evaluation contexts.</summary>
     public IEvaluationContextFactory ContextFactory { get; set; }
+
+    /// <summary>Gets or sets the factory used to create evaluation listeners.</summary>
     public IEvaluationListenerFactory ListenerFactory { get; set; }
 
     private Dictionary<string, IEnumerable<string>> CompositeNamespaces { get; } = new(StringComparer.Ordinal);
 
+    /// <summary>Registers a composite namespace that groups multiple namespaces under a single name.</summary>
+    /// <param name="name">The composite namespace name.</param>
+    /// <param name="namespaces">The namespace strings to include in the composite.</param>
     public void RegisterCompositeNamespace(string name, IEnumerable<string> namespaces)
     {
         if (!_initialized.IsValueCreated)
@@ -76,11 +82,15 @@ public sealed class RuleSetFactory
     private List<IRuleBuilderSource> Sources { get; } = [];
 
 
+    /// <summary>Adds all rule builder sources from the collection.</summary>
+    /// <param name="sources">The sources to add.</param>
     public void AddAllSources(IEnumerable<IRuleBuilderSource> sources)
     {
         Sources.AddRange(sources);
     }
 
+    /// <summary>Adds one or more rule builder sources.</summary>
+    /// <param name="sources">The sources to add.</param>
     public void AddSources(params IRuleBuilderSource[] sources)
     {
         Sources.AddRange(sources);
@@ -92,6 +102,7 @@ public sealed class RuleSetFactory
     internal IRuleBase RuleBase => Tree;
 
 
+    /// <summary>Discovers and loads all rule builders from registered sources. Thread-safe and runs at most once.</summary>
     public void Start() => _ = _initialized.Value;
 
     private void DoStart()
@@ -104,6 +115,7 @@ public sealed class RuleSetFactory
 
     }
 
+    /// <summary>Clears all loaded rules from the rule tree.</summary>
     public void Stop()
     {
 
@@ -113,6 +125,8 @@ public sealed class RuleSetFactory
 
 
 
+    /// <summary>Creates a new evaluation context, using the configured factories if available.</summary>
+    /// <returns>A new evaluation context.</returns>
     public EvaluationContext BuildContext()
     {
         var context = ContextFactory?.CreateContext() ?? new EvaluationContext();
@@ -125,14 +139,17 @@ public sealed class RuleSetFactory
 
 
 
+    /// <summary>Gets a rule set that evaluates all loaded rules without namespace filtering.</summary>
+    /// <returns>A new rule set.</returns>
     public IRuleSet GetRuleSet()
     {
         var ruleSet = new FactoryRuleSetImpl(Tree, [], ContextFactory);
         return ruleSet;
     }
 
-
-
+    /// <summary>Gets a rule set filtered to the namespaces registered under the specified composite name.</summary>
+    /// <param name="name">The composite namespace name previously registered via <see cref="RegisterCompositeNamespace"/>.</param>
+    /// <returns>A namespace-filtered rule set.</returns>
     public IRuleSet GetRuleSetForComposite(string name)
     {
         if (!CompositeNamespaces.TryGetValue(name, out var composite))
@@ -144,6 +161,9 @@ public sealed class RuleSetFactory
 
 
 
+    /// <summary>Gets a rule set filtered to the specified namespaces.</summary>
+    /// <param name="namespaces">The namespace filters.</param>
+    /// <returns>A namespace-filtered rule set.</returns>
     public IRuleSet GetRuleSet(params string[] namespaces)
     {
         var ruleSet = new FactoryRuleSetImpl(Tree, new HashSet<string>(namespaces, StringComparer.Ordinal), ContextFactory);
@@ -152,6 +172,9 @@ public sealed class RuleSetFactory
 
 
 
+    /// <summary>Gets a rule set filtered to the specified namespaces.</summary>
+    /// <param name="namespaces">The namespace filters.</param>
+    /// <returns>A namespace-filtered rule set.</returns>
     public IRuleSet GetRuleSet(IEnumerable<string> namespaces)
     {
         var ruleSet = new FactoryRuleSetImpl(Tree, new HashSet<string>(namespaces, StringComparer.Ordinal), ContextFactory);

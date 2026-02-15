@@ -38,6 +38,9 @@ namespace Pondhawk.Rules.Builder;
 public abstract class AbstractRule : IRule
 {
 
+    /// <summary>Initializes a new instance of the <see cref="AbstractRule"/> class with the specified namespace and rule name.</summary>
+    /// <param name="fqNamespace">The fully qualified namespace (set name) for this rule.</param>
+    /// <param name="ruleName">The name of this rule within the namespace.</param>
     protected AbstractRule(string fqNamespace, string ruleName)
     {
         Namespace = fqNamespace;
@@ -53,24 +56,35 @@ public abstract class AbstractRule : IRule
     }
 
 
+    /// <inheritdoc />
     public string Namespace { get; set; }
+
+    /// <inheritdoc />
     public string Name { get; set; }
 
+    /// <inheritdoc />
     public int Salience { get; protected set; }
 
+    /// <inheritdoc />
     public bool OnlyFiresOnce { get; protected set; }
 
+    /// <inheritdoc />
     public string Mutex { get; protected set; }
 
+    /// <inheritdoc />
     public DateTime Inception { get; set; }
+
+    /// <inheritdoc />
     public DateTime Expiration { get; set; }
 
 
+    /// <inheritdoc />
     public IRule EvaluateRule(object[] fact)
     {
         return InternalEvaluate(fact);
     }
 
+    /// <inheritdoc />
     public void FireRule(object[] fact)
     {
         InternalFire(fact);
@@ -78,28 +92,39 @@ public abstract class AbstractRule : IRule
 
 
 
+    /// <summary>Evaluates the rule's conditions against the offered facts.</summary>
+    /// <param name="offered">The fact tuple to evaluate.</param>
+    /// <returns>This rule if conditions are met; otherwise <c>null</c>.</returns>
     protected virtual IRule InternalEvaluate(object[] offered)
     {
         RuleThreadLocalStorage.CurrentContext.Results.TotalEvaluated++;
         return null;
     }
 
+    /// <summary>Fires the rule's consequence against the offered facts.</summary>
+    /// <param name="offered">The fact tuple to fire against.</param>
     protected virtual void InternalFire(object[] offered)
     {
         RuleThreadLocalStorage.CurrentContext.Results.TotalFired++;
     }
 
 
+    /// <summary>Adds the specified weight to the affirmation score.</summary>
+    /// <param name="weight">The affirmation weight to add.</param>
     protected static void HandleAffirm(int weight)
     {
         RuleThreadLocalStorage.CurrentContext.Results.TotalAffirmations += weight;
     }
 
+    /// <summary>Adds the specified weight to the veto score.</summary>
+    /// <param name="weight">The veto weight to add.</param>
     protected static void HandleVeto(int weight)
     {
         RuleThreadLocalStorage.CurrentContext.Results.TotalVetos += weight;
     }
 
+    /// <summary>Dispatches a fact modification to the evaluation context, triggering forward chaining.</summary>
+    /// <param name="modified">The modified fact or array of modified facts.</param>
     protected static void DispatchModify(object modified)
     {
         if (modified is Array arr)

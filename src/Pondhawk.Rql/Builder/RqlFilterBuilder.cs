@@ -62,18 +62,28 @@ namespace Pondhawk.Rql.Builder
     public class RqlFilterBuilder<TTarget> : AbstractFilterBuilder<RqlFilterBuilder<TTarget>>, IRqlFilter<TTarget> where TTarget : class
     {
 
+        /// <summary>Creates a new empty filter builder instance.</summary>
+        /// <returns>A new <see cref="RqlFilterBuilder{TTarget}"/> with no predicates.</returns>
         public static RqlFilterBuilder<TTarget> Create()
         {
             return new RqlFilterBuilder<TTarget>();
         }
 
 
+        /// <summary>
+        /// Begins building a filter by selecting the first property to constrain.
+        /// </summary>
+        /// <typeparam name="TValue">The type of the selected property.</typeparam>
+        /// <param name="prop">An expression selecting the property to filter on.</param>
+        /// <returns>The builder, ready to receive an operator (e.g. <c>.Equals()</c>, <c>.GreaterThan()</c>).</returns>
         public static RqlFilterBuilder<TTarget> Where<TValue>(Expression<Func<TTarget, TValue>> prop)
         {
             var builder = new RqlFilterBuilder<TTarget>().And(prop);
             return builder;
         }
 
+        /// <summary>Creates a filter builder with no predicates, representing an unfiltered query.</summary>
+        /// <returns>A new <see cref="RqlFilterBuilder{TTarget}"/> with no predicates.</returns>
         public static RqlFilterBuilder<TTarget> All()
         {
             var builder = new RqlFilterBuilder<TTarget>();
@@ -82,17 +92,30 @@ namespace Pondhawk.Rql.Builder
 
 
 
+        /// <summary>
+        /// Initializes a new empty <see cref="RqlFilterBuilder{TTarget}"/>.
+        /// </summary>
         protected RqlFilterBuilder()
         {
 
         }
 
+        /// <summary>
+        /// Initializes a new <see cref="RqlFilterBuilder{TTarget}"/> from an existing <see cref="RqlTree"/>.
+        /// </summary>
+        /// <param name="tree">The parsed RQL tree whose predicates seed this builder.</param>
         public RqlFilterBuilder(RqlTree tree) : base(tree)
         {
 
         }
 
 
+        /// <summary>
+        /// Selects the next property to constrain, continuing the fluent chain with <c>And</c>.
+        /// </summary>
+        /// <typeparam name="TValue">The type of the selected property.</typeparam>
+        /// <param name="prop">An expression selecting the property to filter on.</param>
+        /// <returns>The builder, ready to receive an operator.</returns>
         public RqlFilterBuilder<TTarget> And<TValue>(Expression<Func<TTarget, TValue>> prop)
         {
 
@@ -109,6 +132,7 @@ namespace Pondhawk.Rql.Builder
         }
 
 
+        /// <inheritdoc />
         public override Type Target => typeof(TTarget);
 
 
@@ -124,12 +148,16 @@ namespace Pondhawk.Rql.Builder
     {
 
 
+        /// <summary>Creates a new empty untyped filter builder instance.</summary>
+        /// <returns>A new <see cref="RqlFilterBuilder"/> with no predicates.</returns>
         public static RqlFilterBuilder Create()
         {
             return new RqlFilterBuilder();
         }
 
 
+        /// <summary>Creates an untyped filter builder with no predicates, representing an unfiltered query.</summary>
+        /// <returns>A new <see cref="RqlFilterBuilder"/> with no predicates.</returns>
         public static RqlFilterBuilder All()
         {
             var builder = new RqlFilterBuilder();
@@ -138,7 +166,11 @@ namespace Pondhawk.Rql.Builder
 
 
 
-
+        /// <summary>
+        /// Begins building an untyped filter by specifying the first property name to constrain.
+        /// </summary>
+        /// <param name="prop">The property name to filter on.</param>
+        /// <returns>The builder, ready to receive an operator (e.g. <c>.Equals()</c>, <c>.GreaterThan()</c>).</returns>
         public static RqlFilterBuilder Where(string prop)
         {
 
@@ -149,22 +181,36 @@ namespace Pondhawk.Rql.Builder
         }
 
 
+        /// <summary>
+        /// Initializes a new empty <see cref="RqlFilterBuilder"/>.
+        /// </summary>
         protected RqlFilterBuilder()
         {
 
         }
 
+        /// <summary>
+        /// Initializes a new <see cref="RqlFilterBuilder"/> from an existing <see cref="RqlTree"/>.
+        /// </summary>
+        /// <param name="tree">The parsed RQL tree whose predicates seed this builder.</param>
         public RqlFilterBuilder(RqlTree tree) : base(tree)
         {
 
         }
 
 
+        /// <inheritdoc />
         public override Type Target => typeof(RqlFilterBuilder);
 
+        /// <summary>Returns <c>true</c> if no predicates have been added, indicating an unfiltered (select-all) query.</summary>
         public bool IsAll => !HasCriteria;
 
 
+        /// <summary>
+        /// Selects the next property to constrain by name, continuing the fluent chain with <c>And</c>.
+        /// </summary>
+        /// <param name="prop">The property name to filter on.</param>
+        /// <returns>The builder, ready to receive an operator.</returns>
         public RqlFilterBuilder And(string prop)
         {
 

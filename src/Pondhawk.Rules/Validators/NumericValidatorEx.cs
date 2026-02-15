@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 
 Copyright (c) 2017 The Kampilan Group Inc.
@@ -36,6 +36,13 @@ public static class NumericValidatorEx
 
     // ===== Generic validators for all comparable value types =====
 
+    /// <summary>
+    /// Validates that the value is not the default for its type (e.g. not zero for numeric types).
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <typeparam name="TType">The comparable value type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, TType> Required<TFact, TType>(this IValidator<TFact, TType> validator)
         where TFact : class where TType : struct, IComparable<TType>
     {
@@ -45,6 +52,13 @@ public static class NumericValidatorEx
         return v;
     }
 
+    /// <summary>
+    /// Validates that the value is not zero (not the default for its type).
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <typeparam name="TType">The comparable value type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, TType> IsNotZero<TFact, TType>(this IValidator<TFact, TType> validator)
         where TFact : class where TType : struct, IComparable<TType>
     {
@@ -54,6 +68,13 @@ public static class NumericValidatorEx
         return v;
     }
 
+    /// <summary>
+    /// Validates that the value is zero (the default for its type).
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <typeparam name="TType">The comparable value type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, TType> IsZero<TFact, TType>(this IValidator<TFact, TType> validator)
         where TFact : class where TType : struct, IComparable<TType>
     {
@@ -63,6 +84,14 @@ public static class NumericValidatorEx
         return v;
     }
 
+    /// <summary>
+    /// Validates that the value equals the specified constant.
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <typeparam name="TType">The comparable value type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <param name="test">The value to compare against.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, TType> IsEqual<TFact, TType>(this IValidator<TFact, TType> validator, TType test)
         where TFact : class where TType : struct, IComparable<TType>
     {
@@ -72,6 +101,14 @@ public static class NumericValidatorEx
         return v;
     }
 
+    /// <summary>
+    /// Validates that the value equals a value extracted from the fact.
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <typeparam name="TType">The comparable value type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <param name="extractor">A function that extracts the comparison value from the fact.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, TType> IsEqual<TFact, TType>(this IValidator<TFact, TType> validator, Func<TFact, TType> extractor)
         where TFact : class where TType : struct, IComparable<TType>
     {
@@ -81,6 +118,14 @@ public static class NumericValidatorEx
         return v;
     }
 
+    /// <summary>
+    /// Validates that the value does not equal the specified constant.
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <typeparam name="TType">The comparable value type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <param name="test">The value to compare against.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, TType> IsNotEqual<TFact, TType>(this IValidator<TFact, TType> validator, TType test)
         where TFact : class where TType : struct, IComparable<TType>
     {
@@ -90,6 +135,14 @@ public static class NumericValidatorEx
         return v;
     }
 
+    /// <summary>
+    /// Validates that the value does not equal a value extracted from the fact.
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <typeparam name="TType">The comparable value type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <param name="extractor">A function that extracts the comparison value from the fact.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, TType> IsNotEqual<TFact, TType>(this IValidator<TFact, TType> validator, Func<TFact, TType> extractor)
         where TFact : class where TType : struct, IComparable<TType>
     {
@@ -99,6 +152,14 @@ public static class NumericValidatorEx
         return v;
     }
 
+    /// <summary>
+    /// Validates that the value is strictly greater than the specified constant.
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <typeparam name="TType">The comparable value type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <param name="test">The lower bound (exclusive).</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, TType> IsGreaterThan<TFact, TType>(this IValidator<TFact, TType> validator, TType test)
         where TFact : class where TType : struct, IComparable<TType>
     {
@@ -108,6 +169,14 @@ public static class NumericValidatorEx
         return v;
     }
 
+    /// <summary>
+    /// Validates that the value is strictly greater than a value extracted from the fact.
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <typeparam name="TType">The comparable value type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <param name="extractor">A function that extracts the lower bound from the fact.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, TType> IsGreaterThan<TFact, TType>(this IValidator<TFact, TType> validator, Func<TFact, TType> extractor)
         where TFact : class where TType : struct, IComparable<TType>
     {
@@ -117,6 +186,14 @@ public static class NumericValidatorEx
         return v;
     }
 
+    /// <summary>
+    /// Validates that the value is strictly less than the specified constant.
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <typeparam name="TType">The comparable value type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <param name="test">The upper bound (exclusive).</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, TType> IsLessThan<TFact, TType>(this IValidator<TFact, TType> validator, TType test)
         where TFact : class where TType : struct, IComparable<TType>
     {
@@ -126,6 +203,14 @@ public static class NumericValidatorEx
         return v;
     }
 
+    /// <summary>
+    /// Validates that the value is strictly less than a value extracted from the fact.
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <typeparam name="TType">The comparable value type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <param name="extractor">A function that extracts the upper bound from the fact.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, TType> IsLessThan<TFact, TType>(this IValidator<TFact, TType> validator, Func<TFact, TType> extractor)
         where TFact : class where TType : struct, IComparable<TType>
     {
@@ -135,6 +220,14 @@ public static class NumericValidatorEx
         return v;
     }
 
+    /// <summary>
+    /// Validates that the value is greater than or equal to the specified constant.
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <typeparam name="TType">The comparable value type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <param name="test">The lower bound (inclusive).</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, TType> IsGreaterThanOrEqual<TFact, TType>(this IValidator<TFact, TType> validator, TType test)
         where TFact : class where TType : struct, IComparable<TType>
     {
@@ -144,6 +237,14 @@ public static class NumericValidatorEx
         return v;
     }
 
+    /// <summary>
+    /// Validates that the value is greater than or equal to a value extracted from the fact.
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <typeparam name="TType">The comparable value type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <param name="extractor">A function that extracts the lower bound from the fact.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, TType> IsGreaterThanOrEqual<TFact, TType>(this IValidator<TFact, TType> validator, Func<TFact, TType> extractor)
         where TFact : class where TType : struct, IComparable<TType>
     {
@@ -153,6 +254,14 @@ public static class NumericValidatorEx
         return v;
     }
 
+    /// <summary>
+    /// Validates that the value is less than or equal to the specified constant.
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <typeparam name="TType">The comparable value type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <param name="test">The upper bound (inclusive).</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, TType> IsLessThanOrEqual<TFact, TType>(this IValidator<TFact, TType> validator, TType test)
         where TFact : class where TType : struct, IComparable<TType>
     {
@@ -162,6 +271,14 @@ public static class NumericValidatorEx
         return v;
     }
 
+    /// <summary>
+    /// Validates that the value is less than or equal to a value extracted from the fact.
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <typeparam name="TType">The comparable value type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <param name="extractor">A function that extracts the upper bound from the fact.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, TType> IsLessThanOrEqual<TFact, TType>(this IValidator<TFact, TType> validator, Func<TFact, TType> extractor)
         where TFact : class where TType : struct, IComparable<TType>
     {
@@ -171,6 +288,15 @@ public static class NumericValidatorEx
         return v;
     }
 
+    /// <summary>
+    /// Validates that the value is between the specified low and high bounds (inclusive).
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <typeparam name="TType">The comparable value type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <param name="low">The lower bound (inclusive).</param>
+    /// <param name="high">The upper bound (inclusive).</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, TType> IsBetween<TFact, TType>(this IValidator<TFact, TType> validator, TType low, TType high)
         where TFact : class where TType : struct, IComparable<TType>
     {
@@ -180,6 +306,15 @@ public static class NumericValidatorEx
         return v;
     }
 
+    /// <summary>
+    /// Validates that the value is not between the specified low and high bounds (inclusive).
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <typeparam name="TType">The comparable value type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <param name="low">The lower bound (inclusive).</param>
+    /// <param name="high">The upper bound (inclusive).</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, TType> IsNotBetween<TFact, TType>(this IValidator<TFact, TType> validator, TType low, TType high)
         where TFact : class where TType : struct, IComparable<TType>
     {
@@ -189,6 +324,15 @@ public static class NumericValidatorEx
         return v;
     }
 
+    /// <summary>
+    /// Validates that the value is between bounds extracted from the fact (inclusive).
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <typeparam name="TType">The comparable value type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <param name="lowExtractor">A function that extracts the lower bound from the fact.</param>
+    /// <param name="highExtractor">A function that extracts the upper bound from the fact.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, TType> IsBetween<TFact, TType>(this IValidator<TFact, TType> validator, Func<TFact, TType> lowExtractor, Func<TFact, TType> highExtractor)
         where TFact : class where TType : struct, IComparable<TType>
     {
@@ -198,6 +342,15 @@ public static class NumericValidatorEx
         return v;
     }
 
+    /// <summary>
+    /// Validates that the value is not between bounds extracted from the fact (inclusive).
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <typeparam name="TType">The comparable value type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <param name="lowExtractor">A function that extracts the lower bound from the fact.</param>
+    /// <param name="highExtractor">A function that extracts the upper bound from the fact.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, TType> IsNotBetween<TFact, TType>(this IValidator<TFact, TType> validator, Func<TFact, TType> lowExtractor, Func<TFact, TType> highExtractor)
         where TFact : class where TType : struct, IComparable<TType>
     {
@@ -207,6 +360,15 @@ public static class NumericValidatorEx
         return v;
     }
 
+    /// <summary>
+    /// Validates that the value is between the specified low and high bounds (exclusive on both ends).
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <typeparam name="TType">The comparable value type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <param name="low">The lower bound (exclusive).</param>
+    /// <param name="high">The upper bound (exclusive).</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, TType> IsExclusiveBetween<TFact, TType>(this IValidator<TFact, TType> validator, TType low, TType high)
         where TFact : class where TType : struct, IComparable<TType>
     {
@@ -216,6 +378,15 @@ public static class NumericValidatorEx
         return v;
     }
 
+    /// <summary>
+    /// Validates that the value is between bounds extracted from the fact (exclusive on both ends).
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <typeparam name="TType">The comparable value type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <param name="lowExtractor">A function that extracts the lower bound from the fact.</param>
+    /// <param name="highExtractor">A function that extracts the upper bound from the fact.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, TType> IsExclusiveBetween<TFact, TType>(this IValidator<TFact, TType> validator, Func<TFact, TType> lowExtractor, Func<TFact, TType> highExtractor)
         where TFact : class where TType : struct, IComparable<TType>
     {
@@ -225,6 +396,14 @@ public static class NumericValidatorEx
         return v;
     }
 
+    /// <summary>
+    /// Validates that the value is one of the specified allowed values.
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <typeparam name="TType">The comparable value type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <param name="values">The allowed values.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, TType> IsIn<TFact, TType>(this IValidator<TFact, TType> validator, params TType[] values)
         where TFact : class where TType : struct, IComparable<TType>
     {
@@ -234,6 +413,14 @@ public static class NumericValidatorEx
         return v;
     }
 
+    /// <summary>
+    /// Validates that the value is not one of the specified prohibited values.
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <typeparam name="TType">The comparable value type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <param name="values">The prohibited values.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, TType> IsNotIn<TFact, TType>(this IValidator<TFact, TType> validator, params TType[] values)
         where TFact : class where TType : struct, IComparable<TType>
     {
@@ -245,6 +432,13 @@ public static class NumericValidatorEx
 
     // ===== Numeric shortcuts =====
 
+    /// <summary>
+    /// Validates that the value is strictly positive (greater than zero/default).
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <typeparam name="TType">The comparable value type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, TType> IsPositive<TFact, TType>(this IValidator<TFact, TType> validator)
         where TFact : class where TType : struct, IComparable<TType>
     {
@@ -254,6 +448,13 @@ public static class NumericValidatorEx
         return v;
     }
 
+    /// <summary>
+    /// Validates that the value is strictly negative (less than zero/default).
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <typeparam name="TType">The comparable value type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, TType> IsNegative<TFact, TType>(this IValidator<TFact, TType> validator)
         where TFact : class where TType : struct, IComparable<TType>
     {
@@ -263,6 +464,13 @@ public static class NumericValidatorEx
         return v;
     }
 
+    /// <summary>
+    /// Validates that the value is zero or positive (greater than or equal to zero/default).
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <typeparam name="TType">The comparable value type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, TType> IsNonNegative<TFact, TType>(this IValidator<TFact, TType> validator)
         where TFact : class where TType : struct, IComparable<TType>
     {
@@ -272,6 +480,13 @@ public static class NumericValidatorEx
         return v;
     }
 
+    /// <summary>
+    /// Validates that the value is zero or negative (less than or equal to zero/default).
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <typeparam name="TType">The comparable value type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, TType> IsNonPositive<TFact, TType>(this IValidator<TFact, TType> validator)
         where TFact : class where TType : struct, IComparable<TType>
     {
@@ -284,6 +499,13 @@ public static class NumericValidatorEx
 
     // ===== Nullable type support =====
 
+    /// <summary>
+    /// Validates that the nullable value is null (has no value).
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <typeparam name="TType">The underlying value type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, TType?> IsNull<TFact, TType>(this IValidator<TFact, TType?> validator)
         where TFact : class where TType : struct
     {
@@ -293,6 +515,13 @@ public static class NumericValidatorEx
         return v;
     }
 
+    /// <summary>
+    /// Validates that the nullable value is not null (has a value).
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <typeparam name="TType">The underlying value type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, TType?> IsNotNull<TFact, TType>(this IValidator<TFact, TType?> validator)
         where TFact : class where TType : struct
     {
@@ -302,6 +531,13 @@ public static class NumericValidatorEx
         return v;
     }
 
+    /// <summary>
+    /// Validates that the nullable value has a value (is not null).
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <typeparam name="TType">The underlying value type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, TType?> HasValue<TFact, TType>(this IValidator<TFact, TType?> validator)
         where TFact : class where TType : struct
     {
@@ -316,6 +552,13 @@ public static class NumericValidatorEx
 
     private const float FloatTolerance = 1e-6f;
 
+    /// <summary>
+    /// Validates that the float value equals the specified constant (using epsilon-based comparison).
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <param name="test">The value to compare against.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, float> IsEqual<TFact>(this IValidator<TFact, float> validator, float test) where TFact : class
     {
         var v = validator.Is((f, value) => Math.Abs(value - test) < FloatTolerance);
@@ -324,6 +567,13 @@ public static class NumericValidatorEx
         return v;
     }
 
+    /// <summary>
+    /// Validates that the float value equals a value extracted from the fact (using epsilon-based comparison).
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <param name="extractor">A function that extracts the comparison value from the fact.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, float> IsEqual<TFact>(this IValidator<TFact, float> validator, Func<TFact, float> extractor) where TFact : class
     {
         var v = validator.Is((f, value) => Math.Abs(value - extractor(f)) < FloatTolerance);
@@ -332,6 +582,13 @@ public static class NumericValidatorEx
         return v;
     }
 
+    /// <summary>
+    /// Validates that the float value does not equal the specified constant (using epsilon-based comparison).
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <param name="test">The value to compare against.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, float> IsNotEqual<TFact>(this IValidator<TFact, float> validator, float test) where TFact : class
     {
         var v = validator.Is((f, value) => Math.Abs(value - test) >= FloatTolerance);
@@ -340,6 +597,13 @@ public static class NumericValidatorEx
         return v;
     }
 
+    /// <summary>
+    /// Validates that the float value does not equal a value extracted from the fact (using epsilon-based comparison).
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <param name="extractor">A function that extracts the comparison value from the fact.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, float> IsNotEqual<TFact>(this IValidator<TFact, float> validator, Func<TFact, float> extractor) where TFact : class
     {
         var v = validator.Is((f, value) => Math.Abs(value - extractor(f)) >= FloatTolerance);
@@ -348,6 +612,13 @@ public static class NumericValidatorEx
         return v;
     }
 
+    /// <summary>
+    /// Validates that the float value is one of the specified allowed values (using epsilon-based comparison).
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <param name="values">The allowed values.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, float> IsIn<TFact>(this IValidator<TFact, float> validator, params float[] values) where TFact : class
     {
         var v = validator.Is((f, value) => values.Any(val => Math.Abs(value - val) < FloatTolerance));
@@ -356,6 +627,13 @@ public static class NumericValidatorEx
         return v;
     }
 
+    /// <summary>
+    /// Validates that the float value is not one of the specified prohibited values (using epsilon-based comparison).
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <param name="values">The prohibited values.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, float> IsNotIn<TFact>(this IValidator<TFact, float> validator, params float[] values) where TFact : class
     {
         var v = validator.Is((f, value) => values.All(val => Math.Abs(value - val) >= FloatTolerance));
@@ -368,6 +646,13 @@ public static class NumericValidatorEx
 
     private const double DoubleTolerance = 1e-9;
 
+    /// <summary>
+    /// Validates that the double value equals the specified constant (using epsilon-based comparison).
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <param name="test">The value to compare against.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, double> IsEqual<TFact>(this IValidator<TFact, double> validator, double test) where TFact : class
     {
         var v = validator.Is((f, value) => Math.Abs(value - test) < DoubleTolerance);
@@ -376,6 +661,13 @@ public static class NumericValidatorEx
         return v;
     }
 
+    /// <summary>
+    /// Validates that the double value equals a value extracted from the fact (using epsilon-based comparison).
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <param name="extractor">A function that extracts the comparison value from the fact.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, double> IsEqual<TFact>(this IValidator<TFact, double> validator, Func<TFact, double> extractor) where TFact : class
     {
         var v = validator.Is((f, value) => Math.Abs(value - extractor(f)) < DoubleTolerance);
@@ -384,6 +676,13 @@ public static class NumericValidatorEx
         return v;
     }
 
+    /// <summary>
+    /// Validates that the double value does not equal the specified constant (using epsilon-based comparison).
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <param name="test">The value to compare against.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, double> IsNotEqual<TFact>(this IValidator<TFact, double> validator, double test) where TFact : class
     {
         var v = validator.Is((f, value) => Math.Abs(value - test) >= DoubleTolerance);
@@ -392,6 +691,13 @@ public static class NumericValidatorEx
         return v;
     }
 
+    /// <summary>
+    /// Validates that the double value does not equal a value extracted from the fact (using epsilon-based comparison).
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <param name="extractor">A function that extracts the comparison value from the fact.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, double> IsNotEqual<TFact>(this IValidator<TFact, double> validator, Func<TFact, double> extractor) where TFact : class
     {
         var v = validator.Is((f, value) => Math.Abs(value - extractor(f)) >= DoubleTolerance);
@@ -400,6 +706,13 @@ public static class NumericValidatorEx
         return v;
     }
 
+    /// <summary>
+    /// Validates that the double value is one of the specified allowed values (using epsilon-based comparison).
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <param name="values">The allowed values.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, double> IsIn<TFact>(this IValidator<TFact, double> validator, params double[] values) where TFact : class
     {
         var v = validator.Is((f, value) => values.Any(val => Math.Abs(value - val) < DoubleTolerance));
@@ -408,6 +721,13 @@ public static class NumericValidatorEx
         return v;
     }
 
+    /// <summary>
+    /// Validates that the double value is not one of the specified prohibited values (using epsilon-based comparison).
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <param name="values">The prohibited values.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, double> IsNotIn<TFact>(this IValidator<TFact, double> validator, params double[] values) where TFact : class
     {
         var v = validator.Is((f, value) => values.All(val => Math.Abs(value - val) >= DoubleTolerance));
@@ -419,6 +739,15 @@ public static class NumericValidatorEx
 
     // ===== Decimal precision/scale =====
 
+    /// <summary>
+    /// Validates that the decimal value conforms to the specified precision and scale constraints.
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <param name="precision">The maximum total number of digits.</param>
+    /// <param name="scale">The maximum number of decimal places.</param>
+    /// <param name="ignoreTrailingZeros">Whether to ignore trailing zeros when counting decimal places.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, decimal> HasPrecision<TFact>(this IValidator<TFact, decimal> validator, int precision, int scale, bool ignoreTrailingZeros = false) where TFact : class
     {
         var v = validator.Is((f, value) =>

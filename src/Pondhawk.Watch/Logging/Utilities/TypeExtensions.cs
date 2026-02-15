@@ -24,7 +24,7 @@ SOFTWARE.
 
 using System.Collections.Concurrent;
 
-namespace Pondhawk.Logging.Utilities;
+namespace Pondhawk.Watch;
 
 /// <summary>
 /// Extension methods for Type to get readable type names.
@@ -65,7 +65,7 @@ internal static class TypeExtensions
 
         var iBacktick = conciseName.IndexOf('`');
         if (iBacktick > 0)
-            conciseName = conciseName[..iBacktick];
+            conciseName = conciseName.Substring(0, iBacktick);
 
         var genericParameters = type.GetGenericArguments().Select(x => x.GetConciseName());
         conciseName += "<" + string.Join(", ", genericParameters) + ">";
@@ -84,7 +84,7 @@ internal static class TypeExtensions
 
         var iBacktick = conciseName.IndexOf('`');
         if (iBacktick > 0)
-            conciseName = conciseName[..iBacktick];
+            conciseName = conciseName.Substring(0, iBacktick);
 
         var genericParameters = type.GetGenericArguments().Select(x => x.GetConciseName());
         conciseName += "<" + string.Join(", ", genericParameters) + ">";

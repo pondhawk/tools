@@ -37,8 +37,7 @@ public class BuildContext : FrostingContext
         "src/Pondhawk.Rql/Pondhawk.Rql.csproj",
         "src/Pondhawk.Rules/Pondhawk.Rules.csproj",
         "src/Pondhawk.Rules.EFCore/Pondhawk.Rules.EFCore.csproj",
-        "src/Pondhawk.Watch/Pondhawk.Watch.csproj",
-        "src/Pondhawk.Watch.Framework/Pondhawk.Watch.Framework.csproj"
+        "src/Pondhawk.Watch/Pondhawk.Watch.csproj"
     ];
 
     public BuildContext(ICakeContext context) : base(context)

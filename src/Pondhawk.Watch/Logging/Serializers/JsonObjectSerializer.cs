@@ -24,9 +24,8 @@ SOFTWARE.
 
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Pondhawk.Logging.Utilities;
 
-namespace Pondhawk.Logging.Serializers;
+namespace Pondhawk.Watch;
 
 /// <summary>
 /// Serializes objects to JSON format with safe property access and sensitive data handling.

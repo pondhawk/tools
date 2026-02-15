@@ -29,6 +29,9 @@ namespace Pondhawk.Rules.Evaluation;
 /// </summary>
 public interface IEvaluator
 {
+    /// <summary>Evaluates rules against the facts in the given context and returns aggregated results.</summary>
+    /// <param name="context">The evaluation context containing facts, configuration, and result accumulators.</param>
+    /// <returns>The aggregated evaluation results.</returns>
     EvaluationResults Evaluate(EvaluationContext context);
 }
 

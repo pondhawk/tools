@@ -1,6 +1,6 @@
 ﻿using Serilog.Events;
 
-namespace Pondhawk.Logging;
+namespace Pondhawk.Watch;
 
 internal static class WatchSwitchConfig
 {

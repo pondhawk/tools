@@ -35,12 +35,20 @@ public class TypeSource
 
     private static Func<Type, bool> DefaultPredicate { get; } = _ => true;
 
+    /// <summary>
+    /// Gets the predicate used to filter types when adding them to the source. Override to customize filtering.
+    /// </summary>
+    /// <returns>A predicate that returns <c>true</c> for types that should be included.</returns>
     protected virtual Func<Type, bool> GetPredicate()
     {
         return DefaultPredicate;
     }
 
 
+    /// <summary>
+    /// Adds all types from the specified assemblies that pass the predicate filter.
+    /// </summary>
+    /// <param name="assemblies">The assemblies whose types should be added.</param>
     public void AddTypes(params Assembly[] assemblies)
     {
 
@@ -51,6 +59,10 @@ public class TypeSource
     }
 
 
+    /// <summary>
+    /// Adds the specified types that pass the predicate filter.
+    /// </summary>
+    /// <param name="types">The types to add.</param>
     public void AddTypes(params Type[] types)
     {
 
@@ -61,6 +73,10 @@ public class TypeSource
     }
 
 
+    /// <summary>
+    /// Adds the specified candidate types that pass the predicate filter.
+    /// </summary>
+    /// <param name="candidates">The candidate types to evaluate and add.</param>
     public void AddTypes(IEnumerable<Type> candidates)
     {
 
@@ -73,6 +89,10 @@ public class TypeSource
 
     private HashSet<Type> Types { get; } = new();
 
+    /// <summary>
+    /// Returns all types that have been collected by this source.
+    /// </summary>
+    /// <returns>An enumerable of the collected types.</returns>
     public IEnumerable<Type> GetTypes()
     {
         return Types;

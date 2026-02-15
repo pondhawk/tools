@@ -64,12 +64,36 @@ public static class DateTimeHelpers
 
     }
 
+    /// <summary>
+    /// Gets a collection of recent past date/time range models (up to the last 24 hours and today).
+    /// </summary>
     public static IReadOnlyCollection<IDateTimeRange> RecentModels { get; }
+
+    /// <summary>
+    /// Gets a collection of all past-oriented date/time range models.
+    /// </summary>
     public static IReadOnlyCollection<IDateTimeRange> PastModels { get; }
+
+    /// <summary>
+    /// Gets a collection of all future-oriented date/time range models.
+    /// </summary>
     public static IReadOnlyCollection<IDateTimeRange> FutureModels { get; }
+
+    /// <summary>
+    /// Gets a collection of all date/time range models (past and future combined).
+    /// </summary>
     public static IReadOnlyCollection<IDateTimeRange> AllModels { get; }
 
+    /// <summary>
+    /// Gets the Unix epoch (January 1, 1970 00:00:00 UTC).
+    /// </summary>
     public static DateTime Epoch { get; } = new(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
+
+    /// <summary>
+    /// Converts a <see cref="DateTime"/> to a Unix timestamp in seconds.
+    /// </summary>
+    /// <param name="target">The date/time to convert. If <c>default</c>, uses <see cref="DateTime.Now"/>.</param>
+    /// <returns>The Unix timestamp in seconds.</returns>
     public static long ToTimestamp(DateTime target)
     {
 
@@ -82,8 +106,18 @@ public static class DateTimeHelpers
 
     }
 
+    /// <summary>
+    /// Converts a Unix timestamp in seconds to a local <see cref="DateTime"/>.
+    /// </summary>
+    /// <param name="ts">The Unix timestamp in seconds.</param>
+    /// <returns>The corresponding local <see cref="DateTime"/>.</returns>
     public static DateTime FromTimestamp(long ts) => Epoch.AddSeconds(ts).ToLocalTime();
 
+    /// <summary>
+    /// Converts a <see cref="DateTime"/> to a Unix timestamp in milliseconds.
+    /// </summary>
+    /// <param name="target">The date/time to convert. If <c>default</c>, uses <see cref="DateTime.Now"/>.</param>
+    /// <returns>The Unix timestamp in milliseconds.</returns>
     public static long ToTimestampMilli(DateTime target = default)
     {
 
@@ -96,10 +130,21 @@ public static class DateTimeHelpers
 
     }
 
+    /// <summary>
+    /// Converts a Unix timestamp in milliseconds to a local <see cref="DateTime"/>.
+    /// </summary>
+    /// <param name="ts">The Unix timestamp in milliseconds.</param>
+    /// <returns>The corresponding local <see cref="DateTime"/>.</returns>
     public static DateTime FromTimestampMilli(long ts) => Epoch.AddMilliseconds(ts).ToLocalTime();
 
 
 
+    /// <summary>
+    /// Returns the date of the start of the week containing the specified date.
+    /// </summary>
+    /// <param name="dt">The date to calculate from.</param>
+    /// <param name="startOfWeek">The day that starts the week (defaults to <see cref="DayOfWeek.Sunday"/>).</param>
+    /// <returns>The <see cref="DateTime"/> representing the start of the week.</returns>
     public static DateTime StartOfWeek(this DateTime dt, DayOfWeek startOfWeek = DayOfWeek.Sunday)
     {
 
@@ -114,6 +159,11 @@ public static class DateTimeHelpers
     }
 
 
+    /// <summary>
+    /// Returns the first day of the month containing the specified date.
+    /// </summary>
+    /// <param name="dt">The date to calculate from.</param>
+    /// <returns>The <see cref="DateTime"/> representing the first day of the month.</returns>
     public static DateTime StartOfMonth(this DateTime dt)
     {
 
@@ -127,6 +177,12 @@ public static class DateTimeHelpers
 
     }
 
+    /// <summary>
+    /// Calculates the begin and end <see cref="DateTime"/> for a predefined date/time range model identified by its 1-based ID.
+    /// </summary>
+    /// <param name="id">The 1-based ID of the date/time range model from <see cref="AllModels"/>.</param>
+    /// <param name="origin">The reference date/time to calculate from. If <c>default</c>, uses <see cref="DateTime.Now"/>.</param>
+    /// <returns>A tuple containing the begin and end <see cref="DateTime"/>.</returns>
     public static (DateTime begin, DateTime end) CalculateRange(int id, DateTime origin = default)
     {
 
@@ -140,6 +196,12 @@ public static class DateTimeHelpers
     }
 
 
+    /// <summary>
+    /// Calculates the begin and end Unix timestamps (in seconds) for a predefined date/time range model identified by its 1-based ID.
+    /// </summary>
+    /// <param name="id">The 1-based ID of the date/time range model from <see cref="AllModels"/>.</param>
+    /// <param name="origin">The reference date/time to calculate from. If <c>default</c>, uses <see cref="DateTime.Now"/>.</param>
+    /// <returns>A tuple containing the begin and end Unix timestamps in seconds.</returns>
     public static (long begin, long end) CalculateTimestamps(int id, DateTime origin = default)
     {
 
@@ -154,6 +216,12 @@ public static class DateTimeHelpers
     }
 
 
+    /// <summary>
+    /// Calculates the begin and end Unix timestamps (in seconds) for the specified <see cref="DateTimeRange"/>.
+    /// </summary>
+    /// <param name="range">The date/time range kind to calculate.</param>
+    /// <param name="origin">The reference date/time to calculate from. If <c>default</c>, uses <see cref="DateTime.Now"/>.</param>
+    /// <returns>A tuple containing the begin and end Unix timestamps in seconds.</returns>
     public static (long begin, long end) CalculateTimestamps(DateTimeRange range, DateTime origin = default)
     {
 
@@ -165,6 +233,12 @@ public static class DateTimeHelpers
 
 
 
+    /// <summary>
+    /// Calculates the begin and end <see cref="DateTime"/> for the specified <see cref="DateTimeRange"/>.
+    /// </summary>
+    /// <param name="range">The date/time range kind to calculate.</param>
+    /// <param name="origin">The reference date/time to calculate from. If <c>default</c>, uses <see cref="DateTime.Now"/>.</param>
+    /// <returns>A tuple containing the begin and end <see cref="DateTime"/>.</returns>
     public static (DateTime begin, DateTime end) CalculateRange(DateTimeRange range, DateTime origin = default)
     {
         var now = origin == default ? DateTime.Now : origin;
@@ -226,6 +300,11 @@ public static class DateTimeHelpers
         (monthStart, (monthStart + TimeSpan.FromDays(32)).StartOfMonth());
 
 
+    /// <summary>
+    /// Looks up and returns the <see cref="IDateTimeRange"/> model for the specified range kind.
+    /// </summary>
+    /// <param name="range">The date/time range kind to look up.</param>
+    /// <returns>The matching <see cref="IDateTimeRange"/> model.</returns>
     public static IDateTimeRange From(DateTimeRange range)
     {
         return PastModels.SingleOrDefault(r => r.RangeKind == range) ?? FutureModels.Single(r => r.RangeKind == range);

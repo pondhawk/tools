@@ -6,6 +6,12 @@
 public class UnhandledError : Error
 {
 
+    /// <summary>
+    /// Creates an <see cref="UnhandledError"/> from the specified exception and optional context.
+    /// </summary>
+    /// <param name="cause">The unhandled exception that triggered this error.</param>
+    /// <param name="context">Optional context describing where the exception was caught.</param>
+    /// <returns>A new <see cref="UnhandledError"/> instance.</returns>
     public static UnhandledError Create(Exception cause, string? context = null)
     {
 

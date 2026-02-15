@@ -1,10 +1,9 @@
-﻿using System.Collections.Concurrent;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Threading.Channels;
 using CommunityToolkit.Diagnostics;
-using Pondhawk.Logging;
 using Serilog.Core;
 using Serilog.Events;
 using SerilogEvent = Serilog.Events.LogEvent;
@@ -26,7 +25,10 @@ namespace Pondhawk.Watch;
 /// and sends converted Watch LogEvents to the Watch Server.
 /// </para>
 /// </remarks>
-public sealed class WatchSink : ILogEventSink, IDisposable, IAsyncDisposable
+public sealed class WatchSink : ILogEventSink, IDisposable
+#if NET5_0_OR_GREATER
+    , IAsyncDisposable
+#endif
 {
     private readonly HttpClient _client;
     private readonly SwitchSource _switchSource;
@@ -36,13 +38,17 @@ public sealed class WatchSink : ILogEventSink, IDisposable, IAsyncDisposable
 
     private readonly Channel<SerilogEvent> _channel;
     private readonly Task _flushTask;
-    private readonly TaskCompletionSource _flushCompleted = new(TaskCreationOptions.RunContinuationsAsynchronously);
+    private readonly TaskCompletionSource<bool> _flushCompleted = new(TaskCreationOptions.RunContinuationsAsynchronously);
     private int _disposed;
 
     // Circuit breaker state
     private int _consecutiveFailures;
     private DateTime _circuitOpenUntil = DateTime.MinValue;
+#if NET9_0_OR_GREATER
     private readonly Lock _circuitLock = new();
+#else
+    private readonly object _circuitLock = new();
+#endif
 
     // Critical event buffer
     private readonly ConcurrentQueue<LogEvent> _criticalBuffer = new();
@@ -92,6 +98,14 @@ public sealed class WatchSink : ILogEventSink, IDisposable, IAsyncDisposable
     /// </summary>
     public long DroppedEventCount => Interlocked.Read(ref _droppedEventCount);
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="WatchSink"/> class.
+    /// </summary>
+    /// <param name="client">The <see cref="HttpClient"/> used to post event batches to the Watch Server.</param>
+    /// <param name="switchSource">The switch source for dynamic log level filtering.</param>
+    /// <param name="domain">The domain name included in each batch. Defaults to "Default".</param>
+    /// <param name="batchSize">Maximum events per batch before flushing. Defaults to 100.</param>
+    /// <param name="flushInterval">Maximum time before flushing a partial batch. Defaults to 100ms.</param>
     public WatchSink(
         HttpClient client,
         SwitchSource switchSource,
@@ -172,7 +186,7 @@ public sealed class WatchSink : ILogEventSink, IDisposable, IAsyncDisposable
         }
         finally
         {
-            _flushCompleted.TrySetResult();
+            _flushCompleted.TrySetResult(true);
         }
     }
 
@@ -208,10 +222,10 @@ public sealed class WatchSink : ILogEventSink, IDisposable, IAsyncDisposable
             FlushCriticalBuffer(batch);
 
             var stream = await LogEventBatchSerializer.ToStream(batch).ConfigureAwait(false);
-            await using (stream.ConfigureAwait(false))
+            using (stream)
             {
                 using var content = new StreamContent(stream);
-                content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
+                content.Headers.ContentType = new MediaTypeHeaderValue(LogEventBatchSerializer.ContentType);
                 content.Headers.Add("X-Domain", _domain);
 
                 var response = await _client.PostAsync("api/sink", content, CancellationToken.None).ConfigureAwait(false);
@@ -362,12 +376,12 @@ public sealed class WatchSink : ILogEventSink, IDisposable, IAsyncDisposable
         var activity = Activity.Current;
         if (activity != null)
         {
-            var correlation = activity.GetBaggageItem(Pondhawk.Logging.CorrelationManager.BaggageKey);
+            var correlation = activity.GetBaggageItem(WatchPropertyNames.CorrelationBaggageKey);
             if (!string.IsNullOrEmpty(correlation))
-                return correlation;
+                return correlation!;
 
             var newId = Ulid.NewUlid().ToString();
-            activity.SetBaggage(Pondhawk.Logging.CorrelationManager.BaggageKey, newId);
+            activity.SetBaggage(WatchPropertyNames.CorrelationBaggageKey, newId);
             return newId;
         }
 
@@ -415,6 +429,9 @@ public sealed class WatchSink : ILogEventSink, IDisposable, IAsyncDisposable
         };
     }
 
+    /// <summary>
+    /// Completes the channel, waits for pending batches to flush, and stops the switch source.
+    /// </summary>
     public void Dispose()
     {
         if (Interlocked.Exchange(ref _disposed, 1) != 0)
@@ -434,6 +451,11 @@ public sealed class WatchSink : ILogEventSink, IDisposable, IAsyncDisposable
         _switchSource.Stop();
     }
 
+#if NET6_0_OR_GREATER
+    /// <summary>
+    /// Asynchronously completes the channel, waits for pending batches to flush, and stops the switch source.
+    /// </summary>
+    /// <returns>A <see cref="ValueTask"/> representing the asynchronous dispose operation.</returns>
     public async ValueTask DisposeAsync()
     {
         if (Interlocked.Exchange(ref _disposed, 1) != 0)
@@ -452,4 +474,5 @@ public sealed class WatchSink : ILogEventSink, IDisposable, IAsyncDisposable
 
         _switchSource.Stop();
     }
+#endif
 }

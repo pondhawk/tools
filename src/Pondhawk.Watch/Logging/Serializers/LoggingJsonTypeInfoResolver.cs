@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 
 Copyright (c) 2024 Pond Hawk Technologies Inc.
@@ -26,7 +26,7 @@ using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
 
-namespace Pondhawk.Logging.Serializers;
+namespace Pondhawk.Watch;
 
 /// <summary>
 /// Custom JSON type info resolver that provides safe property access and sensitive data handling.
@@ -46,7 +46,7 @@ namespace Pondhawk.Logging.Serializers;
 /// when some properties are inaccessible.
 /// </para>
 /// </remarks>
-internal class LoggingJsonTypeInfoResolver : DefaultJsonTypeInfoResolver
+internal sealed class LoggingJsonTypeInfoResolver : DefaultJsonTypeInfoResolver
 {
     public override JsonTypeInfo GetTypeInfo(Type type, JsonSerializerOptions options)
     {

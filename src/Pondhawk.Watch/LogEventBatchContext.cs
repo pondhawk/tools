@@ -22,6 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+#if NET7_0_OR_GREATER
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -34,3 +35,4 @@ namespace Pondhawk.Watch;
 [JsonSerializable(typeof(LogEvent))]
 [JsonSerializable(typeof(LogEventBatch))]
 public partial class LogEventBatchContext : JsonSerializerContext;
+#endif

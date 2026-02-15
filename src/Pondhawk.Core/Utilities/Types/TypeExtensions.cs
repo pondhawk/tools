@@ -33,6 +33,11 @@ public static class TypeExtensions
 {
 
 
+    /// <summary>
+    /// Converts a byte array to its lowercase hexadecimal string representation.
+    /// </summary>
+    /// <param name="bytes">The byte array to convert.</param>
+    /// <returns>A lowercase hexadecimal string.</returns>
     public static string ToHexString(this byte[] bytes)
     {
 
@@ -44,6 +49,11 @@ public static class TypeExtensions
     }
 
 
+    /// <summary>
+    /// Converts a <see cref="DateTime"/> to a sortable UTC timestamp string in the format YYYYMMDDTicks.
+    /// </summary>
+    /// <param name="source">The <see cref="DateTime"/> to convert.</param>
+    /// <returns>A sortable timestamp string.</returns>
     public static string ToTimestampString(this DateTime source)
     {
 
@@ -59,6 +69,11 @@ public static class TypeExtensions
 
     }
 
+    /// <summary>
+    /// Gets a human-readable short name for a type, including generic type arguments (e.g. <c>Repository&lt;Order&gt;</c>).
+    /// </summary>
+    /// <param name="type">The type to get the concise name for.</param>
+    /// <returns>A concise type name with generic arguments expanded.</returns>
     public static string GetConciseName(this Type type)
     {
 
@@ -79,6 +94,11 @@ public static class TypeExtensions
 
     }
 
+    /// <summary>
+    /// Gets a human-readable fully qualified name for a type, including generic type arguments (e.g. <c>MyApp.Services.Repository&lt;Order&gt;</c>).
+    /// </summary>
+    /// <param name="type">The type to get the concise full name for.</param>
+    /// <returns>A concise fully qualified type name with generic arguments expanded, or an empty string if the full name is unavailable.</returns>
     public static string GetConciseFullName(this Type type)
     {
 

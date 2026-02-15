@@ -197,6 +197,11 @@ namespace Pondhawk.Rql.Serialization
 
 
 
+        /// <summary>
+        /// Serializes the filter predicates to RQL text format, e.g. <c>(eq(Name,'John'),gt(Age,30))</c>.
+        /// </summary>
+        /// <param name="builder">The filter to serialize.</param>
+        /// <returns>The RQL text representation of the filter.</returns>
         public static string ToRql(this IRqlFilter builder)
         {
 

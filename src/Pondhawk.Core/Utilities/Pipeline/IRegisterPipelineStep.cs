@@ -1,5 +1,9 @@
 ﻿namespace Pondhawk.Utilities.Pipeline;
 
+/// <summary>
+/// Provides a fluent API for registering pipeline steps during pipeline configuration.
+/// </summary>
+/// <typeparam name="TContext">The pipeline context type that implements <see cref="IPipelineContext"/>.</typeparam>
 public interface IRegisterPipelineStep<TContext> where TContext : class, IPipelineContext
 {
     /// <summary>

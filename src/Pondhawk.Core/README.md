@@ -1,59 +1,6 @@
 # Pondhawk.Core
 
-Shared foundation library providing a Serilog-based logging API, pipeline infrastructure, type utilities, and common exception types.
-
-## Logging API
-
-### Get a Logger
-
-```csharp
-using Pondhawk.Logging;
-
-// From any object -- uses the type's full name as the source context
-var logger = this.GetLogger();
-logger.Debug("Processing order {OrderId}", orderId);
-```
-
-### Method Tracing
-
-```csharp
-public void ProcessOrder(int orderId)
-{
-    using var _ = this.EnterMethod();
-    // Logs "Entering ClassName.ProcessOrder" at Verbose level
-    // On dispose: "Exiting ClassName.ProcessOrder (elapsed ms)"
-
-    logger.Debug("Loading order from database");
-    var order = LoadOrder(orderId);
-    logger.Inspect("order.Total", order.Total);
-}
-```
-
-### Object Serialization
-
-```csharp
-// Log a complex object as JSON payload
-logger.LogObject(order);
-logger.LogObject("Fetched Order", order);
-
-// Typed payloads with syntax highlighting hints
-logger.LogJson("Response", jsonString);
-logger.LogSql("Query", sqlString);
-logger.LogXml("Config", xmlString);
-logger.LogYaml("Data", yamlString);
-```
-
-### Sensitive Data
-
-```csharp
-public class UserCredentials
-{
-    public string Username { get; set; }
-
-    [Sensitive]
-    public string Password { get; set; }  // Masked in LogObject output
-}
-```
+Shared foundation library providing pipeline infrastructure, type utilities, and common exception types.
 
 ## Pipeline Infrastructure
 
@@ -62,9 +9,9 @@ public class UserCredentials
 ```csharp
 using Pondhawk.Utilities.Pipeline;
 
-// Register with Autofac
-builder.RegisterPipelineFactory();
-builder.AddPipeline<OrderContext>(steps => steps
+// Register with DI
+services.AddPipelineFactory();
+services.AddPipeline<OrderContext>(steps => steps
     .Add<ValidateStep>()
     .Add<CalculateTaxStep>()
     .Add<SaveStep>());

@@ -35,6 +35,8 @@ public class RuleBuilderSource : IRuleBuilderSource
 
     private static Func<Type, bool> Predicate { get; } = t => typeof(IBuilder).IsAssignableFrom(t);
 
+    /// <summary>Discovers and adds all <see cref="IBuilder"/> types from the specified assemblies.</summary>
+    /// <param name="assemblies">The assemblies to scan for builder types.</param>
     public void AddTypes(params Assembly[] assemblies)
     {
 
@@ -44,6 +46,8 @@ public class RuleBuilderSource : IRuleBuilderSource
             Types.Add(type);
     }
 
+    /// <summary>Adds the specified types that implement <see cref="IBuilder"/>.</summary>
+    /// <param name="types">The types to add.</param>
     public void AddTypes(params Type[] types)
     {
 
@@ -53,6 +57,8 @@ public class RuleBuilderSource : IRuleBuilderSource
             Types.Add(type);
     }
 
+    /// <summary>Adds types from the candidate collection that implement <see cref="IBuilder"/>.</summary>
+    /// <param name="candidates">The candidate types to filter and add.</param>
     public void AddTypes(IEnumerable<Type> candidates)
     {
 
@@ -64,6 +70,7 @@ public class RuleBuilderSource : IRuleBuilderSource
 
     private HashSet<Type> Types { get; } = new();
 
+    /// <inheritdoc />
     public IEnumerable<Type> GetTypes()
     {
         return Types;

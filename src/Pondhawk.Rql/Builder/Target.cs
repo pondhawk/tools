@@ -34,6 +34,10 @@ namespace Pondhawk.Rql.Builder
     {
 
 
+        /// <summary>Determines whether the target name equals the specified string (case-insensitive).</summary>
+        /// <param name="target">The target to compare.</param>
+        /// <param name="candidate">The string to compare against.</param>
+        /// <returns><c>true</c> if the names are equal ignoring case; otherwise, <c>false</c>.</returns>
         public static bool operator ==(Target target, string candidate)
         {
             if (target is null || string.IsNullOrWhiteSpace(target.Name) || string.IsNullOrWhiteSpace(candidate))
@@ -43,6 +47,10 @@ namespace Pondhawk.Rql.Builder
 
         }
 
+        /// <summary>Determines whether the target name does not equal the specified string (case-insensitive).</summary>
+        /// <param name="target">The target to compare.</param>
+        /// <param name="candidate">The string to compare against.</param>
+        /// <returns><c>true</c> if the names are not equal ignoring case; otherwise, <c>false</c>.</returns>
         public static bool operator !=(Target target, string candidate)
         {
 
@@ -54,9 +62,13 @@ namespace Pondhawk.Rql.Builder
         }
 
 
+        /// <summary>The field name this target represents.</summary>
         public string Name { get; } = name;
 
 
+        /// <summary>Determines whether this target equals the specified target by ordinal name comparison.</summary>
+        /// <param name="other">The other target to compare.</param>
+        /// <returns><c>true</c> if the names are equal; otherwise, <c>false</c>.</returns>
         protected bool Equals(Target other)
         {
             Guard.IsNotNull(other);
@@ -65,6 +77,7 @@ namespace Pondhawk.Rql.Builder
 
         }
 
+        /// <inheritdoc />
         public override bool Equals(object? obj)
         {
 
@@ -76,12 +89,14 @@ namespace Pondhawk.Rql.Builder
 
         }
 
+        /// <inheritdoc />
         public override int GetHashCode()
         {
             return Name.GetHashCode(StringComparison.Ordinal);
         }
 
 
+        /// <inheritdoc />
         public override string ToString()
         {
             return Name;

@@ -31,38 +31,47 @@ namespace Pondhawk.Rules.Listeners;
 /// </summary>
 public sealed class NoopEvaluationListener : IEvaluationListener
 {
+    /// <inheritdoc />
     public void BeginEvaluation()
     {
     }
 
+    /// <inheritdoc />
     public void BeginTupleEvaluation(object[] facts)
     {
     }
 
+    /// <inheritdoc />
     public void FiringRule(IRule rule)
     {
     }
 
+    /// <inheritdoc />
     public void FiredRule(IRule rule, bool modified)
     {
     }
 
+    /// <inheritdoc />
     public void EndTupleEvaluation(object[] facts)
     {
     }
 
+    /// <inheritdoc />
     public void EndEvaluation()
     {
     }
 
+    /// <inheritdoc />
     public void Debug(string template, params object[] markers)
     {
     }
 
+    /// <inheritdoc />
     public void Warning(string template, params object[] markers)
     {
     }
 
+    /// <inheritdoc />
     public void EventCreated(RuleEvent evalEvent)
     {
     }

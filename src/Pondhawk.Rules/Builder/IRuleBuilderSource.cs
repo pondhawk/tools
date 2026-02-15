@@ -29,8 +29,9 @@ namespace Pondhawk.Rules.Builder;
 /// </summary>
 public interface IRuleBuilderSource
 {
+    /// <summary>Gets the collection of <see cref="IBuilder"/> types discovered by this source.</summary>
+    /// <returns>An enumeration of builder types.</returns>
     IEnumerable<Type> GetTypes();
-
 }
 
 

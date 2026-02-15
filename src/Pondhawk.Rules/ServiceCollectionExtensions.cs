@@ -45,6 +45,10 @@ public static class ServiceCollectionExtensions
 
 
 
+    /// <summary>Registers the specified <see cref="IRuleBuilderSource"/> as a singleton for rule discovery.</summary>
+    /// <param name="services">The service collection.</param>
+    /// <param name="source">The rule builder source to register.</param>
+    /// <returns>The service collection for chaining.</returns>
     public static IServiceCollection AddRules(this IServiceCollection services, IRuleBuilderSource source)
     {
 
@@ -61,6 +65,10 @@ public static class ServiceCollectionExtensions
     }
 
 
+    /// <summary>Discovers and registers <see cref="Builder.IBuilder"/> types from the specified assemblies.</summary>
+    /// <param name="services">The service collection.</param>
+    /// <param name="assemblies">The assemblies to scan for rule builders.</param>
+    /// <returns>The service collection for chaining.</returns>
     public static IServiceCollection AddRules(this IServiceCollection services, params Assembly[] assemblies)
     {
 
@@ -85,6 +93,10 @@ public static class ServiceCollectionExtensions
     }
 
 
+    /// <summary>Registers the specified <see cref="Builder.IBuilder"/> types for rule discovery.</summary>
+    /// <param name="services">The service collection.</param>
+    /// <param name="types">The builder types to register.</param>
+    /// <returns>The service collection for chaining.</returns>
     public static IServiceCollection AddRules(this IServiceCollection services, params Type[] types)
     {
 
@@ -108,6 +120,10 @@ public static class ServiceCollectionExtensions
     }
 
 
+    /// <summary>Registers candidate types that implement <see cref="Builder.IBuilder"/> for rule discovery.</summary>
+    /// <param name="services">The service collection.</param>
+    /// <param name="candidates">The candidate types to filter and register.</param>
+    /// <returns>The service collection for chaining.</returns>
     public static IServiceCollection AddRules(this IServiceCollection services, IEnumerable<Type> candidates)
     {
 

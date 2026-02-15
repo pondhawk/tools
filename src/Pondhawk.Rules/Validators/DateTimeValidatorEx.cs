@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 
 Copyright (c) 2017 The Kampilan Group Inc.
@@ -35,6 +35,12 @@ namespace Pondhawk.Rules.Validators;
 public static class DateTimeValidatorEx
 {
 
+    /// <summary>
+    /// Validates that the DateTime is not <see cref="DateTime.MinValue"/> or <see cref="DateTime.MaxValue"/>.
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, DateTime> Required<TFact>(this IValidator<TFact, DateTime> validator) where TFact : class
     {
         var v = validator.Is((_, value) => (value != DateTime.MinValue) && (value != DateTime.MaxValue));
@@ -43,6 +49,13 @@ public static class DateTimeValidatorEx
         return v;
     }
 
+    /// <summary>
+    /// Validates that the DateTime equals the specified constant.
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <param name="test">The DateTime to compare against.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, DateTime> IsEqualTo<TFact>(this IValidator<TFact, DateTime> validator, DateTime test) where TFact : class
     {
         var v = validator.Is((_, value) => test.CompareTo(value) == 0);
@@ -51,6 +64,13 @@ public static class DateTimeValidatorEx
         return v;
     }
 
+    /// <summary>
+    /// Validates that the DateTime equals a value extracted from the fact.
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <param name="extractor">A function that extracts the comparison DateTime from the fact.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, DateTime> IsEqualTo<TFact>(this IValidator<TFact, DateTime> validator, Func<TFact, DateTime> extractor) where TFact : class
     {
         var v = validator.Is((f, value) => extractor(f).CompareTo(value) == 0);
@@ -59,6 +79,13 @@ public static class DateTimeValidatorEx
         return v;
     }
 
+    /// <summary>
+    /// Validates that the DateTime does not equal the specified constant.
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <param name="test">The DateTime to compare against.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, DateTime> IsNotEqualTo<TFact>(this IValidator<TFact, DateTime> validator, DateTime test) where TFact : class
     {
         var v = validator.Is((_, value) => test.CompareTo(value) != 0);
@@ -67,6 +94,13 @@ public static class DateTimeValidatorEx
         return v;
     }
 
+    /// <summary>
+    /// Validates that the DateTime does not equal a value extracted from the fact.
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <param name="extractor">A function that extracts the comparison DateTime from the fact.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, DateTime> IsNotEqualTo<TFact>(this IValidator<TFact, DateTime> validator, Func<TFact, DateTime> extractor) where TFact : class
     {
         var v = validator.Is((f, value) => extractor(f).CompareTo(value) != 0);
@@ -75,6 +109,13 @@ public static class DateTimeValidatorEx
         return v;
     }
 
+    /// <summary>
+    /// Validates that the DateTime is strictly greater than the specified constant.
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <param name="test">The lower bound (exclusive).</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, DateTime> IsGreaterThan<TFact>(this IValidator<TFact, DateTime> validator, DateTime test) where TFact : class
     {
         var v = validator.Is((_, value) => value > test);
@@ -83,6 +124,13 @@ public static class DateTimeValidatorEx
         return v;
     }
 
+    /// <summary>
+    /// Validates that the DateTime is strictly greater than a value extracted from the fact.
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <param name="extractor">A function that extracts the lower bound from the fact.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, DateTime> IsGreaterThan<TFact>(this IValidator<TFact, DateTime> validator, Func<TFact, DateTime> extractor) where TFact : class
     {
         var v = validator.Is((f, value) => value > extractor(f));
@@ -91,6 +139,13 @@ public static class DateTimeValidatorEx
         return v;
     }
 
+    /// <summary>
+    /// Validates that the DateTime is strictly less than the specified constant.
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <param name="test">The upper bound (exclusive).</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, DateTime> IsLessThan<TFact>(this IValidator<TFact, DateTime> validator, DateTime test) where TFact : class
     {
         var v = validator.Is((_, value) => value < test);
@@ -99,6 +154,13 @@ public static class DateTimeValidatorEx
         return v;
     }
 
+    /// <summary>
+    /// Validates that the DateTime is strictly less than a value extracted from the fact.
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <param name="extractor">A function that extracts the upper bound from the fact.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, DateTime> IsLessThan<TFact>(this IValidator<TFact, DateTime> validator, Func<TFact, DateTime> extractor) where TFact : class
     {
         var v = validator.Is((f, value) => value < extractor(f));
@@ -107,6 +169,13 @@ public static class DateTimeValidatorEx
         return v;
     }
 
+    /// <summary>
+    /// Validates that the DateTime is greater than or equal to the specified constant.
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <param name="test">The lower bound (inclusive).</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, DateTime> IsGreaterThanOrEqual<TFact>(this IValidator<TFact, DateTime> validator, DateTime test) where TFact : class
     {
         var v = validator.Is((_, value) => value >= test);
@@ -115,6 +184,13 @@ public static class DateTimeValidatorEx
         return v;
     }
 
+    /// <summary>
+    /// Validates that the DateTime is greater than or equal to a value extracted from the fact.
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <param name="extractor">A function that extracts the lower bound from the fact.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, DateTime> IsGreaterThanOrEqual<TFact>(this IValidator<TFact, DateTime> validator, Func<TFact, DateTime> extractor) where TFact : class
     {
         var v = validator.Is((f, value) => value >= extractor(f));
@@ -123,6 +199,13 @@ public static class DateTimeValidatorEx
         return v;
     }
 
+    /// <summary>
+    /// Validates that the DateTime is less than or equal to the specified constant.
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <param name="test">The upper bound (inclusive).</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, DateTime> IsLessThanOrEqual<TFact>(this IValidator<TFact, DateTime> validator, DateTime test) where TFact : class
     {
         var v = validator.Is((_, value) => value <= test);
@@ -131,6 +214,13 @@ public static class DateTimeValidatorEx
         return v;
     }
 
+    /// <summary>
+    /// Validates that the DateTime is less than or equal to a value extracted from the fact.
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <param name="extractor">A function that extracts the upper bound from the fact.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, DateTime> IsLessThanOrEqual<TFact>(this IValidator<TFact, DateTime> validator, Func<TFact, DateTime> extractor) where TFact : class
     {
         var v = validator.Is((f, value) => value <= extractor(f));
@@ -139,6 +229,14 @@ public static class DateTimeValidatorEx
         return v;
     }
 
+    /// <summary>
+    /// Validates that the DateTime is between the specified low and high bounds (inclusive).
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <param name="low">The lower bound (inclusive).</param>
+    /// <param name="high">The upper bound (inclusive).</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, DateTime> IsBetween<TFact>(this IValidator<TFact, DateTime> validator, DateTime low, DateTime high) where TFact : class
     {
         var v = validator.Is((_, value) => (value >= low) && (value <= high));
@@ -147,6 +245,14 @@ public static class DateTimeValidatorEx
         return v;
     }
 
+    /// <summary>
+    /// Validates that the DateTime is between bounds extracted from the fact (inclusive).
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <param name="lowExtractor">A function that extracts the lower bound from the fact.</param>
+    /// <param name="highExtractor">A function that extracts the upper bound from the fact.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, DateTime> IsBetween<TFact>(this IValidator<TFact, DateTime> validator, Func<TFact, DateTime> lowExtractor, Func<TFact, DateTime> highExtractor) where TFact : class
     {
         var v = validator.Is((f, value) => (value >= lowExtractor(f)) && (value <= highExtractor(f)));
@@ -155,6 +261,14 @@ public static class DateTimeValidatorEx
         return v;
     }
 
+    /// <summary>
+    /// Validates that the DateTime is not between the specified low and high bounds (inclusive).
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <param name="low">The lower bound (inclusive).</param>
+    /// <param name="high">The upper bound (inclusive).</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, DateTime> IsNotBetween<TFact>(this IValidator<TFact, DateTime> validator, DateTime low, DateTime high) where TFact : class
     {
         var v = validator.Is((_, value) => (value < low) || (value > high));
@@ -163,6 +277,14 @@ public static class DateTimeValidatorEx
         return v;
     }
 
+    /// <summary>
+    /// Validates that the DateTime is not between bounds extracted from the fact (inclusive).
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <param name="lowExtractor">A function that extracts the lower bound from the fact.</param>
+    /// <param name="highExtractor">A function that extracts the upper bound from the fact.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, DateTime> IsNotBetween<TFact>(this IValidator<TFact, DateTime> validator, Func<TFact, DateTime> lowExtractor, Func<TFact, DateTime> highExtractor) where TFact : class
     {
         var v = validator.Is((f, value) => (value < lowExtractor(f)) || (value > highExtractor(f)));
@@ -171,6 +293,14 @@ public static class DateTimeValidatorEx
         return v;
     }
 
+    /// <summary>
+    /// Validates that the DateTime is between the specified low and high bounds (exclusive on both ends).
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <param name="low">The lower bound (exclusive).</param>
+    /// <param name="high">The upper bound (exclusive).</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, DateTime> IsExclusiveBetween<TFact>(this IValidator<TFact, DateTime> validator, DateTime low, DateTime high) where TFact : class
     {
         var v = validator.Is((_, value) => (value > low) && (value < high));
@@ -179,6 +309,14 @@ public static class DateTimeValidatorEx
         return v;
     }
 
+    /// <summary>
+    /// Validates that the DateTime is between bounds extracted from the fact (exclusive on both ends).
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <param name="lowExtractor">A function that extracts the lower bound from the fact.</param>
+    /// <param name="highExtractor">A function that extracts the upper bound from the fact.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, DateTime> IsExclusiveBetween<TFact>(this IValidator<TFact, DateTime> validator, Func<TFact, DateTime> lowExtractor, Func<TFact, DateTime> highExtractor) where TFact : class
     {
         var v = validator.Is((f, value) => (value > lowExtractor(f)) && (value < highExtractor(f)));
@@ -187,6 +325,13 @@ public static class DateTimeValidatorEx
         return v;
     }
 
+    /// <summary>
+    /// Validates that the DateTime falls on the specified day of the week.
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <param name="test">The required day of the week.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, DateTime> IsDayOfWeek<TFact>(this IValidator<TFact, DateTime> validator, DayOfWeek test) where TFact : class
     {
         var v = validator.Is((_, value) => value.DayOfWeek == test);
@@ -195,6 +340,12 @@ public static class DateTimeValidatorEx
         return v;
     }
 
+    /// <summary>
+    /// Validates that the DateTime falls on a weekend day (Saturday or Sunday).
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, DateTime> IsWeekend<TFact>(this IValidator<TFact, DateTime> validator) where TFact : class
     {
         var v = validator.Is((_, value) => (value.DayOfWeek == DayOfWeek.Saturday) || (value.DayOfWeek == DayOfWeek.Sunday));
@@ -203,6 +354,12 @@ public static class DateTimeValidatorEx
         return v;
     }
 
+    /// <summary>
+    /// Validates that the DateTime falls on a weekday (Monday through Friday).
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, DateTime> IsWeekday<TFact>(this IValidator<TFact, DateTime> validator) where TFact : class
     {
         var v = validator.Is((_, value) => (value.DayOfWeek != DayOfWeek.Saturday) && (value.DayOfWeek != DayOfWeek.Sunday));
@@ -211,6 +368,12 @@ public static class DateTimeValidatorEx
         return v;
     }
 
+    /// <summary>
+    /// Validates that the DateTime is in the future (after <see cref="DateTime.Now"/>).
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, DateTime> IsInFuture<TFact>(this IValidator<TFact, DateTime> validator) where TFact : class
     {
         var v = validator.Is((_, value) => value > DateTime.Now);
@@ -219,6 +382,12 @@ public static class DateTimeValidatorEx
         return v;
     }
 
+    /// <summary>
+    /// Validates that the DateTime is in the past or present (at or before <see cref="DateTime.Now"/>).
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, DateTime> IsInPast<TFact>(this IValidator<TFact, DateTime> validator) where TFact : class
     {
         var v = validator.Is((_, value) => value <= DateTime.Now);
@@ -227,6 +396,13 @@ public static class DateTimeValidatorEx
         return v;
     }
 
+    /// <summary>
+    /// Validates that the DateTime is at least the specified number of days in the future.
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <param name="days">The minimum number of days in the future.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, DateTime> IsDaysInFuture<TFact>(this IValidator<TFact, DateTime> validator, int days) where TFact : class
     {
         var v = validator.Is((_, value) => (value - DateTime.Now).TotalDays >= days);
@@ -235,6 +411,13 @@ public static class DateTimeValidatorEx
         return v;
     }
 
+    /// <summary>
+    /// Validates that the DateTime is at least the specified number of days in the past.
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <param name="days">The minimum number of days in the past.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, DateTime> IsDaysInPast<TFact>(this IValidator<TFact, DateTime> validator, int days) where TFact : class
     {
         var v = validator.Is((_, value) => (DateTime.Now - value).TotalDays >= days);
@@ -243,6 +426,12 @@ public static class DateTimeValidatorEx
         return v;
     }
 
+    /// <summary>
+    /// Validates that the DateTime has today's date.
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, DateTime> IsToday<TFact>(this IValidator<TFact, DateTime> validator) where TFact : class
     {
         var v = validator.Is((_, value) => value.Date == DateTime.Today);
@@ -251,6 +440,13 @@ public static class DateTimeValidatorEx
         return v;
     }
 
+    /// <summary>
+    /// Validates that the DateTime falls on the same calendar day as the specified date.
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <param name="test">The date to compare the calendar day against.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, DateTime> IsSameDay<TFact>(this IValidator<TFact, DateTime> validator, DateTime test) where TFact : class
     {
         var v = validator.Is((_, value) => value.Date == test.Date);
@@ -259,6 +455,13 @@ public static class DateTimeValidatorEx
         return v;
     }
 
+    /// <summary>
+    /// Validates that the DateTime falls on the same calendar day as a date extracted from the fact.
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <param name="extractor">A function that extracts the comparison date from the fact.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, DateTime> IsSameDay<TFact>(this IValidator<TFact, DateTime> validator, Func<TFact, DateTime> extractor) where TFact : class
     {
         var v = validator.Is((f, value) => value.Date == extractor(f).Date);
@@ -267,6 +470,13 @@ public static class DateTimeValidatorEx
         return v;
     }
 
+    /// <summary>
+    /// Validates that the DateTime is within the specified time span of <see cref="DateTime.Now"/>.
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <param name="span">The maximum allowed time span from now.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, DateTime> IsWithin<TFact>(this IValidator<TFact, DateTime> validator, TimeSpan span) where TFact : class
     {
         var v = validator.Is((_, value) => Math.Abs((DateTime.Now - value).TotalMilliseconds) <= span.TotalMilliseconds);
@@ -275,6 +485,14 @@ public static class DateTimeValidatorEx
         return v;
     }
 
+    /// <summary>
+    /// Validates that the DateTime is within the specified time span of a reference date.
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <param name="reference">The reference date to measure distance from.</param>
+    /// <param name="span">The maximum allowed time span from the reference date.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, DateTime> IsWithin<TFact>(this IValidator<TFact, DateTime> validator, DateTime reference, TimeSpan span) where TFact : class
     {
         var v = validator.Is((_, value) => Math.Abs((reference - value).TotalMilliseconds) <= span.TotalMilliseconds);

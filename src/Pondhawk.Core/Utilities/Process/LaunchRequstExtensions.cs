@@ -9,6 +9,11 @@ namespace Pondhawk.Utilities.Process;
 public static class LaunchRequstExtensions
 {
 
+    /// <summary>
+    /// Launches an external process using the configuration from this <see cref="ILaunchRequest"/> and returns the result.
+    /// </summary>
+    /// <param name="request">The launch request containing the process configuration.</param>
+    /// <returns>A <see cref="LaunchResult"/> containing the process output, error, and exit information.</returns>
     public static LaunchResult Run(this ILaunchRequest request)
     {
 

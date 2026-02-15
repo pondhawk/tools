@@ -41,15 +41,28 @@ namespace Pondhawk.Rules;
 /// </remarks>
 public interface IRuleSet : IEvaluator
 {
-
+    /// <summary>Creates a new <see cref="EvaluationContext"/> configured for this rule set.</summary>
+    /// <returns>A new evaluation context.</returns>
     EvaluationContext GetEvaluationContext();
 
+    /// <summary>Gets or sets the default score threshold used by <see cref="Decide(object[])"/>.</summary>
     int DecisionThreshold { get; set; }
+
+    /// <summary>Gets a predicate function that evaluates a single fact using <see cref="Decide(object[])"/>.</summary>
     Func<object, bool> Predicate { get; }
 
+    /// <summary>Evaluates the facts and returns <c>true</c> if the score meets the <see cref="DecisionThreshold"/>.</summary>
+    /// <param name="facts">The facts to evaluate.</param>
+    /// <returns><c>true</c> if the evaluation score meets or exceeds the threshold.</returns>
     bool Decide(params object[] facts);
+
+    /// <summary>Evaluates the facts and returns <c>true</c> if the score meets the specified threshold.</summary>
+    /// <param name="threshold">The score threshold to apply.</param>
+    /// <param name="facts">The facts to evaluate.</param>
+    /// <returns><c>true</c> if the evaluation score meets or exceeds the threshold.</returns>
     bool Decide(int threshold, params object[] facts);
 
+    /// <summary>Gets the namespace filters applied to this rule set.</summary>
+    /// <returns>The namespace filter strings.</returns>
     IEnumerable<string> GetNamespaceFilters();
-
 }

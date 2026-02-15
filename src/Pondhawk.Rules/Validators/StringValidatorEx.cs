@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 
 Copyright (c) 2017 The Kampilan Group Inc.
@@ -46,6 +46,12 @@ public static class StringValidatorEx
 
     }
 
+    /// <summary>
+    /// Validates that the object property is not null.
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, object> Required<TFact>(this IValidator<TFact, object> validator) where TFact : class
     {
         var v = validator.Is((f, v) => v is not null);
@@ -59,6 +65,12 @@ public static class StringValidatorEx
     }
 
 
+    /// <summary>
+    /// Validates that the string property is not null or whitespace.
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, string> Required<TFact>(this IValidator<TFact, string> validator) where TFact : class
     {
 
@@ -73,6 +85,12 @@ public static class StringValidatorEx
     }
 
 
+    /// <summary>
+    /// Validates that the string property is null or whitespace (empty).
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, string> IsEmpty<TFact>(this IValidator<TFact, string> validator) where TFact : class
     {
         var v = validator.Is((f, v) => string.IsNullOrWhiteSpace(v));
@@ -85,6 +103,12 @@ public static class StringValidatorEx
 
     }
 
+    /// <summary>
+    /// Validates that the string property is not null or whitespace (not empty).
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, string> IsNotEmpty<TFact>(this IValidator<TFact, string> validator) where TFact : class
     {
         var v = validator.Is((f, v) => !string.IsNullOrWhiteSpace(v));
@@ -98,6 +122,13 @@ public static class StringValidatorEx
 
     }
 
+    /// <summary>
+    /// Validates that the string has at least the specified minimum length.
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <param name="minimum">The minimum allowed length.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, string> HasMinimumLength<TFact>(this IValidator<TFact, string> validator, int minimum) where TFact : class
     {
 
@@ -112,6 +143,13 @@ public static class StringValidatorEx
     }
 
 
+    /// <summary>
+    /// Validates that the string does not exceed the specified maximum length.
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <param name="maximum">The maximum allowed length.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, string> HasMaximumLength<TFact>(this IValidator<TFact, string> validator, int maximum) where TFact : class
     {
 
@@ -126,6 +164,13 @@ public static class StringValidatorEx
     }
 
 
+    /// <summary>
+    /// Validates that the string is one of the specified allowed values (ordinal comparison).
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <param name="values">The allowed values.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, string> IsIn<TFact>(this IValidator<TFact, string> validator, params string[] values) where TFact : class
     {
 
@@ -140,6 +185,13 @@ public static class StringValidatorEx
     }
 
 
+    /// <summary>
+    /// Validates that the string is not one of the specified prohibited values (ordinal comparison).
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <param name="values">The prohibited values.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, string> IsNotIn<TFact>(this IValidator<TFact, string> validator, params string[] values) where TFact : class
     {
 
@@ -154,6 +206,13 @@ public static class StringValidatorEx
     }
 
 
+    /// <summary>
+    /// Validates that the string is ordinally less than the specified value.
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <param name="test">The value to compare against.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, string> IsLessThan<TFact>(this IValidator<TFact, string> validator, string test) where TFact : class
     {
 
@@ -167,6 +226,13 @@ public static class StringValidatorEx
 
     }
 
+    /// <summary>
+    /// Validates that the string is ordinally less than a value extracted from the fact.
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <param name="extractor">A function that extracts the comparison value from the fact.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, string> IsLessThan<TFact>(this IValidator<TFact, string> validator, Func<TFact, string> extractor) where TFact : class
     {
 
@@ -181,6 +247,13 @@ public static class StringValidatorEx
     }
 
 
+    /// <summary>
+    /// Validates that the string is ordinally greater than the specified value.
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <param name="test">The value to compare against.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, string> IsGreaterThan<TFact>(this IValidator<TFact, string> validator, string test) where TFact : class
     {
 
@@ -194,6 +267,13 @@ public static class StringValidatorEx
 
     }
 
+    /// <summary>
+    /// Validates that the string is ordinally greater than a value extracted from the fact.
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <param name="extractor">A function that extracts the comparison value from the fact.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, string> IsGreaterThan<TFact>(this IValidator<TFact, string> validator, Func<TFact, string> extractor) where TFact : class
     {
         var v = validator.Is((f, v) => string.Compare(extractor(f), v, StringComparison.Ordinal) == -1);
@@ -205,6 +285,13 @@ public static class StringValidatorEx
         return v;
     }
 
+    /// <summary>
+    /// Validates that the string is ordinally greater than or equal to the specified value.
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <param name="test">The value to compare against.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, string> IsGreaterThanOrEqual<TFact>(this IValidator<TFact, string> validator, string test) where TFact : class
     {
         var v = validator.Is((f, v) => string.Compare(v, test, StringComparison.Ordinal) >= 0);
@@ -213,6 +300,13 @@ public static class StringValidatorEx
         return v;
     }
 
+    /// <summary>
+    /// Validates that the string is ordinally greater than or equal to a value extracted from the fact.
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <param name="extractor">A function that extracts the comparison value from the fact.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, string> IsGreaterThanOrEqual<TFact>(this IValidator<TFact, string> validator, Func<TFact, string> extractor) where TFact : class
     {
         var v = validator.Is((f, v) => string.Compare(v, extractor(f), StringComparison.Ordinal) >= 0);
@@ -221,6 +315,13 @@ public static class StringValidatorEx
         return v;
     }
 
+    /// <summary>
+    /// Validates that the string is ordinally less than or equal to the specified value.
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <param name="test">The value to compare against.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, string> IsLessThanOrEqual<TFact>(this IValidator<TFact, string> validator, string test) where TFact : class
     {
         var v = validator.Is((f, v) => string.Compare(v, test, StringComparison.Ordinal) <= 0);
@@ -229,6 +330,13 @@ public static class StringValidatorEx
         return v;
     }
 
+    /// <summary>
+    /// Validates that the string is ordinally less than or equal to a value extracted from the fact.
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <param name="extractor">A function that extracts the comparison value from the fact.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, string> IsLessThanOrEqual<TFact>(this IValidator<TFact, string> validator, Func<TFact, string> extractor) where TFact : class
     {
         var v = validator.Is((f, v) => string.Compare(v, extractor(f), StringComparison.Ordinal) <= 0);
@@ -238,6 +346,13 @@ public static class StringValidatorEx
     }
 
 
+    /// <summary>
+    /// Validates that the string is ordinally equal to the specified value.
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <param name="test">The value to compare against.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, string> IsEqualTo<TFact>(this IValidator<TFact, string> validator, string test) where TFact : class
     {
 
@@ -251,6 +366,13 @@ public static class StringValidatorEx
 
     }
 
+    /// <summary>
+    /// Validates that the string is ordinally equal to a value extracted from the fact.
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <param name="extractor">A function that extracts the comparison value from the fact.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, string> IsEqualTo<TFact>(this IValidator<TFact, string> validator, Func<TFact, string> extractor) where TFact : class
     {
 
@@ -265,6 +387,13 @@ public static class StringValidatorEx
     }
 
 
+    /// <summary>
+    /// Validates that the string is not ordinally equal to the specified value.
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <param name="test">The value to compare against.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, string> IsNotEqualTo<TFact>(this IValidator<TFact, string> validator, string test) where TFact : class
     {
 
@@ -278,6 +407,13 @@ public static class StringValidatorEx
 
     }
 
+    /// <summary>
+    /// Validates that the string is not ordinally equal to a value extracted from the fact.
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <param name="extractor">A function that extracts the comparison value from the fact.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, string> IsNotEqualTo<TFact>(this IValidator<TFact, string> validator, Func<TFact, string> extractor) where TFact : class
     {
 
@@ -292,6 +428,13 @@ public static class StringValidatorEx
     }
 
 
+    /// <summary>
+    /// Validates that the string matches the specified regular expression pattern.
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <param name="pattern">The regular expression pattern to match.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, string> IsMatch<TFact>(this IValidator<TFact, string> validator, string pattern) where TFact : class
     {
 
@@ -305,6 +448,13 @@ public static class StringValidatorEx
 
     }
 
+    /// <summary>
+    /// Validates that the string does not match the specified regular expression pattern.
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <param name="pattern">The regular expression pattern that must not match.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, string> IsNotMatch<TFact>(this IValidator<TFact, string> validator, string pattern) where TFact : class
     {
 
@@ -318,6 +468,13 @@ public static class StringValidatorEx
 
     }
 
+    /// <summary>
+    /// Validates that the string matches the specified compiled <see cref="Regex"/> instance.
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <param name="regex">The compiled regular expression to match.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, string> IsMatch<TFact>(this IValidator<TFact, string> validator, Regex regex) where TFact : class
     {
         var v = validator.Is((f, v) => !string.IsNullOrWhiteSpace(v) && regex.IsMatch(v));
@@ -326,6 +483,13 @@ public static class StringValidatorEx
         return v;
     }
 
+    /// <summary>
+    /// Validates that the string does not match the specified compiled <see cref="Regex"/> instance.
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <param name="regex">The compiled regular expression that must not match.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, string> IsNotMatch<TFact>(this IValidator<TFact, string> validator, Regex regex) where TFact : class
     {
         var v = validator.IsNot((f, v) => !string.IsNullOrWhiteSpace(v) && regex.IsMatch(v));
@@ -334,6 +498,12 @@ public static class StringValidatorEx
         return v;
     }
 
+    /// <summary>
+    /// Validates that the string is a valid North American phone number format.
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, string> IsPhone<TFact>(this IValidator<TFact, string> validator) where TFact : class
     {
 
@@ -348,6 +518,12 @@ public static class StringValidatorEx
     }
 
 
+    /// <summary>
+    /// Validates that the string is a valid email address format.
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, string> IsEmail<TFact>(this IValidator<TFact, string> validator) where TFact : class
     {
 
@@ -362,6 +538,12 @@ public static class StringValidatorEx
     }
 
 
+    /// <summary>
+    /// Validates that the string is a valid US Social Security Number format (###-##-####).
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, string> IsSsn<TFact>(this IValidator<TFact, string> validator) where TFact : class
     {
 
@@ -376,6 +558,12 @@ public static class StringValidatorEx
     }
 
 
+    /// <summary>
+    /// Validates that the string is a valid US zip code format (#####  or #####-####).
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, string> IsZip<TFact>(this IValidator<TFact, string> validator) where TFact : class
     {
 
@@ -394,6 +582,14 @@ public static class StringValidatorEx
 
     // ===== Case-insensitive variants =====
 
+    /// <summary>
+    /// Validates that the string equals the specified value using the given comparison type.
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <param name="test">The value to compare against.</param>
+    /// <param name="comparison">The string comparison type to use.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, string> IsEqualTo<TFact>(this IValidator<TFact, string> validator, string test, StringComparison comparison) where TFact : class
     {
         var v = validator.Is((f, v) => string.Equals(v, test, comparison));
@@ -402,6 +598,14 @@ public static class StringValidatorEx
         return v;
     }
 
+    /// <summary>
+    /// Validates that the string does not equal the specified value using the given comparison type.
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <param name="test">The value to compare against.</param>
+    /// <param name="comparison">The string comparison type to use.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, string> IsNotEqualTo<TFact>(this IValidator<TFact, string> validator, string test, StringComparison comparison) where TFact : class
     {
         var v = validator.Is((f, v) => !string.Equals(v, test, comparison));
@@ -410,6 +614,14 @@ public static class StringValidatorEx
         return v;
     }
 
+    /// <summary>
+    /// Validates that the string is one of the specified allowed values using the given comparison type.
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <param name="comparison">The string comparison type to use.</param>
+    /// <param name="values">The allowed values.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, string> IsIn<TFact>(this IValidator<TFact, string> validator, StringComparison comparison, params string[] values) where TFact : class
     {
         var v = validator.Is((f, v) => values.Any(val => string.Equals(v, val, comparison)));
@@ -418,6 +630,14 @@ public static class StringValidatorEx
         return v;
     }
 
+    /// <summary>
+    /// Validates that the string is not one of the specified prohibited values using the given comparison type.
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <param name="comparison">The string comparison type to use.</param>
+    /// <param name="values">The prohibited values.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, string> IsNotIn<TFact>(this IValidator<TFact, string> validator, StringComparison comparison, params string[] values) where TFact : class
     {
         var v = validator.Is((f, v) => !values.Any(val => string.Equals(v, val, comparison)));
@@ -429,6 +649,13 @@ public static class StringValidatorEx
 
     // ===== Common text pattern validators =====
 
+    /// <summary>
+    /// Validates that the string starts with the specified prefix (ordinal comparison).
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <param name="prefix">The required prefix.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, string> StartsWith<TFact>(this IValidator<TFact, string> validator, string prefix) where TFact : class
     {
         var v = validator.Is((f, v) => !string.IsNullOrEmpty(v) && v.StartsWith(prefix, StringComparison.Ordinal));
@@ -437,6 +664,14 @@ public static class StringValidatorEx
         return v;
     }
 
+    /// <summary>
+    /// Validates that the string starts with the specified prefix using the given comparison type.
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <param name="prefix">The required prefix.</param>
+    /// <param name="comparison">The string comparison type to use.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, string> StartsWith<TFact>(this IValidator<TFact, string> validator, string prefix, StringComparison comparison) where TFact : class
     {
         var v = validator.Is((f, v) => !string.IsNullOrEmpty(v) && v.StartsWith(prefix, comparison));
@@ -445,6 +680,13 @@ public static class StringValidatorEx
         return v;
     }
 
+    /// <summary>
+    /// Validates that the string ends with the specified suffix (ordinal comparison).
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <param name="suffix">The required suffix.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, string> EndsWith<TFact>(this IValidator<TFact, string> validator, string suffix) where TFact : class
     {
         var v = validator.Is((f, v) => !string.IsNullOrEmpty(v) && v.EndsWith(suffix, StringComparison.Ordinal));
@@ -453,6 +695,14 @@ public static class StringValidatorEx
         return v;
     }
 
+    /// <summary>
+    /// Validates that the string ends with the specified suffix using the given comparison type.
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <param name="suffix">The required suffix.</param>
+    /// <param name="comparison">The string comparison type to use.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, string> EndsWith<TFact>(this IValidator<TFact, string> validator, string suffix, StringComparison comparison) where TFact : class
     {
         var v = validator.Is((f, v) => !string.IsNullOrEmpty(v) && v.EndsWith(suffix, comparison));
@@ -461,6 +711,13 @@ public static class StringValidatorEx
         return v;
     }
 
+    /// <summary>
+    /// Validates that the string contains the specified substring (ordinal comparison).
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <param name="substring">The required substring.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, string> Contains<TFact>(this IValidator<TFact, string> validator, string substring) where TFact : class
     {
         var v = validator.Is((f, v) => !string.IsNullOrEmpty(v) && v.Contains(substring, StringComparison.Ordinal));
@@ -469,6 +726,14 @@ public static class StringValidatorEx
         return v;
     }
 
+    /// <summary>
+    /// Validates that the string contains the specified substring using the given comparison type.
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <param name="substring">The required substring.</param>
+    /// <param name="comparison">The string comparison type to use.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, string> Contains<TFact>(this IValidator<TFact, string> validator, string substring, StringComparison comparison) where TFact : class
     {
         var v = validator.Is((f, v) => !string.IsNullOrEmpty(v) && v.Contains(substring, comparison));
@@ -477,6 +742,14 @@ public static class StringValidatorEx
         return v;
     }
 
+    /// <summary>
+    /// Validates that the string length is between the specified minimum and maximum (inclusive).
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <param name="minimum">The minimum allowed length (inclusive).</param>
+    /// <param name="maximum">The maximum allowed length (inclusive).</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, string> HasLengthBetween<TFact>(this IValidator<TFact, string> validator, int minimum, int maximum) where TFact : class
     {
         var v = validator.Is((f, v) => !string.IsNullOrWhiteSpace(v) && v.Length >= minimum && v.Length <= maximum);
@@ -489,6 +762,12 @@ public static class StringValidatorEx
     private static readonly HashSet<string> _USStates;
 
 
+    /// <summary>
+    /// Validates that the string is a valid two-letter US state abbreviation (50 states + DC).
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, string> IsUSState<TFact>(this IValidator<TFact, string> validator) where TFact : class
     {
 
@@ -506,6 +785,12 @@ public static class StringValidatorEx
     private static readonly HashSet<string> _states;
 
 
+    /// <summary>
+    /// Validates that the string is a valid two-letter US state, territory, or Canadian province abbreviation.
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, string> IsState<TFact>(this IValidator<TFact, string> validator) where TFact : class
     {
 

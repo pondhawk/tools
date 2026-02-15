@@ -172,6 +172,12 @@ public static class SqlSerializerExtensions
 
 
 
+    /// <summary>
+    /// Serializes the filter to a complete <c>SELECT * FROM [entity]</c> SQL query with parameterized values, using the entity type name as the table name.
+    /// </summary>
+    /// <typeparam name="TEntity">The entity type whose name is used as the table name.</typeparam>
+    /// <param name="builder">The filter builder to serialize.</param>
+    /// <returns>A tuple of the SQL query string and its parameter values.</returns>
     public static (string sql, object[] parameters) ToSqlQuery<TEntity>(this RqlFilterBuilder<TEntity> builder) where TEntity : class
     {
 
@@ -183,6 +189,13 @@ public static class SqlSerializerExtensions
 
     }
 
+    /// <summary>
+    /// Serializes the filter to a complete <c>SELECT * FROM [tableName]</c> SQL query with parameterized values.
+    /// </summary>
+    /// <param name="builder">The filter to serialize.</param>
+    /// <param name="tableName">The table name to use in the query.</param>
+    /// <param name="indexed">When <c>true</c>, parameters use indexed placeholders (<c>{0}</c>, <c>{1}</c>); when <c>false</c>, uses <c>?</c> placeholders.</param>
+    /// <returns>A tuple of the SQL query string and its parameter values.</returns>
     public static (string sql, object[] parameters) ToSqlQuery(this IRqlFilter builder, string tableName, bool indexed = true)
     {
 
@@ -206,6 +219,12 @@ public static class SqlSerializerExtensions
     }
 
 
+    /// <summary>
+    /// Serializes the filter predicates to a parameterized SQL WHERE clause.
+    /// </summary>
+    /// <param name="builder">The filter to serialize.</param>
+    /// <param name="indexed">When <c>true</c>, parameters use indexed placeholders (<c>{0}</c>, <c>{1}</c>); when <c>false</c>, uses <c>?</c> placeholders.</param>
+    /// <returns>A tuple of the SQL WHERE clause (without the <c>WHERE</c> keyword) and its parameter values.</returns>
     [SuppressMessage("Design", "MA0051:Method is too long", Justification = "SQL serialization method with linear per-operator formatting that does not benefit from splitting")]
     public static (string sql, object[] parameters) ToSqlWhere(this IRqlFilter builder, bool indexed = true)
     {

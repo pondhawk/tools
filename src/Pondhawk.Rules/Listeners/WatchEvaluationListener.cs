@@ -35,6 +35,10 @@ namespace Pondhawk.Rules.Listeners;
 public sealed partial class WatchEvaluationListener : IEvaluationListener
 {
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="WatchEvaluationListener"/> class with the specified logger.
+    /// </summary>
+    /// <param name="logger">The logger instance to write evaluation trace events to.</param>
     public WatchEvaluationListener(ILogger logger)
     {
         Logger = logger;
@@ -44,6 +48,7 @@ public sealed partial class WatchEvaluationListener : IEvaluationListener
     private ILogger Logger { get; }
 
 
+    /// <inheritdoc />
     public void BeginEvaluation()
     {
 
@@ -56,6 +61,7 @@ public sealed partial class WatchEvaluationListener : IEvaluationListener
         LogContext(Logger, context);
     }
 
+    /// <inheritdoc />
     public void BeginTupleEvaluation(object[] facts)
     {
 
@@ -69,6 +75,7 @@ public sealed partial class WatchEvaluationListener : IEvaluationListener
 
     }
 
+    /// <inheritdoc />
     public void FiringRule(IRule rule)
     {
 
@@ -79,6 +86,7 @@ public sealed partial class WatchEvaluationListener : IEvaluationListener
 
     }
 
+    /// <inheritdoc />
     public void FiredRule(IRule rule, bool modified)
     {
 
@@ -89,6 +97,7 @@ public sealed partial class WatchEvaluationListener : IEvaluationListener
 
     }
 
+    /// <inheritdoc />
     public void EndTupleEvaluation(object[] facts)
     {
 
@@ -99,6 +108,7 @@ public sealed partial class WatchEvaluationListener : IEvaluationListener
 
     }
 
+    /// <inheritdoc />
     public void EndEvaluation()
     {
 
@@ -112,6 +122,7 @@ public sealed partial class WatchEvaluationListener : IEvaluationListener
 
     }
 
+    /// <inheritdoc />
     public void EventCreated(RuleEvent evalEvent)
     {
 
@@ -122,6 +133,7 @@ public sealed partial class WatchEvaluationListener : IEvaluationListener
 
     }
 
+    /// <inheritdoc />
     [SuppressMessage("Usage", "CA1848:Use the LoggerMessage delegates for improved performance", Justification = "Template varies by caller and cannot be a compile-time constant")]
     [SuppressMessage("Usage", "CA2254:Template should be a static expression", Justification = "Template varies by caller — this is a pass-through logging method")]
     public void Debug(string template, params object[] markers)
@@ -134,6 +146,7 @@ public sealed partial class WatchEvaluationListener : IEvaluationListener
 
     }
 
+    /// <inheritdoc />
     [SuppressMessage("Usage", "CA1848:Use the LoggerMessage delegates for improved performance", Justification = "Template varies by caller and cannot be a compile-time constant")]
     [SuppressMessage("Usage", "CA2254:Template should be a static expression", Justification = "Template varies by caller — this is a pass-through logging method")]
     public void Warning(string template, params object[] markers)

@@ -42,12 +42,20 @@ public abstract class AbstractFilterBuilder<TBuilder> : IRqlFilter where TBuilde
 
 
 
+    /// <summary>
+    /// Implicitly converts the builder to a list of predicates.
+    /// </summary>
+    /// <param name="builder">The builder to convert.</param>
+    /// <returns>A new list containing the builder's predicates.</returns>
     [SuppressMessage("Design", "MA0016:Prefer using collection abstraction instead of implementation", Justification = "Implicit operator must declare the concrete target type for the conversion")]
     public static implicit operator List<IRqlPredicate>(AbstractFilterBuilder<TBuilder> builder)
     {
         return new List<IRqlPredicate>(builder.Predicates);
     }
 
+    /// <summary>
+    /// Initializes a new empty <see cref="AbstractFilterBuilder{TBuilder}"/>.
+    /// </summary>
     protected AbstractFilterBuilder()
     {
 
@@ -56,6 +64,10 @@ public abstract class AbstractFilterBuilder<TBuilder> : IRqlFilter where TBuilde
 
     }
 
+    /// <summary>
+    /// Initializes a new <see cref="AbstractFilterBuilder{TBuilder}"/> seeded with predicates from an existing <see cref="RqlTree"/>.
+    /// </summary>
+    /// <param name="tree">The parsed RQL tree whose predicates seed this builder.</param>
     protected AbstractFilterBuilder(RqlTree tree) : this()
     {
 
@@ -66,8 +78,10 @@ public abstract class AbstractFilterBuilder<TBuilder> : IRqlFilter where TBuilde
 
 
 
+    /// <inheritdoc />
     public abstract Type Target { get; }
 
+    /// <inheritdoc />
     public bool Is<TTarget>()
     {
 
@@ -80,6 +94,12 @@ public abstract class AbstractFilterBuilder<TBuilder> : IRqlFilter where TBuilde
 
     #region Criteria related members
 
+    /// <summary>
+    /// Builds predicates by reflecting over a criteria object's properties decorated with <see cref="CriterionAttribute"/>.
+    /// </summary>
+    /// <param name="source">The criteria object to introspect.</param>
+    /// <param name="map">Optional dictionary mapping property names to alternate target field names.</param>
+    /// <returns>The builder for fluent chaining.</returns>
     [SuppressMessage("Design", "MA0051:Method is too long", Justification = "Introspect method has a large but linear switch/case structure that does not benefit from splitting")]
     public TBuilder Introspect(ICriteria source, IDictionary<string, string>? map = null)
     {
@@ -213,13 +233,19 @@ public abstract class AbstractFilterBuilder<TBuilder> : IRqlFilter where TBuilde
 
     }
 
+    /// <summary>The mutable list of predicates accumulated by this builder.</summary>
     protected IList<IRqlPredicate> Predicates { get; }
 
+    /// <inheritdoc />
     public bool HasCriteria => Predicates.Count > 0;
+
+    /// <inheritdoc />
     public IEnumerable<IRqlPredicate> Criteria => Predicates;
 
+    /// <inheritdoc />
     public int RowLimit { get; set; }
 
+    /// <inheritdoc />
     public bool AtLeastOne(Func<IRqlPredicate, bool> predicate)
     {
 
@@ -231,6 +257,7 @@ public abstract class AbstractFilterBuilder<TBuilder> : IRqlFilter where TBuilde
 
     }
 
+    /// <inheritdoc />
     public bool OnlyOne(Func<IRqlPredicate, bool> predicate)
     {
 
@@ -242,6 +269,7 @@ public abstract class AbstractFilterBuilder<TBuilder> : IRqlFilter where TBuilde
 
     }
 
+    /// <inheritdoc />
     public bool None(Func<IRqlPredicate, bool> predicate)
     {
 
@@ -254,6 +282,7 @@ public abstract class AbstractFilterBuilder<TBuilder> : IRqlFilter where TBuilde
     }
 
 
+    /// <inheritdoc />
     public void Add(IRqlPredicate operation)
     {
 
@@ -263,6 +292,7 @@ public abstract class AbstractFilterBuilder<TBuilder> : IRqlFilter where TBuilde
 
     }
 
+    /// <inheritdoc />
     public void Clear()
     {
         Predicates.Clear();
@@ -271,6 +301,7 @@ public abstract class AbstractFilterBuilder<TBuilder> : IRqlFilter where TBuilde
     #endregion
 
 
+    /// <summary>The name of the current target field being constrained in the fluent chain.</summary>
     protected string CurrentName { get; set; }
 
 
@@ -278,7 +309,9 @@ public abstract class AbstractFilterBuilder<TBuilder> : IRqlFilter where TBuilde
     #region Equals
 
 
-
+    /// <summary>Adds an equality predicate for the current field with a string value.</summary>
+    /// <param name="value">The value to compare against.</param>
+    /// <returns>The builder for fluent chaining.</returns>
     public TBuilder Equals(string value)
     {
 
@@ -292,7 +325,9 @@ public abstract class AbstractFilterBuilder<TBuilder> : IRqlFilter where TBuilde
     }
 
 
-
+    /// <summary>Adds an equality predicate for the current field with an integer value.</summary>
+    /// <param name="value">The value to compare against.</param>
+    /// <returns>The builder for fluent chaining.</returns>
     public TBuilder Equals(int value)
     {
 
@@ -304,7 +339,9 @@ public abstract class AbstractFilterBuilder<TBuilder> : IRqlFilter where TBuilde
 
     }
 
-
+    /// <summary>Adds an equality predicate for the current field with a long value.</summary>
+    /// <param name="value">The value to compare against.</param>
+    /// <returns>The builder for fluent chaining.</returns>
     public TBuilder Equals(long value)
     {
 
@@ -317,7 +354,9 @@ public abstract class AbstractFilterBuilder<TBuilder> : IRqlFilter where TBuilde
     }
 
 
-
+    /// <summary>Adds an equality predicate for the current field with a DateTime value.</summary>
+    /// <param name="value">The value to compare against.</param>
+    /// <returns>The builder for fluent chaining.</returns>
     public TBuilder Equals(DateTime value)
     {
 
@@ -329,6 +368,9 @@ public abstract class AbstractFilterBuilder<TBuilder> : IRqlFilter where TBuilde
 
     }
 
+    /// <summary>Adds an equality predicate for the current field with a decimal value.</summary>
+    /// <param name="value">The value to compare against.</param>
+    /// <returns>The builder for fluent chaining.</returns>
     public TBuilder Equals(decimal value)
     {
 
@@ -340,7 +382,9 @@ public abstract class AbstractFilterBuilder<TBuilder> : IRqlFilter where TBuilde
 
     }
 
-
+    /// <summary>Adds an equality predicate for the current field with a boolean value.</summary>
+    /// <param name="value">The value to compare against.</param>
+    /// <returns>The builder for fluent chaining.</returns>
     public TBuilder Equals(bool value)
     {
 
@@ -357,6 +401,9 @@ public abstract class AbstractFilterBuilder<TBuilder> : IRqlFilter where TBuilde
 
     #region NotEquals
 
+    /// <summary>Adds a not-equal predicate for the current field with a string value.</summary>
+    /// <param name="value">The value to compare against.</param>
+    /// <returns>The builder for fluent chaining.</returns>
     public TBuilder NotEquals(string value)
     {
 
@@ -369,7 +416,9 @@ public abstract class AbstractFilterBuilder<TBuilder> : IRqlFilter where TBuilde
 
     }
 
-
+    /// <summary>Adds a not-equal predicate for the current field with an integer value.</summary>
+    /// <param name="value">The value to compare against.</param>
+    /// <returns>The builder for fluent chaining.</returns>
     public TBuilder NotEquals(int value)
     {
 
@@ -381,7 +430,9 @@ public abstract class AbstractFilterBuilder<TBuilder> : IRqlFilter where TBuilde
 
     }
 
-
+    /// <summary>Adds a not-equal predicate for the current field with a long value.</summary>
+    /// <param name="value">The value to compare against.</param>
+    /// <returns>The builder for fluent chaining.</returns>
     public TBuilder NotEquals(long value)
     {
 
@@ -393,7 +444,9 @@ public abstract class AbstractFilterBuilder<TBuilder> : IRqlFilter where TBuilde
 
     }
 
-
+    /// <summary>Adds a not-equal predicate for the current field with a DateTime value.</summary>
+    /// <param name="value">The value to compare against.</param>
+    /// <returns>The builder for fluent chaining.</returns>
     public TBuilder NotEquals(DateTime value)
     {
 
@@ -405,7 +458,9 @@ public abstract class AbstractFilterBuilder<TBuilder> : IRqlFilter where TBuilde
 
     }
 
-
+    /// <summary>Adds a not-equal predicate for the current field with a decimal value.</summary>
+    /// <param name="value">The value to compare against.</param>
+    /// <returns>The builder for fluent chaining.</returns>
     public TBuilder NotEquals(decimal value)
     {
 
@@ -417,6 +472,9 @@ public abstract class AbstractFilterBuilder<TBuilder> : IRqlFilter where TBuilde
 
     }
 
+    /// <summary>Adds a not-equal predicate for the current field with a boolean value.</summary>
+    /// <param name="value">The value to compare against.</param>
+    /// <returns>The builder for fluent chaining.</returns>
     public TBuilder NotEquals(bool value)
     {
 
@@ -433,6 +491,9 @@ public abstract class AbstractFilterBuilder<TBuilder> : IRqlFilter where TBuilde
 
     #region LesserThan
 
+    /// <summary>Adds a less-than predicate for the current field with a string value.</summary>
+    /// <param name="value">The value to compare against.</param>
+    /// <returns>The builder for fluent chaining.</returns>
     public TBuilder LesserThan(string value)
     {
 
@@ -445,7 +506,9 @@ public abstract class AbstractFilterBuilder<TBuilder> : IRqlFilter where TBuilde
 
     }
 
-
+    /// <summary>Adds a less-than predicate for the current field with an integer value.</summary>
+    /// <param name="value">The value to compare against.</param>
+    /// <returns>The builder for fluent chaining.</returns>
     public TBuilder LesserThan(int value)
     {
 
@@ -457,7 +520,9 @@ public abstract class AbstractFilterBuilder<TBuilder> : IRqlFilter where TBuilde
 
     }
 
-
+    /// <summary>Adds a less-than predicate for the current field with a long value.</summary>
+    /// <param name="value">The value to compare against.</param>
+    /// <returns>The builder for fluent chaining.</returns>
     public TBuilder LesserThan(long value)
     {
 
@@ -469,7 +534,9 @@ public abstract class AbstractFilterBuilder<TBuilder> : IRqlFilter where TBuilde
 
     }
 
-
+    /// <summary>Adds a less-than predicate for the current field with a DateTime value.</summary>
+    /// <param name="value">The value to compare against.</param>
+    /// <returns>The builder for fluent chaining.</returns>
     public TBuilder LesserThan(DateTime value)
     {
 
@@ -481,7 +548,9 @@ public abstract class AbstractFilterBuilder<TBuilder> : IRqlFilter where TBuilde
 
     }
 
-
+    /// <summary>Adds a less-than predicate for the current field with a decimal value.</summary>
+    /// <param name="value">The value to compare against.</param>
+    /// <returns>The builder for fluent chaining.</returns>
     public TBuilder LesserThan(decimal value)
     {
 
@@ -499,6 +568,9 @@ public abstract class AbstractFilterBuilder<TBuilder> : IRqlFilter where TBuilde
 
     #region LesserThanOrEqual
 
+    /// <summary>Adds a less-than-or-equal predicate for the current field with a string value.</summary>
+    /// <param name="value">The value to compare against.</param>
+    /// <returns>The builder for fluent chaining.</returns>
     public TBuilder LesserThanOrEqual(string value)
     {
 
@@ -511,7 +583,9 @@ public abstract class AbstractFilterBuilder<TBuilder> : IRqlFilter where TBuilde
 
     }
 
-
+    /// <summary>Adds a less-than-or-equal predicate for the current field with an integer value.</summary>
+    /// <param name="value">The value to compare against.</param>
+    /// <returns>The builder for fluent chaining.</returns>
     public TBuilder LesserThanOrEqual(int value)
     {
 
@@ -523,7 +597,9 @@ public abstract class AbstractFilterBuilder<TBuilder> : IRqlFilter where TBuilde
 
     }
 
-
+    /// <summary>Adds a less-than-or-equal predicate for the current field with a long value.</summary>
+    /// <param name="value">The value to compare against.</param>
+    /// <returns>The builder for fluent chaining.</returns>
     public TBuilder LesserThanOrEqual(long value)
     {
 
@@ -535,7 +611,9 @@ public abstract class AbstractFilterBuilder<TBuilder> : IRqlFilter where TBuilde
 
     }
 
-
+    /// <summary>Adds a less-than-or-equal predicate for the current field with a DateTime value.</summary>
+    /// <param name="value">The value to compare against.</param>
+    /// <returns>The builder for fluent chaining.</returns>
     public TBuilder LesserThanOrEqual(DateTime value)
     {
 
@@ -548,7 +626,9 @@ public abstract class AbstractFilterBuilder<TBuilder> : IRqlFilter where TBuilde
 
     }
 
-
+    /// <summary>Adds a less-than-or-equal predicate for the current field with a decimal value.</summary>
+    /// <param name="value">The value to compare against.</param>
+    /// <returns>The builder for fluent chaining.</returns>
     public TBuilder LesserThanOrEqual(decimal value)
     {
 
@@ -566,6 +646,9 @@ public abstract class AbstractFilterBuilder<TBuilder> : IRqlFilter where TBuilde
 
     #region GreaterThan
 
+    /// <summary>Adds a greater-than predicate for the current field with a string value.</summary>
+    /// <param name="value">The value to compare against.</param>
+    /// <returns>The builder for fluent chaining.</returns>
     public TBuilder GreaterThan(string value)
     {
 
@@ -578,7 +661,9 @@ public abstract class AbstractFilterBuilder<TBuilder> : IRqlFilter where TBuilde
 
     }
 
-
+    /// <summary>Adds a greater-than predicate for the current field with an integer value.</summary>
+    /// <param name="value">The value to compare against.</param>
+    /// <returns>The builder for fluent chaining.</returns>
     public TBuilder GreaterThan(int value)
     {
 
@@ -590,7 +675,9 @@ public abstract class AbstractFilterBuilder<TBuilder> : IRqlFilter where TBuilde
 
     }
 
-
+    /// <summary>Adds a greater-than predicate for the current field with a long value.</summary>
+    /// <param name="value">The value to compare against.</param>
+    /// <returns>The builder for fluent chaining.</returns>
     public TBuilder GreaterThan(long value)
     {
 
@@ -602,7 +689,9 @@ public abstract class AbstractFilterBuilder<TBuilder> : IRqlFilter where TBuilde
 
     }
 
-
+    /// <summary>Adds a greater-than predicate for the current field with a DateTime value.</summary>
+    /// <param name="value">The value to compare against.</param>
+    /// <returns>The builder for fluent chaining.</returns>
     public TBuilder GreaterThan(DateTime value)
     {
 
@@ -614,7 +703,9 @@ public abstract class AbstractFilterBuilder<TBuilder> : IRqlFilter where TBuilde
 
     }
 
-
+    /// <summary>Adds a greater-than predicate for the current field with a decimal value.</summary>
+    /// <param name="value">The value to compare against.</param>
+    /// <returns>The builder for fluent chaining.</returns>
     public TBuilder GreaterThan(decimal value)
     {
 
@@ -632,6 +723,9 @@ public abstract class AbstractFilterBuilder<TBuilder> : IRqlFilter where TBuilde
 
     #region GreaterThanOrEqual
 
+    /// <summary>Adds a greater-than-or-equal predicate for the current field with a string value.</summary>
+    /// <param name="value">The value to compare against.</param>
+    /// <returns>The builder for fluent chaining.</returns>
     public TBuilder GreaterThanOrEqual(string value)
     {
 
@@ -644,7 +738,9 @@ public abstract class AbstractFilterBuilder<TBuilder> : IRqlFilter where TBuilde
 
     }
 
-
+    /// <summary>Adds a greater-than-or-equal predicate for the current field with an integer value.</summary>
+    /// <param name="value">The value to compare against.</param>
+    /// <returns>The builder for fluent chaining.</returns>
     public TBuilder GreaterThanOrEqual(int value)
     {
 
@@ -656,7 +752,9 @@ public abstract class AbstractFilterBuilder<TBuilder> : IRqlFilter where TBuilde
 
     }
 
-
+    /// <summary>Adds a greater-than-or-equal predicate for the current field with a long value.</summary>
+    /// <param name="value">The value to compare against.</param>
+    /// <returns>The builder for fluent chaining.</returns>
     public TBuilder GreaterThanOrEqual(long value)
     {
 
@@ -668,7 +766,9 @@ public abstract class AbstractFilterBuilder<TBuilder> : IRqlFilter where TBuilde
 
     }
 
-
+    /// <summary>Adds a greater-than-or-equal predicate for the current field with a DateTime value.</summary>
+    /// <param name="value">The value to compare against.</param>
+    /// <returns>The builder for fluent chaining.</returns>
     public TBuilder GreaterThanOrEqual(DateTime value)
     {
 
@@ -680,7 +780,9 @@ public abstract class AbstractFilterBuilder<TBuilder> : IRqlFilter where TBuilde
 
     }
 
-
+    /// <summary>Adds a greater-than-or-equal predicate for the current field with a decimal value.</summary>
+    /// <param name="value">The value to compare against.</param>
+    /// <returns>The builder for fluent chaining.</returns>
     public TBuilder GreaterThanOrEqual(decimal value)
     {
 
@@ -698,6 +800,9 @@ public abstract class AbstractFilterBuilder<TBuilder> : IRqlFilter where TBuilde
 
     #region String operations
 
+    /// <summary>Adds a starts-with predicate for the current field.</summary>
+    /// <param name="value">The prefix string to match.</param>
+    /// <returns>The builder for fluent chaining.</returns>
     public TBuilder StartsWith(string value)
     {
 
@@ -710,6 +815,9 @@ public abstract class AbstractFilterBuilder<TBuilder> : IRqlFilter where TBuilde
 
     }
 
+    /// <summary>Adds a contains predicate for the current field.</summary>
+    /// <param name="value">The substring to search for.</param>
+    /// <returns>The builder for fluent chaining.</returns>
     public TBuilder Contains(string value)
     {
 
@@ -722,6 +830,9 @@ public abstract class AbstractFilterBuilder<TBuilder> : IRqlFilter where TBuilde
 
     }
 
+    /// <summary>Adds an ends-with predicate for the current field.</summary>
+    /// <param name="value">The suffix string to match.</param>
+    /// <returns>The builder for fluent chaining.</returns>
     public TBuilder EndsWith(string value)
     {
 
@@ -734,6 +845,8 @@ public abstract class AbstractFilterBuilder<TBuilder> : IRqlFilter where TBuilde
 
     }
 
+    /// <summary>Adds an is-null predicate for the current field.</summary>
+    /// <returns>The builder for fluent chaining.</returns>
     public TBuilder IsNull()
     {
 
@@ -745,6 +858,8 @@ public abstract class AbstractFilterBuilder<TBuilder> : IRqlFilter where TBuilde
 
     }
 
+    /// <summary>Adds an is-not-null predicate for the current field.</summary>
+    /// <returns>The builder for fluent chaining.</returns>
     public TBuilder IsNotNull()
     {
 
@@ -761,6 +876,10 @@ public abstract class AbstractFilterBuilder<TBuilder> : IRqlFilter where TBuilde
 
     #region Between
 
+    /// <summary>Adds a between (inclusive range) predicate for the current field with integer bounds.</summary>
+    /// <param name="from">The lower bound of the range.</param>
+    /// <param name="to">The upper bound of the range.</param>
+    /// <returns>The builder for fluent chaining.</returns>
     public TBuilder Between(int from, int to)
     {
 
@@ -773,7 +892,10 @@ public abstract class AbstractFilterBuilder<TBuilder> : IRqlFilter where TBuilde
 
     }
 
-
+    /// <summary>Adds a between (inclusive range) predicate for the current field with long bounds.</summary>
+    /// <param name="from">The lower bound of the range.</param>
+    /// <param name="to">The upper bound of the range.</param>
+    /// <returns>The builder for fluent chaining.</returns>
     public TBuilder Between(long from, long to)
     {
 
@@ -785,7 +907,10 @@ public abstract class AbstractFilterBuilder<TBuilder> : IRqlFilter where TBuilde
 
     }
 
-
+    /// <summary>Adds a between (inclusive range) predicate for the current field with DateTime bounds.</summary>
+    /// <param name="from">The lower bound of the range.</param>
+    /// <param name="to">The upper bound of the range.</param>
+    /// <returns>The builder for fluent chaining.</returns>
     public TBuilder Between(DateTime from, DateTime to)
     {
 
@@ -797,6 +922,10 @@ public abstract class AbstractFilterBuilder<TBuilder> : IRqlFilter where TBuilde
 
     }
 
+    /// <summary>Adds a between (inclusive range) predicate for the current field with decimal bounds.</summary>
+    /// <param name="from">The lower bound of the range.</param>
+    /// <param name="to">The upper bound of the range.</param>
+    /// <returns>The builder for fluent chaining.</returns>
     public TBuilder Between(decimal from, decimal to)
     {
 
@@ -808,7 +937,10 @@ public abstract class AbstractFilterBuilder<TBuilder> : IRqlFilter where TBuilde
 
     }
 
-
+    /// <summary>Adds a between (inclusive range) predicate for the current field with string bounds.</summary>
+    /// <param name="from">The lower bound of the range.</param>
+    /// <param name="to">The upper bound of the range.</param>
+    /// <returns>The builder for fluent chaining.</returns>
     public TBuilder Between(string from, string to)
     {
 
@@ -827,6 +959,9 @@ public abstract class AbstractFilterBuilder<TBuilder> : IRqlFilter where TBuilde
 
     #region In
 
+    /// <summary>Adds an in-set predicate for the current field with string values.</summary>
+    /// <param name="values">The set of values to match against.</param>
+    /// <returns>The builder for fluent chaining.</returns>
     public TBuilder In(params string[] values)
     {
 
@@ -839,7 +974,9 @@ public abstract class AbstractFilterBuilder<TBuilder> : IRqlFilter where TBuilde
 
     }
 
-
+    /// <summary>Adds an in-set predicate for the current field with an enumerable of string values.</summary>
+    /// <param name="values">The set of values to match against.</param>
+    /// <returns>The builder for fluent chaining.</returns>
     public TBuilder In(IEnumerable<string> values)
     {
 
@@ -852,7 +989,9 @@ public abstract class AbstractFilterBuilder<TBuilder> : IRqlFilter where TBuilde
 
     }
 
-
+    /// <summary>Adds an in-set predicate for the current field with integer values.</summary>
+    /// <param name="values">The set of values to match against.</param>
+    /// <returns>The builder for fluent chaining.</returns>
     public TBuilder In(params int[] values)
     {
 
@@ -865,6 +1004,9 @@ public abstract class AbstractFilterBuilder<TBuilder> : IRqlFilter where TBuilde
 
     }
 
+    /// <summary>Adds an in-set predicate for the current field with an enumerable of integer values.</summary>
+    /// <param name="values">The set of values to match against.</param>
+    /// <returns>The builder for fluent chaining.</returns>
     public TBuilder In(IEnumerable<int> values)
     {
 
@@ -877,7 +1019,9 @@ public abstract class AbstractFilterBuilder<TBuilder> : IRqlFilter where TBuilde
 
     }
 
-
+    /// <summary>Adds an in-set predicate for the current field with long values.</summary>
+    /// <param name="values">The set of values to match against.</param>
+    /// <returns>The builder for fluent chaining.</returns>
     public TBuilder In(params long[] values)
     {
 
@@ -890,7 +1034,9 @@ public abstract class AbstractFilterBuilder<TBuilder> : IRqlFilter where TBuilde
 
     }
 
-
+    /// <summary>Adds an in-set predicate for the current field with an enumerable of long values.</summary>
+    /// <param name="values">The set of values to match against.</param>
+    /// <returns>The builder for fluent chaining.</returns>
     public TBuilder In(IEnumerable<long> values)
     {
 
@@ -903,8 +1049,9 @@ public abstract class AbstractFilterBuilder<TBuilder> : IRqlFilter where TBuilde
 
     }
 
-
-
+    /// <summary>Adds an in-set predicate for the current field with decimal values.</summary>
+    /// <param name="values">The set of values to match against.</param>
+    /// <returns>The builder for fluent chaining.</returns>
     public TBuilder In(params decimal[] values)
     {
 
@@ -917,7 +1064,9 @@ public abstract class AbstractFilterBuilder<TBuilder> : IRqlFilter where TBuilde
 
     }
 
-
+    /// <summary>Adds an in-set predicate for the current field with an enumerable of decimal values.</summary>
+    /// <param name="values">The set of values to match against.</param>
+    /// <returns>The builder for fluent chaining.</returns>
     public TBuilder In(IEnumerable<decimal> values)
     {
 
@@ -930,7 +1079,9 @@ public abstract class AbstractFilterBuilder<TBuilder> : IRqlFilter where TBuilde
 
     }
 
-
+    /// <summary>Adds an in-set predicate for the current field with DateTime values.</summary>
+    /// <param name="values">The set of values to match against.</param>
+    /// <returns>The builder for fluent chaining.</returns>
     public TBuilder In(params DateTime[] values)
     {
 
@@ -943,7 +1094,9 @@ public abstract class AbstractFilterBuilder<TBuilder> : IRqlFilter where TBuilde
 
     }
 
-
+    /// <summary>Adds an in-set predicate for the current field with an enumerable of DateTime values.</summary>
+    /// <param name="values">The set of values to match against.</param>
+    /// <returns>The builder for fluent chaining.</returns>
     public TBuilder In(IEnumerable<DateTime> values)
     {
 
@@ -961,7 +1114,9 @@ public abstract class AbstractFilterBuilder<TBuilder> : IRqlFilter where TBuilde
 
     #region NotIn
 
-
+    /// <summary>Adds a not-in-set predicate for the current field with string values.</summary>
+    /// <param name="values">The set of values to exclude.</param>
+    /// <returns>The builder for fluent chaining.</returns>
     public TBuilder NotIn(params string[] values)
     {
 
@@ -974,7 +1129,9 @@ public abstract class AbstractFilterBuilder<TBuilder> : IRqlFilter where TBuilde
 
     }
 
-
+    /// <summary>Adds a not-in-set predicate for the current field with an enumerable of string values.</summary>
+    /// <param name="values">The set of values to exclude.</param>
+    /// <returns>The builder for fluent chaining.</returns>
     public TBuilder NotIn(IEnumerable<string> values)
     {
 
@@ -987,7 +1144,9 @@ public abstract class AbstractFilterBuilder<TBuilder> : IRqlFilter where TBuilde
 
     }
 
-
+    /// <summary>Adds a not-in-set predicate for the current field with integer values.</summary>
+    /// <param name="values">The set of values to exclude.</param>
+    /// <returns>The builder for fluent chaining.</returns>
     public TBuilder NotIn(params int[] values)
     {
 
@@ -1000,7 +1159,9 @@ public abstract class AbstractFilterBuilder<TBuilder> : IRqlFilter where TBuilde
 
     }
 
-
+    /// <summary>Adds a not-in-set predicate for the current field with an enumerable of integer values.</summary>
+    /// <param name="values">The set of values to exclude.</param>
+    /// <returns>The builder for fluent chaining.</returns>
     public TBuilder NotIn(IEnumerable<int> values)
     {
 
@@ -1013,8 +1174,9 @@ public abstract class AbstractFilterBuilder<TBuilder> : IRqlFilter where TBuilde
 
     }
 
-
-
+    /// <summary>Adds a not-in-set predicate for the current field with long values.</summary>
+    /// <param name="values">The set of values to exclude.</param>
+    /// <returns>The builder for fluent chaining.</returns>
     public TBuilder NotIn(params long[] values)
     {
 
@@ -1027,8 +1189,9 @@ public abstract class AbstractFilterBuilder<TBuilder> : IRqlFilter where TBuilde
 
     }
 
-
-
+    /// <summary>Adds a not-in-set predicate for the current field with an enumerable of long values.</summary>
+    /// <param name="values">The set of values to exclude.</param>
+    /// <returns>The builder for fluent chaining.</returns>
     public TBuilder NotIn(IEnumerable<long> values)
     {
 
@@ -1041,8 +1204,9 @@ public abstract class AbstractFilterBuilder<TBuilder> : IRqlFilter where TBuilde
 
     }
 
-
-
+    /// <summary>Adds a not-in-set predicate for the current field with decimal values.</summary>
+    /// <param name="values">The set of values to exclude.</param>
+    /// <returns>The builder for fluent chaining.</returns>
     public TBuilder NotIn(params decimal[] values)
     {
 
@@ -1055,8 +1219,9 @@ public abstract class AbstractFilterBuilder<TBuilder> : IRqlFilter where TBuilde
 
     }
 
-
-
+    /// <summary>Adds a not-in-set predicate for the current field with an enumerable of decimal values.</summary>
+    /// <param name="values">The set of values to exclude.</param>
+    /// <returns>The builder for fluent chaining.</returns>
     public TBuilder NotIn(IEnumerable<decimal> values)
     {
 
@@ -1069,7 +1234,9 @@ public abstract class AbstractFilterBuilder<TBuilder> : IRqlFilter where TBuilde
 
     }
 
-
+    /// <summary>Adds a not-in-set predicate for the current field with DateTime values.</summary>
+    /// <param name="values">The set of values to exclude.</param>
+    /// <returns>The builder for fluent chaining.</returns>
     public TBuilder NotIn(params DateTime[] values)
     {
 
@@ -1082,7 +1249,9 @@ public abstract class AbstractFilterBuilder<TBuilder> : IRqlFilter where TBuilde
 
     }
 
-
+    /// <summary>Adds a not-in-set predicate for the current field with an enumerable of DateTime values.</summary>
+    /// <param name="values">The set of values to exclude.</param>
+    /// <returns>The builder for fluent chaining.</returns>
     public TBuilder NotIn(IEnumerable<DateTime> values)
     {
 

@@ -31,6 +31,7 @@ public sealed class RuleValidationInterceptor : SaveChangesInterceptor
         _ruleSet = ruleSet;
     }
 
+    /// <inheritdoc />
     public override InterceptionResult<int> SavingChanges(
         DbContextEventData eventData,
         InterceptionResult<int> result)
@@ -39,6 +40,7 @@ public sealed class RuleValidationInterceptor : SaveChangesInterceptor
         return base.SavingChanges(eventData, result);
     }
 
+    /// <inheritdoc />
     public override ValueTask<InterceptionResult<int>> SavingChangesAsync(
         DbContextEventData eventData,
         InterceptionResult<int> result,

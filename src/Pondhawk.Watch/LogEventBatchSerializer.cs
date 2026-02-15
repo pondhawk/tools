@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 
 Copyright (c) 2024 Pond Hawk Technologies Inc.
@@ -23,20 +23,22 @@ SOFTWARE.
 */
 
 using System.Text.Json;
-using System.Text.Json.Serialization;
+#if NET7_0_OR_GREATER
 using MemoryPack;
 using MemoryPack.Compression;
+#endif
 using Microsoft.IO;
 
 namespace Pondhawk.Watch;
 
 /// <summary>
-/// Provides serialization for LogEventBatch using MemoryPack+Brotli (binary) and JSON formats.
+/// Provides serialization for LogEventBatch using MemoryPack+Brotli (binary on .NET 7+) and JSON formats.
 /// </summary>
 /// <remarks>
 /// <para>
-/// Binary format (MemoryPack+Brotli) is optimized for wire transmission with excellent
-/// compression ratios. JSON format is provided for debugging and testing.
+/// On .NET 7+, binary format (MemoryPack+Brotli) is used for wire transmission with excellent
+/// compression ratios. On netstandard2.0, JSON is used as the wire format.
+/// JSON format is also provided on all targets for debugging and testing.
 /// </para>
 /// <para>
 /// Uses RecyclableMemoryStreamManager for efficient memory pooling.
@@ -46,6 +48,12 @@ namespace Pondhawk.Watch;
 public static class LogEventBatchSerializer
 {
     private static readonly RecyclableMemoryStreamManager Manager = new();
+
+#if NET7_0_OR_GREATER
+    /// <summary>
+    /// The content type used for wire format on this target.
+    /// </summary>
+    public const string ContentType = "application/octet-stream";
 
     /// <summary>
     /// Serializes a batch to a binary stream using MemoryPack+Brotli compression.
@@ -96,6 +104,45 @@ public static class LogEventBatchSerializer
             return batch;
         }
     }
+#else
+    /// <summary>
+    /// The content type used for wire format on this target.
+    /// </summary>
+    public const string ContentType = "application/json";
+
+    /// <summary>
+    /// Serializes a batch to a JSON stream.
+    /// </summary>
+    /// <param name="batch">The batch to serialize.</param>
+    /// <returns>A stream containing the serialized data.</returns>
+    public static async Task<Stream> ToStream(LogEventBatch batch)
+    {
+        var stream = Manager.GetStream();
+        await JsonSerializer.SerializeAsync(stream, batch).ConfigureAwait(false);
+        stream.Position = 0;
+        return stream;
+    }
+
+    /// <summary>
+    /// Serializes a batch to an existing stream using JSON.
+    /// </summary>
+    /// <param name="batch">The batch to serialize.</param>
+    /// <param name="target">The target stream to write to.</param>
+    public static async Task ToStream(LogEventBatch batch, Stream target)
+    {
+        await JsonSerializer.SerializeAsync(target, batch).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Deserializes a batch from a JSON stream.
+    /// </summary>
+    /// <param name="source">The source stream to read from.</param>
+    /// <returns>The deserialized batch, or null if deserialization fails.</returns>
+    public static async Task<LogEventBatch?> FromStream(Stream source)
+    {
+        return await JsonSerializer.DeserializeAsync<LogEventBatch>(source).ConfigureAwait(false);
+    }
+#endif
 
     /// <summary>
     /// Serializes a batch to a JSON string.
@@ -104,7 +151,11 @@ public static class LogEventBatchSerializer
     /// <returns>The JSON representation.</returns>
     public static string ToJson(LogEventBatch batch)
     {
+#if NET7_0_OR_GREATER
         return JsonSerializer.Serialize(batch, LogEventBatchContext.Default.LogEventBatch);
+#else
+        return JsonSerializer.Serialize(batch);
+#endif
     }
 
     /// <summary>
@@ -114,6 +165,10 @@ public static class LogEventBatchSerializer
     /// <returns>The deserialized batch, or null if deserialization fails.</returns>
     public static LogEventBatch? FromJson(string json)
     {
+#if NET7_0_OR_GREATER
         return JsonSerializer.Deserialize(json, LogEventBatchContext.Default.LogEventBatch);
+#else
+        return JsonSerializer.Deserialize<LogEventBatch>(json);
+#endif
     }
 }

@@ -29,6 +29,8 @@ namespace Pondhawk.Rules.Evaluation;
 /// </summary>
 public interface IEvaluationContextFactory
 {
+    /// <summary>Creates a new <see cref="EvaluationContext"/> pre-configured for evaluation.</summary>
+    /// <returns>A new evaluation context instance.</returns>
     EvaluationContext CreateContext();
 }
 

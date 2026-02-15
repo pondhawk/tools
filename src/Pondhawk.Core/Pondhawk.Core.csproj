@@ -25,17 +25,11 @@
 
 
 
-  <ItemGroup>
-    <InternalsVisibleTo Include="Pondhawk.Watch" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Autofac" />
+<ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
     <PackageReference Include="CommunityToolkit.Diagnostics" />
     <PackageReference Include="Microsoft.Extensions.Http" />
     <PackageReference Include="Microsoft.Extensions.Logging" />
-    <PackageReference Include="Serilog" />
-    <PackageReference Include="Ulid" />
   </ItemGroup>
 
   <ItemGroup>

@@ -55,24 +55,30 @@ public sealed class RuleSet : AbstractRuleSet
     private readonly HashSet<string> _namespaces = [];
     private readonly RuleTree _tree = new();
 
+    /// <summary>Gets the underlying rule base for this rule set.</summary>
     public IRuleBase RuleBase => _tree;
 
+    /// <summary>Seals the rule tree and builds type-match caches.</summary>
     public void Build()
     {
         _tree.Build();
     }
 
+    /// <summary>Adds all rules from the specified builder to this rule set.</summary>
+    /// <param name="builder">The builder whose rules to add.</param>
     public void Add(IBuilder builder)
     {
         builder.LoadRules(_tree);
     }
 
 
+    /// <inheritdoc />
     protected override IRuleBase GetRuleBase()
     {
         return _tree;
     }
 
+    /// <inheritdoc />
     protected override IEnumerable<string> GetNamespaces()
     {
         return _namespaces;
@@ -80,6 +86,10 @@ public sealed class RuleSet : AbstractRuleSet
 
 
 
+    /// <summary>Adds a single-fact rule with the specified name.</summary>
+    /// <typeparam name="TFact">The fact type the rule operates on.</typeparam>
+    /// <param name="name">The name of the rule.</param>
+    /// <returns>The newly created rule for fluent configuration.</returns>
     public Rule<TFact> AddRule<TFact>(string name) where TFact : class
     {
         var rule = new Rule<TFact>("runtime", name);
@@ -89,6 +99,7 @@ public sealed class RuleSet : AbstractRuleSet
 
 
 
+    /// <inheritdoc />
     public override EvaluationContext GetEvaluationContext()
     {
         return new();
@@ -146,6 +157,10 @@ public sealed class RuleSet : AbstractRuleSet
 
 
 
+    /// <summary>Adds a validation rule for the specified fact type.</summary>
+    /// <typeparam name="TFact">The fact type to validate.</typeparam>
+    /// <param name="name">The name of the validation rule.</param>
+    /// <returns>The newly created validation rule for fluent configuration.</returns>
     public ValidationRule<TFact> AddValidation<TFact>(string name) where TFact : class
     {
         Guard.IsNotNullOrEmpty(name);
@@ -158,6 +173,11 @@ public sealed class RuleSet : AbstractRuleSet
 
 
 
+    /// <summary>Adds a two-fact rule with the specified name.</summary>
+    /// <typeparam name="TFact1">The first fact type.</typeparam>
+    /// <typeparam name="TFact2">The second fact type.</typeparam>
+    /// <param name="name">The name of the rule.</param>
+    /// <returns>The newly created rule for fluent configuration.</returns>
     public Rule<TFact1, TFact2> AddRule<TFact1, TFact2>(string name)
         where TFact1 : class
         where TFact2 : class
@@ -168,6 +188,12 @@ public sealed class RuleSet : AbstractRuleSet
     }
 
 
+    /// <summary>Adds a three-fact rule with the specified name.</summary>
+    /// <typeparam name="TFact1">The first fact type.</typeparam>
+    /// <typeparam name="TFact2">The second fact type.</typeparam>
+    /// <typeparam name="TFact3">The third fact type.</typeparam>
+    /// <param name="name">The name of the rule.</param>
+    /// <returns>The newly created rule for fluent configuration.</returns>
     public Rule<TFact1, TFact2, TFact3> AddRule<TFact1, TFact2, TFact3>(string name)
         where TFact1 : class
         where TFact2 : class
@@ -180,6 +206,13 @@ public sealed class RuleSet : AbstractRuleSet
 
 
 
+    /// <summary>Adds a four-fact rule with the specified name.</summary>
+    /// <typeparam name="TFact1">The first fact type.</typeparam>
+    /// <typeparam name="TFact2">The second fact type.</typeparam>
+    /// <typeparam name="TFact3">The third fact type.</typeparam>
+    /// <typeparam name="TFact4">The fourth fact type.</typeparam>
+    /// <param name="name">The name of the rule.</param>
+    /// <returns>The newly created rule for fluent configuration.</returns>
     public Rule<TFact1, TFact2, TFact3, TFact4> AddRule<TFact1, TFact2, TFact3, TFact4>(string name)
         where TFact1 : class
         where TFact2 : class
@@ -192,6 +225,7 @@ public sealed class RuleSet : AbstractRuleSet
     }
 
 
+    /// <summary>Removes all rules from this rule set.</summary>
     public void Clear()
     {
         _tree.Clear();

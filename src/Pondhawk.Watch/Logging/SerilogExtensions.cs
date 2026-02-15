@@ -1,9 +1,8 @@
 ﻿using System.Runtime.CompilerServices;
-using Pondhawk.Logging.Serializers;
 using Serilog;
 using Serilog.Events;
 
-namespace Pondhawk.Logging;
+namespace Pondhawk.Watch;
 
 /// <summary>
 /// Extension methods on <see cref="Serilog.ILogger"/> and <see cref="object"/> for method tracing, object serialization, typed payloads, and logger creation.
@@ -41,14 +40,28 @@ public static class SerilogExtensions
     private static readonly LoggerSource FallbackInstance = new();
 
     private static ILoggerSource? _default;
+
+    /// <summary>
+    /// Gets or sets the default <see cref="ILoggerSource"/> used by <see cref="GetLogger"/> and EnterMethod.
+    /// When <c>null</c>, a built-in <see cref="LoggerSource"/> is used.
+    /// </summary>
     public static ILoggerSource? Default
     {
         get => Volatile.Read(ref _default);
         set => Volatile.Write(ref _default, value);
     }
 
+#if NET7_0_OR_GREATER
     #region Method Tracing
 
+    /// <summary>
+    /// Creates a disposable method tracing scope that logs entry at Verbose level with <c>Watch.Nesting = 1</c>,
+    /// and logs exit with elapsed time and <c>Watch.Nesting = -1</c> on dispose.
+    /// </summary>
+    /// <param name="logger">The Serilog logger to trace with.</param>
+    /// <param name="method">The calling method name (auto-populated by compiler).</param>
+    /// <param name="file">The calling file path, used to derive the class name (auto-populated by compiler).</param>
+    /// <returns>A disposable <see cref="MethodLogger"/> that also implements <see cref="ILogger"/>.</returns>
     public static MethodLogger EnterMethod(
         this ILogger logger,
         [CallerMemberName] string method = "",
@@ -69,9 +82,17 @@ public static class SerilogExtensions
     }
 
     #endregion
+#endif
 
     #region Object Serialization
 
+    /// <summary>
+    /// Serializes an object to JSON and logs it as a structured payload with the type name as the message.
+    /// </summary>
+    /// <typeparam name="T">The type of the object to serialize.</typeparam>
+    /// <param name="logger">The Serilog logger.</param>
+    /// <param name="value">The object to serialize.</param>
+    /// <param name="level">The log event level. Defaults to <see cref="LogEventLevel.Debug"/>.</param>
     public static void LogObject<T>(
         this ILogger logger,
         T value,
@@ -90,6 +111,14 @@ public static class SerilogExtensions
             .Write(level, typeName);
     }
 
+    /// <summary>
+    /// Serializes an object to JSON and logs it as a structured payload with a custom title.
+    /// </summary>
+    /// <typeparam name="T">The type of the object to serialize.</typeparam>
+    /// <param name="logger">The Serilog logger.</param>
+    /// <param name="title">The log message title.</param>
+    /// <param name="value">The object to serialize.</param>
+    /// <param name="level">The log event level. Defaults to <see cref="LogEventLevel.Debug"/>.</param>
     public static void LogObject<T>(
         this ILogger logger,
         string title,
@@ -112,6 +141,13 @@ public static class SerilogExtensions
 
     #region Typed Payloads
 
+    /// <summary>
+    /// Logs a JSON string as a payload with <see cref="PayloadType.Json"/> syntax highlighting.
+    /// </summary>
+    /// <param name="logger">The Serilog logger.</param>
+    /// <param name="title">The log message title.</param>
+    /// <param name="json">The JSON content to attach.</param>
+    /// <param name="level">The log event level. Defaults to <see cref="LogEventLevel.Debug"/>.</param>
     public static void LogJson(
         this ILogger logger,
         string title,
@@ -128,6 +164,13 @@ public static class SerilogExtensions
             .Write(level, title);
     }
 
+    /// <summary>
+    /// Logs a SQL string as a payload with <see cref="PayloadType.Sql"/> syntax highlighting.
+    /// </summary>
+    /// <param name="logger">The Serilog logger.</param>
+    /// <param name="title">The log message title.</param>
+    /// <param name="sql">The SQL content to attach.</param>
+    /// <param name="level">The log event level. Defaults to <see cref="LogEventLevel.Debug"/>.</param>
     public static void LogSql(
         this ILogger logger,
         string title,
@@ -144,6 +187,13 @@ public static class SerilogExtensions
             .Write(level, title);
     }
 
+    /// <summary>
+    /// Logs an XML string as a payload with <see cref="PayloadType.Xml"/> syntax highlighting.
+    /// </summary>
+    /// <param name="logger">The Serilog logger.</param>
+    /// <param name="title">The log message title.</param>
+    /// <param name="xml">The XML content to attach.</param>
+    /// <param name="level">The log event level. Defaults to <see cref="LogEventLevel.Debug"/>.</param>
     public static void LogXml(
         this ILogger logger,
         string title,
@@ -160,6 +210,13 @@ public static class SerilogExtensions
             .Write(level, title);
     }
 
+    /// <summary>
+    /// Logs a YAML string as a payload with <see cref="PayloadType.Yaml"/> syntax highlighting.
+    /// </summary>
+    /// <param name="logger">The Serilog logger.</param>
+    /// <param name="title">The log message title.</param>
+    /// <param name="yaml">The YAML content to attach.</param>
+    /// <param name="level">The log event level. Defaults to <see cref="LogEventLevel.Debug"/>.</param>
     public static void LogYaml(
         this ILogger logger,
         string title,
@@ -176,6 +233,13 @@ public static class SerilogExtensions
             .Write(level, title);
     }
 
+    /// <summary>
+    /// Logs a plain text string as a payload with <see cref="PayloadType.Text"/> type.
+    /// </summary>
+    /// <param name="logger">The Serilog logger.</param>
+    /// <param name="title">The log message title.</param>
+    /// <param name="text">The text content to attach.</param>
+    /// <param name="level">The log event level. Defaults to <see cref="LogEventLevel.Debug"/>.</param>
     public static void LogText(
         this ILogger logger,
         string title,
@@ -194,6 +258,13 @@ public static class SerilogExtensions
 
     #endregion
 
+    /// <summary>
+    /// Logs a name/value pair as <c>"{Name} = {Value}"</c> at the specified level.
+    /// </summary>
+    /// <param name="logger">The Serilog logger.</param>
+    /// <param name="name">The display name for the value.</param>
+    /// <param name="value">The value to log.</param>
+    /// <param name="level">The log event level. Defaults to <see cref="LogEventLevel.Debug"/>.</param>
     public static void Inspect(
         this ILogger logger,
         string name,
@@ -203,11 +274,25 @@ public static class SerilogExtensions
         logger.Write(level, "{Name} = {Value}", name, value);
     }
 
+    /// <summary>
+    /// Creates a Serilog <see cref="ILogger"/> with SourceContext set to the source object's type name.
+    /// </summary>
+    /// <param name="source">The object whose type name becomes the SourceContext.</param>
+    /// <returns>A configured Serilog logger.</returns>
     public static ILogger GetLogger(this object source)
     {
         return (Default ?? FallbackInstance).GetLogger(source);
     }
 
+#if NET7_0_OR_GREATER
+    /// <summary>
+    /// Creates a disposable method tracing scope for the calling object.
+    /// Logs entry at Verbose level with <c>Watch.Nesting = 1</c> and exit with elapsed time on dispose.
+    /// </summary>
+    /// <param name="source">The object whose type provides the logger context.</param>
+    /// <param name="method">The calling method name (auto-populated by compiler).</param>
+    /// <param name="file">The calling file path, used to derive the class name (auto-populated by compiler).</param>
+    /// <returns>A disposable <see cref="MethodLogger"/> that also implements <see cref="ILogger"/>.</returns>
     public static MethodLogger EnterMethod(
         this object source,
         [CallerMemberName] string method = "",
@@ -215,6 +300,7 @@ public static class SerilogExtensions
     {
         return (Default ?? FallbackInstance).EnterMethod(source, method, file);
     }
+#endif
 
     private static string GetCategory(ILogger logger)
     {

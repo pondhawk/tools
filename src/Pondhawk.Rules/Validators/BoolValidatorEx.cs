@@ -34,6 +34,12 @@ namespace Pondhawk.Rules.Validators;
 public static class BoolValidatorEx
 {
 
+    /// <summary>
+    /// Validates that the boolean property is <c>true</c> (i.e. the value is required to be truthy).
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, bool> Required<TFact>(this IValidator<TFact, bool> validator) where TFact : class
     {
         var v = validator.Is((f, v) => v);
@@ -45,6 +51,12 @@ public static class BoolValidatorEx
         return v;
     }
 
+    /// <summary>
+    /// Validates that the boolean property is <c>true</c>.
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, bool> IsTrue<TFact>(this IValidator<TFact, bool> validator) where TFact : class
     {
 
@@ -58,6 +70,12 @@ public static class BoolValidatorEx
 
     }
 
+    /// <summary>
+    /// Validates that the boolean property is <c>false</c>.
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IValidator<TFact, bool> IsFalse<TFact>(this IValidator<TFact, bool> validator) where TFact : class
     {
 

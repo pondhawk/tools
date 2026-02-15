@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 
 Copyright (c) 2017 The Kampilan Group Inc.
@@ -35,6 +35,13 @@ namespace Pondhawk.Rules.Validators;
 public static class EnumerableValidatorEx
 {
 
+    /// <summary>
+    /// Validates that the enumerable contains at least one element.
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <typeparam name="TType">The element type of the enumerable.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IEnumerableValidator<TFact, TType> Required<TFact, TType>(this IEnumerableValidator<TFact, TType> validator) where TFact : class where TType : class
     {
         var v = validator.Is((_, value) => value.Any());
@@ -43,6 +50,13 @@ public static class EnumerableValidatorEx
         return v;
     }
 
+    /// <summary>
+    /// Validates that the enumerable is empty (contains no elements).
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <typeparam name="TType">The element type of the enumerable.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IEnumerableValidator<TFact, TType> IsEmpty<TFact, TType>(this IEnumerableValidator<TFact, TType> validator) where TFact : class where TType : class
     {
         var v = validator.Is((_, value) => !value.Any());
@@ -51,6 +65,13 @@ public static class EnumerableValidatorEx
         return v;
     }
 
+    /// <summary>
+    /// Validates that the enumerable is not empty (contains at least one element).
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <typeparam name="TType">The element type of the enumerable.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IEnumerableValidator<TFact, TType> IsNotEmpty<TFact, TType>(this IEnumerableValidator<TFact, TType> validator) where TFact : class where TType : class
     {
         var v = validator.Is((_, value) => value.Any());
@@ -59,6 +80,14 @@ public static class EnumerableValidatorEx
         return v;
     }
 
+    /// <summary>
+    /// Validates that the enumerable contains at least one element matching the predicate.
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <typeparam name="TType">The element type of the enumerable.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <param name="predicate">A function that returns <c>true</c> for matching elements.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IEnumerableValidator<TFact, TType> Has<TFact, TType>(this IEnumerableValidator<TFact, TType> validator, Func<TType, bool> predicate) where TFact : class where TType : class
     {
         var v = validator.Is((_, value) => value.Any(predicate));
@@ -67,6 +96,14 @@ public static class EnumerableValidatorEx
         return v;
     }
 
+    /// <summary>
+    /// Validates that the enumerable contains no elements matching the predicate.
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <typeparam name="TType">The element type of the enumerable.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <param name="predicate">A function that returns <c>true</c> for matching elements.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IEnumerableValidator<TFact, TType> HasNone<TFact, TType>(this IEnumerableValidator<TFact, TType> validator, Func<TType, bool> predicate) where TFact : class where TType : class
     {
         var v = validator.Is((_, value) => !value.Any(predicate));
@@ -75,6 +112,15 @@ public static class EnumerableValidatorEx
         return v;
     }
 
+    /// <summary>
+    /// Validates that the enumerable contains exactly the specified number of elements matching the predicate.
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <typeparam name="TType">The element type of the enumerable.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <param name="predicate">A function that returns <c>true</c> for matching elements.</param>
+    /// <param name="count">The exact number of matching elements required.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IEnumerableValidator<TFact, TType> HasExactly<TFact, TType>(this IEnumerableValidator<TFact, TType> validator, Func<TType, bool> predicate, int count) where TFact : class where TType : class
     {
         var v = validator.Is((_, value) => value.Where(predicate).Take(count + 1).Count() == count);
@@ -83,6 +129,14 @@ public static class EnumerableValidatorEx
         return v;
     }
 
+    /// <summary>
+    /// Validates that the enumerable contains exactly one element matching the predicate.
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <typeparam name="TType">The element type of the enumerable.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <param name="predicate">A function that returns <c>true</c> for matching elements.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IEnumerableValidator<TFact, TType> HasOnlyOne<TFact, TType>(this IEnumerableValidator<TFact, TType> validator, Func<TType, bool> predicate) where TFact : class where TType : class
     {
         var v = validator.Is((_, value) => value.Where(predicate).Take(2).Count() == 1);
@@ -91,6 +145,14 @@ public static class EnumerableValidatorEx
         return v;
     }
 
+    /// <summary>
+    /// Validates that the enumerable contains at most one element matching the predicate.
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <typeparam name="TType">The element type of the enumerable.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <param name="predicate">A function that returns <c>true</c> for matching elements.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IEnumerableValidator<TFact, TType> HasAtMostOne<TFact, TType>(this IEnumerableValidator<TFact, TType> validator, Func<TType, bool> predicate) where TFact : class where TType : class
     {
         var v = validator.Is((_, value) => value.Where(predicate).Take(2).Count() <= 1);
@@ -99,6 +161,15 @@ public static class EnumerableValidatorEx
         return v;
     }
 
+    /// <summary>
+    /// Validates that the enumerable contains at least the specified number of elements matching the predicate.
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <typeparam name="TType">The element type of the enumerable.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <param name="predicate">A function that returns <c>true</c> for matching elements.</param>
+    /// <param name="count">The minimum number of matching elements required.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IEnumerableValidator<TFact, TType> HasAtLeast<TFact, TType>(this IEnumerableValidator<TFact, TType> validator, Func<TType, bool> predicate, int count) where TFact : class where TType : class
     {
         var v = validator.Is((_, value) => value.Where(predicate).Take(count).Count() >= count);
@@ -107,6 +178,15 @@ public static class EnumerableValidatorEx
         return v;
     }
 
+    /// <summary>
+    /// Validates that the enumerable contains at most the specified number of elements matching the predicate.
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <typeparam name="TType">The element type of the enumerable.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <param name="predicate">A function that returns <c>true</c> for matching elements.</param>
+    /// <param name="count">The maximum number of matching elements allowed.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IEnumerableValidator<TFact, TType> HasAtMost<TFact, TType>(this IEnumerableValidator<TFact, TType> validator, Func<TType, bool> predicate, int count) where TFact : class where TType : class
     {
         var v = validator.Is((_, value) => value.Where(predicate).Take(count + 1).Count() <= count);
@@ -118,6 +198,14 @@ public static class EnumerableValidatorEx
 
     // ===== Count-based assertions =====
 
+    /// <summary>
+    /// Validates that the enumerable contains exactly the specified number of total elements.
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <typeparam name="TType">The element type of the enumerable.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <param name="count">The exact number of elements required.</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IEnumerableValidator<TFact, TType> HasCount<TFact, TType>(this IEnumerableValidator<TFact, TType> validator, int count) where TFact : class where TType : class
     {
         var v = validator.Is((_, value) => value.Take(count + 1).Count() == count);
@@ -126,6 +214,14 @@ public static class EnumerableValidatorEx
         return v;
     }
 
+    /// <summary>
+    /// Validates that the enumerable contains more than the specified number of elements.
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <typeparam name="TType">The element type of the enumerable.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <param name="count">The minimum count threshold (exclusive).</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IEnumerableValidator<TFact, TType> HasCountGreaterThan<TFact, TType>(this IEnumerableValidator<TFact, TType> validator, int count) where TFact : class where TType : class
     {
         var v = validator.Is((_, value) => value.Take(count + 1).Count() > count);
@@ -134,6 +230,14 @@ public static class EnumerableValidatorEx
         return v;
     }
 
+    /// <summary>
+    /// Validates that the enumerable contains fewer than the specified number of elements.
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <typeparam name="TType">The element type of the enumerable.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <param name="count">The maximum count threshold (exclusive).</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IEnumerableValidator<TFact, TType> HasCountLessThan<TFact, TType>(this IEnumerableValidator<TFact, TType> validator, int count) where TFact : class where TType : class
     {
         var v = validator.Is((_, value) => value.Take(count).Count() < count);
@@ -142,6 +246,15 @@ public static class EnumerableValidatorEx
         return v;
     }
 
+    /// <summary>
+    /// Validates that the enumerable count is between the specified minimum and maximum (inclusive).
+    /// </summary>
+    /// <typeparam name="TFact">The fact type.</typeparam>
+    /// <typeparam name="TType">The element type of the enumerable.</typeparam>
+    /// <param name="validator">The validator to extend.</param>
+    /// <param name="minimum">The minimum number of elements (inclusive).</param>
+    /// <param name="maximum">The maximum number of elements (inclusive).</param>
+    /// <returns>The validator for fluent chaining.</returns>
     public static IEnumerableValidator<TFact, TType> HasCountBetween<TFact, TType>(this IEnumerableValidator<TFact, TType> validator, int minimum, int maximum) where TFact : class where TType : class
     {
         var v = validator.Is((_, value) => { var c = value.Take(maximum + 1).Count(); return c >= minimum && c <= maximum; });

@@ -34,10 +34,11 @@ public sealed class RuleTree : IRuleBase, IRuleSink
 {
 
     private volatile bool _isBuilt;
-    private readonly Lock _buildLock = new();
+    private readonly object _buildLock = new();
 
     private Dictionary<int, RuleRoot> RootMap { get; } = new();
 
+    /// <inheritdoc />
     public int MaxAxisCount => RootMap.Count > 0 ? RootMap.Keys.Max() : 0;
 
 
@@ -70,6 +71,7 @@ public sealed class RuleTree : IRuleBase, IRuleSink
     }
 
 
+    /// <inheritdoc />
     public bool HasRules(Type[] factTypes)
     {
         Guard.IsNotNull(factTypes);
@@ -77,6 +79,7 @@ public sealed class RuleTree : IRuleBase, IRuleSink
         return HasRules(factTypes, Array.Empty<string>());
     }
 
+    /// <inheritdoc />
     public bool HasRules(Type[] factTypes, IEnumerable<string> namespaces)
     {
         Guard.IsNotNull(factTypes);
@@ -94,6 +97,7 @@ public sealed class RuleTree : IRuleBase, IRuleSink
 
 
 
+    /// <inheritdoc />
     public ISet<IRule> FindRules(Type[] factTypes)
     {
         Guard.IsNotNull(factTypes);
@@ -104,7 +108,7 @@ public sealed class RuleTree : IRuleBase, IRuleSink
         return targetRoot is null ? new HashSet<IRule>() : targetRoot.FindRules(factTypes);
     }
 
-
+    /// <inheritdoc />
     public ISet<IRule> FindRules(Type[] factTypes, IEnumerable<string> namespaces)
     {
         Guard.IsNotNull(factTypes);
@@ -121,6 +125,7 @@ public sealed class RuleTree : IRuleBase, IRuleSink
     }
 
 
+    /// <inheritdoc />
     public void Add(Type factType, IRule rules)
     {
         ThrowIfBuilt();
@@ -136,6 +141,7 @@ public sealed class RuleTree : IRuleBase, IRuleSink
     }
 
 
+    /// <inheritdoc />
     public void Add(Type[] factTypes, IEnumerable<IRule> rules)
     {
         ThrowIfBuilt();
@@ -152,6 +158,7 @@ public sealed class RuleTree : IRuleBase, IRuleSink
     }
 
 
+    /// <summary>Removes all rules from the tree and resets the built state.</summary>
     public void Clear()
     {
         foreach (var r in RootMap.Values)

@@ -33,6 +33,11 @@ public abstract class BaseValidator<TFact>
 {
 
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="BaseValidator{TFact}"/> class.
+    /// </summary>
+    /// <param name="rule">The validation rule that owns this validator.</param>
+    /// <param name="group">The group name used to categorize violation messages.</param>
     protected BaseValidator(ValidationRule<TFact> rule, string group)
     {
 
@@ -50,22 +55,50 @@ public abstract class BaseValidator<TFact>
     private ValidationRule<TFact> Rule { get; }
 
 
+    /// <summary>
+    /// Gets the list of condition functions that must all return <c>true</c> for the validation to pass.
+    /// </summary>
     public IList<Func<TFact, bool>> Conditions { get; }
+
+    /// <summary>
+    /// Gets the action to execute when the validation fails, which emits a violation event.
+    /// </summary>
     public Action<TFact> Consequence { get; private set; }
 
 
+    /// <summary>
+    /// Specifies the violation message to emit when the validation condition fails.
+    /// </summary>
+    /// <param name="template">A message template, optionally with format placeholders.</param>
+    /// <param name="parameters">Functions that extract values from the fact to fill the template placeholders.</param>
+    /// <returns>The validation rule for further configuration.</returns>
     public IValidationRule<TFact> Otherwise(string template, params Func<TFact, object>[] parameters)
     {
         Consequence = f => _BuildMessage(f, RuleEvent.EventCategory.Violation, Group, template, parameters);
         return Rule;
     }
 
+    /// <summary>
+    /// Specifies the violation message and group name to emit when the validation condition fails.
+    /// </summary>
+    /// <param name="group">The group name for the violation event.</param>
+    /// <param name="template">A message template, optionally with format placeholders.</param>
+    /// <param name="parameters">Functions that extract values from the fact to fill the template placeholders.</param>
+    /// <returns>The validation rule for further configuration.</returns>
     public IValidationRule<TFact> Otherwise(string group, string template, params Func<TFact, object>[] parameters)
     {
         Consequence = f => _BuildMessage(f, RuleEvent.EventCategory.Violation, group, template, parameters);
         return Rule;
     }
 
+    /// <summary>
+    /// Specifies the event category, group name, and violation message to emit when the validation condition fails.
+    /// </summary>
+    /// <param name="category">The event category (e.g. Violation, Warning, Info).</param>
+    /// <param name="group">The group name for the violation event.</param>
+    /// <param name="template">A message template, optionally with format placeholders.</param>
+    /// <param name="parameters">Functions that extract values from the fact to fill the template placeholders.</param>
+    /// <returns>The validation rule for further configuration.</returns>
     public IValidationRule<TFact> Otherwise(RuleEvent.EventCategory category, string group, string template, params Func<TFact, object>[] parameters)
     {
         Consequence = f => _BuildMessage(f, category, group, template, parameters);

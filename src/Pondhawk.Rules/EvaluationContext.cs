@@ -45,6 +45,7 @@ namespace Pondhawk.Rules;
 /// </remarks>
 public sealed class EvaluationContext
 {
+    /// <summary>Initializes a new instance of the <see cref="EvaluationContext"/> class with default configuration.</summary>
     public EvaluationContext()
     {
         ThrowValidationException = true;
@@ -101,18 +102,28 @@ public sealed class EvaluationContext
     internal bool IsExhausted => (Results.TotalEvaluated > MaxEvaluations) || ((Environment.TickCount64 - StartedTick) > MaxDuration);
 
 
+    /// <summary>Gets or sets an optional description for this evaluation session.</summary>
     public string Description { get; set; }
 
+    /// <summary>Gets or sets a value indicating whether to throw <see cref="Exceptions.ViolationsExistException"/> when violations are found.</summary>
     public bool ThrowValidationException { get; set; }
+
+    /// <summary>Gets or sets a value indicating whether to throw <see cref="Exceptions.NoRulesEvaluatedException"/> when no rules match.</summary>
     public bool ThrowNoRulesException { get; set; }
 
+    /// <summary>Gets or sets the evaluation listener for tracing rule evaluation.</summary>
     public IEvaluationListener Listener { get; set; }
+
+    /// <summary>Gets the accumulated evaluation results for this session.</summary>
     public EvaluationResults Results { get; }
 
+    /// <summary>Gets or sets the maximum number of evaluations before exhaustion (default 500,000).</summary>
     public int MaxEvaluations { get; set; }
+
+    /// <summary>Gets or sets the maximum duration in milliseconds before exhaustion (default 10,000).</summary>
     public long MaxDuration { get; set; }
 
-
+    /// <summary>Gets or sets the maximum number of violations before evaluation stops early.</summary>
     public int MaxViolations { get; set; }
 
     internal bool ViolationsExceeded => Results.ViolationCount >= MaxViolations;
@@ -121,12 +132,21 @@ public sealed class EvaluationContext
 
     private Dictionary<string, IDictionary<object, object>> Tables { get; }
 
+    /// <summary>Registers a lookup table keyed by a member extractor, using the member type name as the table name.</summary>
+    /// <typeparam name="TMember">The type of items in the lookup table.</typeparam>
+    /// <param name="keyExtractor">A function that extracts the lookup key from each member.</param>
+    /// <param name="members">The members to add to the lookup table.</param>
     public void AddLookup<TMember>(Func<TMember, object> keyExtractor, IEnumerable<TMember> members)
     {
         var name = typeof(TMember).FullName;
         AddLookup(name, keyExtractor, members);
     }
 
+    /// <summary>Registers a named lookup table keyed by a member extractor.</summary>
+    /// <typeparam name="TMember">The type of items in the lookup table.</typeparam>
+    /// <param name="name">The name for the lookup table.</param>
+    /// <param name="keyExtractor">A function that extracts the lookup key from each member.</param>
+    /// <param name="members">The members to add to the lookup table.</param>
     public void AddLookup<TMember>(string name, Func<TMember, object> keyExtractor, IEnumerable<TMember> members)
     {
 
@@ -142,20 +162,29 @@ public sealed class EvaluationContext
 
     }
 
+    /// <summary>Registers a pre-built named lookup table.</summary>
+    /// <param name="name">The name for the lookup table.</param>
+    /// <param name="table">The dictionary to use as the lookup table.</param>
     public void AddLookup(string name, IDictionary<object, object> table)
     {
         Tables[name] = table;
     }
 
-
-
+    /// <summary>Looks up a member by key from the default lookup table for the member type.</summary>
+    /// <typeparam name="TMember">The type of the member to retrieve.</typeparam>
+    /// <param name="key">The key to look up.</param>
+    /// <returns>The member associated with the key.</returns>
     public TMember Lookup<TMember>(object key)
     {
         var name = typeof(TMember).FullName;
         return Lookup<TMember>(name, key);
     }
 
-
+    /// <summary>Looks up a member by key from a named lookup table.</summary>
+    /// <typeparam name="TMember">The type of the member to retrieve.</typeparam>
+    /// <param name="name">The name of the lookup table.</param>
+    /// <param name="key">The key to look up.</param>
+    /// <returns>The member associated with the key.</returns>
     public TMember Lookup<TMember>(string name, object key)
     {
         if (!Tables.TryGetValue(name, out var table))
@@ -173,6 +202,7 @@ public sealed class EvaluationContext
 
 
 
+    /// <summary>Gets the shared dictionary for passing data between rule consequences.</summary>
     public IDictionary<string, object> Shared => Results.Shared;
 
     internal void InsertFact(object fact)
@@ -259,12 +289,15 @@ public sealed class EvaluationContext
     }
 
 
+    /// <summary>Adds one or more facts to the fact space for evaluation.</summary>
+    /// <param name="facts">The facts to add.</param>
     public void AddFacts(params object[] facts)
     {
         Space.Add(facts);
     }
 
-
+    /// <summary>Adds all facts from the collection to the fact space for evaluation.</summary>
+    /// <param name="facts">The facts to add.</param>
     public void AddAllFacts(IEnumerable<object> facts)
     {
         Space.AddAll(facts);
@@ -273,54 +306,42 @@ public sealed class EvaluationContext
 
     // ===== Fluent configuration API =====
 
-    public EvaluationContext WithMaxEvaluations(int max)
-    {
-        MaxEvaluations = max;
-        return this;
-    }
+    /// <summary>Sets the maximum number of evaluations before exhaustion.</summary>
+    /// <param name="max">The maximum evaluation count.</param>
+    /// <returns>This context for fluent chaining.</returns>
+    public EvaluationContext WithMaxEvaluations(int max) { MaxEvaluations = max; return this; }
 
-    public EvaluationContext WithMaxDuration(long milliseconds)
-    {
-        MaxDuration = milliseconds;
-        return this;
-    }
+    /// <summary>Sets the maximum duration in milliseconds before exhaustion.</summary>
+    /// <param name="milliseconds">The maximum duration.</param>
+    /// <returns>This context for fluent chaining.</returns>
+    public EvaluationContext WithMaxDuration(long milliseconds) { MaxDuration = milliseconds; return this; }
 
-    public EvaluationContext WithMaxViolations(int max)
-    {
-        MaxViolations = max;
-        return this;
-    }
+    /// <summary>Sets the maximum number of violations before evaluation stops early.</summary>
+    /// <param name="max">The maximum violation count.</param>
+    /// <returns>This context for fluent chaining.</returns>
+    public EvaluationContext WithMaxViolations(int max) { MaxViolations = max; return this; }
 
-    public EvaluationContext WithDescription(string description)
-    {
-        Description = description;
-        return this;
-    }
+    /// <summary>Sets a description for this evaluation session.</summary>
+    /// <param name="description">The description text.</param>
+    /// <returns>This context for fluent chaining.</returns>
+    public EvaluationContext WithDescription(string description) { Description = description; return this; }
 
-    public EvaluationContext WithListener(IEvaluationListener listener)
-    {
-        Listener = listener;
-        return this;
-    }
+    /// <summary>Sets the evaluation listener for tracing rule evaluation.</summary>
+    /// <param name="listener">The listener to use.</param>
+    /// <returns>This context for fluent chaining.</returns>
+    public EvaluationContext WithListener(IEvaluationListener listener) { Listener = listener; return this; }
 
-    public EvaluationContext SuppressExceptions()
-    {
-        ThrowValidationException = false;
-        ThrowNoRulesException = false;
-        return this;
-    }
+    /// <summary>Suppresses both validation and no-rules exceptions.</summary>
+    /// <returns>This context for fluent chaining.</returns>
+    public EvaluationContext SuppressExceptions() { ThrowValidationException = false; ThrowNoRulesException = false; return this; }
 
-    public EvaluationContext SuppressValidationException()
-    {
-        ThrowValidationException = false;
-        return this;
-    }
+    /// <summary>Suppresses the validation exception thrown when violations are found.</summary>
+    /// <returns>This context for fluent chaining.</returns>
+    public EvaluationContext SuppressValidationException() { ThrowValidationException = false; return this; }
 
-    public EvaluationContext SuppressNoRulesException()
-    {
-        ThrowNoRulesException = false;
-        return this;
-    }
+    /// <summary>Suppresses the exception thrown when no rules match.</summary>
+    /// <returns>This context for fluent chaining.</returns>
+    public EvaluationContext SuppressNoRulesException() { ThrowNoRulesException = false; return this; }
 
 
 }

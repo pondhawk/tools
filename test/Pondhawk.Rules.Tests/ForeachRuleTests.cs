@@ -14,7 +14,7 @@ public class ForeachRuleTests
         var processed = new List<string>();
 
         ruleSet.AddRule<Order, OrderItem>("item-rule", o => o.Items)
-            .If(item => item.Quantity > 0)
+            .When(item => item.Quantity > 0)
             .Then(item => processed.Add(item.Product));
 
         var order = new Order
@@ -60,13 +60,13 @@ public class ForeachRuleTests
 
         ruleSet.AddRule<Order, OrderItem>("item-modifier", o => o.Items)
             .WithSalience(100)
-            .If(item => item.Price == 0)
+            .When(item => item.Price == 0)
             .Then(item => { item.Price = 9.99m; fireCount++; })
             .Modifies();
 
         ruleSet.AddRule<Order>("order-check")
             .WithSalience(200)
-            .If(o => o.Items.All(i => i.Price > 0))
+            .When(o => o.Items.All(i => i.Price > 0))
             .Then(o => { fireCount++; });
 
         var order = new Order

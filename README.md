@@ -68,17 +68,17 @@ A forward-chaining rule engine with fluent rule definition, multi-fact matching,
 
 ### Defining Rules
 
-Rules are created with a `RuleSet` using the fluent `If()` / `And()` / `Then()` API:
+Rules are created with a `RuleSet` using the fluent `When()` / `And()` / `Then()` API:
 
 ```csharp
 var rules = new RuleSet();
 
 rules.AddRule<Order>("HighValueOrder")
-    .If(o => o.Total > 1000)
+    .When(o => o.Total > 1000)
     .Then("Pricing", "Order {Total} exceeds high-value threshold", o => o.Total);
 
 rules.AddRule<Order>("DiscountEligible")
-    .If(o => o.Total > 500)
+    .When(o => o.Total > 500)
     .And(o => o.Customer.IsLoyaltyMember)
     .Then(o => o.DiscountPct = 0.10m);
 
@@ -91,7 +91,7 @@ Rules can match across 2, 3, or 4 fact types simultaneously:
 
 ```csharp
 rules.AddRule<Order, Customer>("LoyaltyBonus")
-    .If((order, customer) => order.Total > 200 && customer.Tier == "Gold")
+    .When((order, customer) => order.Total > 200 && customer.Tier == "Gold")
     .Then((order, customer) => order.DiscountPct += 0.05m);
 ```
 
@@ -117,12 +117,12 @@ Use `ThenAffirm()` and `ThenVeto()` to build a weighted decision score:
 
 ```csharp
 rules.AddRule<Application>("CreditCheck")
-    .If(a => a.CreditScore > 700)
+    .When(a => a.CreditScore > 700)
     .ThenAffirm(10)
     .OtherwiseVeto(20);
 
 rules.AddRule<Application>("IncomeCheck")
-    .If(a => a.AnnualIncome > 50_000)
+    .When(a => a.AnnualIncome > 50_000)
     .ThenAffirm(15);
 
 // After evaluation:
@@ -135,12 +135,12 @@ Rules can insert, modify, or retract facts to trigger re-evaluation. Use `Cascad
 
 ```csharp
 rules.AddRule<Order>("ApplyLineItems")
-    .If(o => o.LineItems.Any())
+    .When(o => o.LineItems.Any())
     .Then(o => { /* process order */ })
     .CascadeAll(o => o.LineItems);
 
 rules.AddRule<LineItem>("FlagBackorder")
-    .If(li => li.Quantity > li.InStock)
+    .When(li => li.Quantity > li.InStock)
     .Then(li => li.IsBackordered = true)
     .Modifies(li => li);
 ```
@@ -156,7 +156,7 @@ rules.AddRule<Order>("PriorityRule")
     .FireOnce()                                   // skip after first match
     .WithInception(new DateTime(2025, 1, 1))      // active from
     .WithExpiration(new DateTime(2025, 12, 31))   // active until
-    .If(o => o.IsExpedited)
+    .When(o => o.IsExpedited)
     .Then(o => o.ShippingMethod = "Overnight");
 ```
 

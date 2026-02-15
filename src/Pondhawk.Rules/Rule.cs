@@ -32,7 +32,7 @@ namespace Pondhawk.Rules;
 /// A concrete rule that evaluates conditions and fires consequences against a single fact type.
 /// </summary>
 /// <remarks>
-/// <para>Fluent API: <c>If(predicate).And(predicate).Then(action)</c> — conditions are AND-joined; all must be true to fire.</para>
+/// <para>Fluent API: <c>When(predicate).And(predicate).Then(action)</c> — conditions are AND-joined; all must be true to fire.</para>
 /// <para><c>Otherwise(action)</c> inverts condition evaluation — fires when conditions are false (negated rule).</para>
 /// <para><c>Fire(action)</c> always fires (no conditions). <c>NoConsequence()</c> tracks evaluation but does nothing.</para>
 /// <para><b>Scoring:</b> <c>ThenAffirm(weight)</c>/<c>ThenVeto(weight)</c> add to <see cref="EvaluationResults.Score"/> for use with <c>Decide()</c>.</para>
@@ -117,21 +117,21 @@ public sealed class Rule<TFact> : AbstractRule
         return this;
     }
 
-    /// <summary>Adds a condition that must be true for this rule to fire.</summary>
-    /// <param name="oCondition">The condition predicate.</param>
+    /// <summary>Adds a condition that must be true for this rule to fire. Reads naturally with C# pattern matching: <c>.When(o =&gt; o is { Status: "Active", Total: &gt; 100 })</c>.</summary>
+    /// <param name="condition">The condition predicate.</param>
     /// <returns>This rule for fluent chaining.</returns>
-    public Rule<TFact> If(Func<TFact, bool> oCondition)
+    public Rule<TFact> When(Func<TFact, bool> condition)
     {
-        Conditions.Add(oCondition);
+        Conditions.Add(condition);
         return this;
     }
 
     /// <summary>Adds an additional condition (AND-joined) that must be true for this rule to fire.</summary>
-    /// <param name="oCondition">The condition predicate.</param>
+    /// <param name="condition">The condition predicate.</param>
     /// <returns>This rule for fluent chaining.</returns>
-    public Rule<TFact> And(Func<TFact, bool> oCondition)
+    public Rule<TFact> And(Func<TFact, bool> condition)
     {
-        Conditions.Add(oCondition);
+        Conditions.Add(condition);
         return this;
     }
 
@@ -523,21 +523,57 @@ public sealed class Rule<TFact1, TFact2> : AbstractRule
         return this;
     }
 
-    /// <summary>Adds a condition that must be true for this rule to fire.</summary>
-    /// <param name="oCondition">The condition predicate.</param>
+    /// <summary>Adds a condition over both facts that must be true for this rule to fire.</summary>
+    /// <param name="condition">The condition predicate receiving both facts.</param>
     /// <returns>This rule for fluent chaining.</returns>
-    public Rule<TFact1, TFact2> If(Func<TFact1, TFact2, bool> oCondition)
+    public Rule<TFact1, TFact2> When(Func<TFact1, TFact2, bool> condition)
     {
-        Conditions.Add(oCondition);
+        Conditions.Add(condition);
         return this;
     }
 
-    /// <summary>Adds an additional condition (AND-joined) that must be true for this rule to fire.</summary>
-    /// <param name="oCondition">The condition predicate.</param>
+    /// <summary>Adds a condition over the first fact only. Enables per-fact pattern matching: <c>.When((Order o) =&gt; o is { Total: &gt; 200 })</c>.</summary>
+    /// <param name="condition">The condition predicate receiving the first fact.</param>
     /// <returns>This rule for fluent chaining.</returns>
-    public Rule<TFact1, TFact2> And(Func<TFact1, TFact2, bool> oCondition)
+    public Rule<TFact1, TFact2> When(Func<TFact1, bool> condition)
     {
-        Conditions.Add(oCondition);
+        Conditions.Add((f1, f2) => condition(f1));
+        return this;
+    }
+
+    /// <summary>Adds a condition over the second fact only. Enables per-fact pattern matching: <c>.When((Customer c) =&gt; c is { Tier: "Gold" })</c>.</summary>
+    /// <param name="condition">The condition predicate receiving the second fact.</param>
+    /// <returns>This rule for fluent chaining.</returns>
+    public Rule<TFact1, TFact2> When(Func<TFact2, bool> condition)
+    {
+        Conditions.Add((f1, f2) => condition(f2));
+        return this;
+    }
+
+    /// <summary>Adds an additional condition (AND-joined) over both facts.</summary>
+    /// <param name="condition">The condition predicate receiving both facts.</param>
+    /// <returns>This rule for fluent chaining.</returns>
+    public Rule<TFact1, TFact2> And(Func<TFact1, TFact2, bool> condition)
+    {
+        Conditions.Add(condition);
+        return this;
+    }
+
+    /// <summary>Adds an additional condition (AND-joined) over the first fact only.</summary>
+    /// <param name="condition">The condition predicate receiving the first fact.</param>
+    /// <returns>This rule for fluent chaining.</returns>
+    public Rule<TFact1, TFact2> And(Func<TFact1, bool> condition)
+    {
+        Conditions.Add((f1, f2) => condition(f1));
+        return this;
+    }
+
+    /// <summary>Adds an additional condition (AND-joined) over the second fact only.</summary>
+    /// <param name="condition">The condition predicate receiving the second fact.</param>
+    /// <returns>This rule for fluent chaining.</returns>
+    public Rule<TFact1, TFact2> And(Func<TFact2, bool> condition)
+    {
+        Conditions.Add((f1, f2) => condition(f2));
         return this;
     }
 
@@ -897,15 +933,45 @@ public sealed class Rule<TFact1, TFact2, TFact3> : AbstractRule
     /// <returns>This rule for fluent chaining.</returns>
     public Rule<TFact1, TFact2, TFact3> FireAlways() { OnlyFiresOnce = false; return this; }
 
-    /// <summary>Adds a condition that must be true for this rule to fire.</summary>
-    /// <param name="oCondition">The condition predicate.</param>
+    /// <summary>Adds a condition over all three facts that must be true for this rule to fire.</summary>
+    /// <param name="condition">The condition predicate receiving all three facts.</param>
     /// <returns>This rule for fluent chaining.</returns>
-    public Rule<TFact1, TFact2, TFact3> If(Func<TFact1, TFact2, TFact3, bool> oCondition) { Conditions.Add(oCondition); return this; }
+    public Rule<TFact1, TFact2, TFact3> When(Func<TFact1, TFact2, TFact3, bool> condition) { Conditions.Add(condition); return this; }
 
-    /// <summary>Adds an additional condition (AND-joined) that must be true for this rule to fire.</summary>
-    /// <param name="oCondition">The condition predicate.</param>
+    /// <summary>Adds a condition over the first fact only.</summary>
+    /// <param name="condition">The condition predicate receiving the first fact.</param>
     /// <returns>This rule for fluent chaining.</returns>
-    public Rule<TFact1, TFact2, TFact3> And(Func<TFact1, TFact2, TFact3, bool> oCondition) { Conditions.Add(oCondition); return this; }
+    public Rule<TFact1, TFact2, TFact3> When(Func<TFact1, bool> condition) { Conditions.Add((f1, f2, f3) => condition(f1)); return this; }
+
+    /// <summary>Adds a condition over the second fact only.</summary>
+    /// <param name="condition">The condition predicate receiving the second fact.</param>
+    /// <returns>This rule for fluent chaining.</returns>
+    public Rule<TFact1, TFact2, TFact3> When(Func<TFact2, bool> condition) { Conditions.Add((f1, f2, f3) => condition(f2)); return this; }
+
+    /// <summary>Adds a condition over the third fact only.</summary>
+    /// <param name="condition">The condition predicate receiving the third fact.</param>
+    /// <returns>This rule for fluent chaining.</returns>
+    public Rule<TFact1, TFact2, TFact3> When(Func<TFact3, bool> condition) { Conditions.Add((f1, f2, f3) => condition(f3)); return this; }
+
+    /// <summary>Adds an additional condition (AND-joined) over all three facts.</summary>
+    /// <param name="condition">The condition predicate receiving all three facts.</param>
+    /// <returns>This rule for fluent chaining.</returns>
+    public Rule<TFact1, TFact2, TFact3> And(Func<TFact1, TFact2, TFact3, bool> condition) { Conditions.Add(condition); return this; }
+
+    /// <summary>Adds an additional condition (AND-joined) over the first fact only.</summary>
+    /// <param name="condition">The condition predicate receiving the first fact.</param>
+    /// <returns>This rule for fluent chaining.</returns>
+    public Rule<TFact1, TFact2, TFact3> And(Func<TFact1, bool> condition) { Conditions.Add((f1, f2, f3) => condition(f1)); return this; }
+
+    /// <summary>Adds an additional condition (AND-joined) over the second fact only.</summary>
+    /// <param name="condition">The condition predicate receiving the second fact.</param>
+    /// <returns>This rule for fluent chaining.</returns>
+    public Rule<TFact1, TFact2, TFact3> And(Func<TFact2, bool> condition) { Conditions.Add((f1, f2, f3) => condition(f2)); return this; }
+
+    /// <summary>Adds an additional condition (AND-joined) over the third fact only.</summary>
+    /// <param name="condition">The condition predicate receiving the third fact.</param>
+    /// <returns>This rule for fluent chaining.</returns>
+    public Rule<TFact1, TFact2, TFact3> And(Func<TFact3, bool> condition) { Conditions.Add((f1, f2, f3) => condition(f3)); return this; }
 
     /// <summary>Sets a no-op consequence; the rule tracks evaluation but performs no action.</summary>
     /// <returns>This rule for fluent chaining.</returns>
@@ -1166,15 +1232,55 @@ public sealed class Rule<TFact1, TFact2, TFact3, TFact4> : AbstractRule
     /// <returns>This rule for fluent chaining.</returns>
     public Rule<TFact1, TFact2, TFact3, TFact4> FireAlways() { OnlyFiresOnce = false; return this; }
 
-    /// <summary>Adds a condition that must be true for this rule to fire.</summary>
-    /// <param name="oCondition">The condition predicate.</param>
+    /// <summary>Adds a condition over all four facts that must be true for this rule to fire.</summary>
+    /// <param name="condition">The condition predicate receiving all four facts.</param>
     /// <returns>This rule for fluent chaining.</returns>
-    public Rule<TFact1, TFact2, TFact3, TFact4> If(Func<TFact1, TFact2, TFact3, TFact4, bool> oCondition) { Conditions.Add(oCondition); return this; }
+    public Rule<TFact1, TFact2, TFact3, TFact4> When(Func<TFact1, TFact2, TFact3, TFact4, bool> condition) { Conditions.Add(condition); return this; }
 
-    /// <summary>Adds an additional condition (AND-joined) that must be true for this rule to fire.</summary>
-    /// <param name="oCondition">The condition predicate.</param>
+    /// <summary>Adds a condition over the first fact only.</summary>
+    /// <param name="condition">The condition predicate receiving the first fact.</param>
     /// <returns>This rule for fluent chaining.</returns>
-    public Rule<TFact1, TFact2, TFact3, TFact4> And(Func<TFact1, TFact2, TFact3, TFact4, bool> oCondition) { Conditions.Add(oCondition); return this; }
+    public Rule<TFact1, TFact2, TFact3, TFact4> When(Func<TFact1, bool> condition) { Conditions.Add((f1, f2, f3, f4) => condition(f1)); return this; }
+
+    /// <summary>Adds a condition over the second fact only.</summary>
+    /// <param name="condition">The condition predicate receiving the second fact.</param>
+    /// <returns>This rule for fluent chaining.</returns>
+    public Rule<TFact1, TFact2, TFact3, TFact4> When(Func<TFact2, bool> condition) { Conditions.Add((f1, f2, f3, f4) => condition(f2)); return this; }
+
+    /// <summary>Adds a condition over the third fact only.</summary>
+    /// <param name="condition">The condition predicate receiving the third fact.</param>
+    /// <returns>This rule for fluent chaining.</returns>
+    public Rule<TFact1, TFact2, TFact3, TFact4> When(Func<TFact3, bool> condition) { Conditions.Add((f1, f2, f3, f4) => condition(f3)); return this; }
+
+    /// <summary>Adds a condition over the fourth fact only.</summary>
+    /// <param name="condition">The condition predicate receiving the fourth fact.</param>
+    /// <returns>This rule for fluent chaining.</returns>
+    public Rule<TFact1, TFact2, TFact3, TFact4> When(Func<TFact4, bool> condition) { Conditions.Add((f1, f2, f3, f4) => condition(f4)); return this; }
+
+    /// <summary>Adds an additional condition (AND-joined) over all four facts.</summary>
+    /// <param name="condition">The condition predicate receiving all four facts.</param>
+    /// <returns>This rule for fluent chaining.</returns>
+    public Rule<TFact1, TFact2, TFact3, TFact4> And(Func<TFact1, TFact2, TFact3, TFact4, bool> condition) { Conditions.Add(condition); return this; }
+
+    /// <summary>Adds an additional condition (AND-joined) over the first fact only.</summary>
+    /// <param name="condition">The condition predicate receiving the first fact.</param>
+    /// <returns>This rule for fluent chaining.</returns>
+    public Rule<TFact1, TFact2, TFact3, TFact4> And(Func<TFact1, bool> condition) { Conditions.Add((f1, f2, f3, f4) => condition(f1)); return this; }
+
+    /// <summary>Adds an additional condition (AND-joined) over the second fact only.</summary>
+    /// <param name="condition">The condition predicate receiving the second fact.</param>
+    /// <returns>This rule for fluent chaining.</returns>
+    public Rule<TFact1, TFact2, TFact3, TFact4> And(Func<TFact2, bool> condition) { Conditions.Add((f1, f2, f3, f4) => condition(f2)); return this; }
+
+    /// <summary>Adds an additional condition (AND-joined) over the third fact only.</summary>
+    /// <param name="condition">The condition predicate receiving the third fact.</param>
+    /// <returns>This rule for fluent chaining.</returns>
+    public Rule<TFact1, TFact2, TFact3, TFact4> And(Func<TFact3, bool> condition) { Conditions.Add((f1, f2, f3, f4) => condition(f3)); return this; }
+
+    /// <summary>Adds an additional condition (AND-joined) over the fourth fact only.</summary>
+    /// <param name="condition">The condition predicate receiving the fourth fact.</param>
+    /// <returns>This rule for fluent chaining.</returns>
+    public Rule<TFact1, TFact2, TFact3, TFact4> And(Func<TFact4, bool> condition) { Conditions.Add((f1, f2, f3, f4) => condition(f4)); return this; }
 
     /// <summary>Sets a no-op consequence; the rule tracks evaluation but performs no action.</summary>
     /// <returns>This rule for fluent chaining.</returns>

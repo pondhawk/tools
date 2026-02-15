@@ -149,7 +149,7 @@ public class ExceptionTests
 
         // Create a rule that always modifies to force re-evaluation
         ruleSet.AddRule<Person>("infinite")
-            .If(p => p.Status != "done")
+            .When(p => p.Status != "done")
             .Then(p => { /* do nothing but signal modify */ })
             .Modifies(p => p);
 
@@ -169,7 +169,7 @@ public class ExceptionTests
         var ruleSet = new RuleSet();
 
         ruleSet.AddRule<Person>("infinite")
-            .If(p => p.Status != "done")
+            .When(p => p.Status != "done")
             .Then(p => { })
             .Modifies(p => p);
 
@@ -193,7 +193,7 @@ public class ExceptionTests
 
         // Create a rule that sleeps and modifies to force re-evaluation
         ruleSet.AddRule<Person>("slow-infinite")
-            .If(p => p.Status != "done")
+            .When(p => p.Status != "done")
             .Then(p => Thread.Sleep(50))
             .Modifies(p => p);
 

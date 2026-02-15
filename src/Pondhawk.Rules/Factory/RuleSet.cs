@@ -44,7 +44,7 @@ namespace Pondhawk.Rules.Factory;
 ///     .Assert&lt;string&gt;(p =&gt; p.Name).Required();
 ///
 /// ruleSet.AddRule&lt;Person&gt;("age-check")
-///     .If(p =&gt; p.Age &gt;= 18)
+///     .When(p =&gt; p.Age &gt;= 18)
 ///     .Then(p =&gt; p.Status = "Adult");
 ///
 /// var result = ruleSet.Evaluate(new Person { Name = "Alice", Age = 25 });
@@ -136,7 +136,7 @@ public sealed class RuleSet : AbstractRuleSet
     /// </returns>
     /// <example>
     /// var rule = AddRule&lt;Family&gt;( "Gabby Foreach rule", p=&gt;p.Chilldren ).Modifies()
-    ///     If( c=&gt;c.Name == "Gabby" ).And( c=&gt;c.Age == 4 )
+    ///     When( c=&gt;c.Name == "Gabby" ).And( c=&gt;c.Age == 4 )
     ///     Then( c=&gt;c.Status = "Not A baby anymore" )
     /// </example>
 

@@ -44,11 +44,11 @@ namespace Pondhawk.Rules;
 ///     public OrderRules()
 ///     {
 ///         Rule&lt;Order&gt;()
-///             .If(o =&gt; o.Total &gt; 1000)
+///             .When(o =&gt; o.Total &gt; 1000)
 ///             .Then(o =&gt; o.RequiresApproval = true);
 ///
 ///         Rule&lt;Order&gt;()
-///             .If(o =&gt; o.Items.Count == 0)
+///             .When(o =&gt; o.Items.Count == 0)
 ///             .Then(o =&gt; o.Status = "Empty");
 ///     }
 /// }

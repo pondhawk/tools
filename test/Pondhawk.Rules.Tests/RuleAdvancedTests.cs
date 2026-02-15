@@ -26,7 +26,7 @@ public class RuleAdvancedTests
         var addressProcessed = false;
 
         ruleSet.AddRule<Person>("cascade")
-            .If(p => p.Addresses.Count > 0)
+            .When(p => p.Addresses.Count > 0)
             .Cascade(p => p.Addresses[0]);
 
         ruleSet.AddRule<Address>("addr-rule")
@@ -50,7 +50,7 @@ public class RuleAdvancedTests
         var cities = new List<string>();
 
         ruleSet.AddRule<Person>("cascade-all")
-            .If(p => p.Addresses.Count > 0)
+            .When(p => p.Addresses.Count > 0)
             .CascadeAll(p => p.Addresses);
 
         ruleSet.AddRule<Address>("addr-rule")
@@ -82,7 +82,7 @@ public class RuleAdvancedTests
         var ruleSet = new RuleSet();
 
         ruleSet.AddRule<Person>("oa")
-            .If(p => p.Age >= 100)
+            .When(p => p.Age >= 100)
             .OtherwiseAffirm(15);
 
         var result = EvaluateSafe(ruleSet, new Person { Name = "Test", Age = 25 });
@@ -96,7 +96,7 @@ public class RuleAdvancedTests
         var ruleSet = new RuleSet();
 
         ruleSet.AddRule<Person>("ov")
-            .If(p => p.Age >= 100)
+            .When(p => p.Age >= 100)
             .OtherwiseVeto(8);
 
         var result = EvaluateSafe(ruleSet, new Person { Name = "Test", Age = 25 });
@@ -110,7 +110,7 @@ public class RuleAdvancedTests
         var ruleSet = new RuleSet();
 
         ruleSet.AddRule<Person>("oa")
-            .If(p => p.Age >= 18)
+            .When(p => p.Age >= 18)
             .OtherwiseAffirm(15);
 
         var result = EvaluateSafe(ruleSet, new Person { Name = "Test", Age = 25 });
@@ -127,7 +127,7 @@ public class RuleAdvancedTests
         var ruleSet = new RuleSet();
 
         ruleSet.AddRule<Person>("om")
-            .If(p => p.Age >= 100)
+            .When(p => p.Age >= 100)
             .Otherwise("{0} is not centenarian", p => p.Name);
 
         var result = EvaluateSafe(ruleSet, new Person { Name = "Alice", Age = 25 });
@@ -142,7 +142,7 @@ public class RuleAdvancedTests
         var ruleSet = new RuleSet();
 
         ruleSet.AddRule<Person>("ogm")
-            .If(p => p.Age >= 100)
+            .When(p => p.Age >= 100)
             .Otherwise("age-group", "{0} not old enough", p => p.Name);
 
         var result = EvaluateSafe(ruleSet, new Person { Name = "Alice", Age = 25 });
@@ -156,7 +156,7 @@ public class RuleAdvancedTests
         var ruleSet = new RuleSet();
 
         ruleSet.AddRule<Person>("ocm")
-            .If(p => p.Age >= 100)
+            .When(p => p.Age >= 100)
             .Otherwise(RuleEvent.EventCategory.Violation, "grp", "Too young: {0}", p => p.Name);
 
         var result = EvaluateSafe(ruleSet, new Person { Name = "Alice", Age = 25 });
@@ -205,7 +205,7 @@ public class RuleAdvancedTests
         var ruleSet = new RuleSet();
 
         ruleSet.AddRule<Person>("cat")
-            .If(p => p.Age >= 18)
+            .When(p => p.Age >= 18)
             .Then(RuleEvent.EventCategory.Warning, "age", "Adult: {0}", p => p.Name);
 
         var result = EvaluateSafe(ruleSet, new Person { Name = "Alice", Age = 25 });
@@ -225,7 +225,7 @@ public class RuleAdvancedTests
 
         ruleSet.AddRule<Person>("once-mod")
             .FireOnce()
-            .If(p => p.Status == "new")
+            .When(p => p.Status == "new")
             .Then(p => { p.Status = "done"; fireCount++; })
             .Modifies(p => p);
 

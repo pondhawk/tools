@@ -12,11 +12,11 @@ using Pondhawk.Rules.Factory;
 var ruleSet = new RuleSet();
 
 ruleSet.AddRule<Person>("age-check")
-    .If(p => p.Age >= 18)
+    .When(p => p.Age >= 18)
     .Then(p => p.Status = "Adult");
 
 ruleSet.AddRule<Person>("multi-condition")
-    .If(p => p.Age >= 18)
+    .When(p => p.Age >= 18)
     .And(p => p.IsActive)
     .Then(p => p.CanVote = true);
 
@@ -43,11 +43,11 @@ bool valid = ruleSet.TryValidate(person, out var violations);
 
 ```csharp
 ruleSet.AddRule<Application>("credit-check")
-    .If(a => a.CreditScore > 700)
+    .When(a => a.CreditScore > 700)
     .FireAffirm(10);
 
 ruleSet.AddRule<Application>("bankruptcy")
-    .If(a => a.HasBankruptcy)
+    .When(a => a.HasBankruptcy)
     .FireVeto(20);
 
 bool approved = ruleSet.Decide(application); // Score >= 0
@@ -63,11 +63,11 @@ public class OrderRules : RuleBuilder<Order>
     public OrderRules()
     {
         Rule<Order>()
-            .If(o => o.Total > 1000)
+            .When(o => o.Total > 1000)
             .Then(o => o.RequiresApproval = true);
 
         Rule<Order>()
-            .If(o => o.Items.Count == 0)
+            .When(o => o.Items.Count == 0)
             .Then(o => o.Status = "Empty");
     }
 }

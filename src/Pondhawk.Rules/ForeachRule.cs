@@ -92,14 +92,14 @@ public sealed class ForeachRule<TParent, TFact> : AbstractRule
     public ForeachRule<TParent, TFact> FireAlways() { OnlyFiresOnce = false; return this; }
 
     /// <summary>Adds a condition that must be true for each child fact for the consequence to fire.</summary>
-    /// <param name="oCondition">The condition predicate applied to each child.</param>
+    /// <param name="condition">The condition predicate applied to each child.</param>
     /// <returns>This rule for fluent chaining.</returns>
-    public ForeachRule<TParent, TFact> If(Func<TFact, bool> oCondition) { Conditions.Add(oCondition); return this; }
+    public ForeachRule<TParent, TFact> When(Func<TFact, bool> condition) { Conditions.Add(condition); return this; }
 
     /// <summary>Adds an additional condition (AND-joined) per child fact.</summary>
-    /// <param name="oCondition">The condition predicate applied to each child.</param>
+    /// <param name="condition">The condition predicate applied to each child.</param>
     /// <returns>This rule for fluent chaining.</returns>
-    public ForeachRule<TParent, TFact> And(Func<TFact, bool> oCondition) { Conditions.Add(oCondition); return this; }
+    public ForeachRule<TParent, TFact> And(Func<TFact, bool> condition) { Conditions.Add(condition); return this; }
 
     /// <summary>Sets the consequence action to execute for each matching child.</summary>
     /// <param name="oConsequence">The action to execute per child.</param>

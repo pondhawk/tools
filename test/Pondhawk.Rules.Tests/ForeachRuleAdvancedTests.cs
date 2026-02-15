@@ -26,7 +26,7 @@ public class ForeachRuleAdvancedTests
         var otherwiseItems = new List<string>();
 
         ruleSet.AddRule<Order, OrderItem>("otherwise", o => o.Items)
-            .If(item => item.Quantity > 0)
+            .When(item => item.Quantity > 0)
             .Otherwise(item => otherwiseItems.Add(item.Product));
 
         var order = new Order
@@ -52,7 +52,7 @@ public class ForeachRuleAdvancedTests
         var otherwiseCount = 0;
 
         ruleSet.AddRule<Order, OrderItem>("otherwise", o => o.Items)
-            .If(item => item.Quantity > 0)
+            .When(item => item.Quantity > 0)
             .Otherwise(item => otherwiseCount++);
 
         var order = new Order
@@ -79,7 +79,7 @@ public class ForeachRuleAdvancedTests
         var ruleSet = new RuleSet();
 
         ruleSet.AddRule<Order, OrderItem>("oth-msg", o => o.Items)
-            .If(item => item.Quantity > 0)
+            .When(item => item.Quantity > 0)
             .Otherwise("{0} has no quantity", item => item.Product);
 
         var order = new Order
@@ -100,7 +100,7 @@ public class ForeachRuleAdvancedTests
         var ruleSet = new RuleSet();
 
         ruleSet.AddRule<Order, OrderItem>("oth-grp", o => o.Items)
-            .If(item => item.Quantity > 0)
+            .When(item => item.Quantity > 0)
             .Otherwise("items", "{0} missing", item => item.Product);
 
         var order = new Order
@@ -120,7 +120,7 @@ public class ForeachRuleAdvancedTests
         var ruleSet = new RuleSet();
 
         ruleSet.AddRule<Order, OrderItem>("oth-cat", o => o.Items)
-            .If(item => item.Quantity > 0)
+            .When(item => item.Quantity > 0)
             .Otherwise(RuleEvent.EventCategory.Violation, "items", "{0} invalid", item => item.Product);
 
         var order = new Order
@@ -143,7 +143,7 @@ public class ForeachRuleAdvancedTests
         var ruleSet = new RuleSet();
 
         ruleSet.AddRule<Order, OrderItem>("oa", o => o.Items)
-            .If(item => item.Quantity > 100)
+            .When(item => item.Quantity > 100)
             .OtherwiseAffirm(5);
 
         var order = new Order
@@ -168,7 +168,7 @@ public class ForeachRuleAdvancedTests
         var ruleSet = new RuleSet();
 
         ruleSet.AddRule<Order, OrderItem>("ov", o => o.Items)
-            .If(item => item.Quantity > 100)
+            .When(item => item.Quantity > 100)
             .OtherwiseVeto(3);
 
         var order = new Order
@@ -191,7 +191,7 @@ public class ForeachRuleAdvancedTests
         var ruleSet = new RuleSet();
 
         ruleSet.AddRule<Order, OrderItem>("ta", o => o.Items)
-            .If(item => item.Quantity > 0)
+            .When(item => item.Quantity > 0)
             .ThenAffirm(7);
 
         var order = new Order
@@ -215,7 +215,7 @@ public class ForeachRuleAdvancedTests
         var ruleSet = new RuleSet();
 
         ruleSet.AddRule<Order, OrderItem>("tv", o => o.Items)
-            .If(item => item.Price <= 0)
+            .When(item => item.Price <= 0)
             .ThenVeto(4);
 
         var order = new Order
@@ -283,7 +283,7 @@ public class ForeachRuleAdvancedTests
         var ruleSet = new RuleSet();
 
         ruleSet.AddRule<Order, OrderItem>("msg", o => o.Items)
-            .If(item => item.Quantity > 0)
+            .When(item => item.Quantity > 0)
             .Then("Processed {0}", item => item.Product);
 
         var order = new Order
@@ -303,7 +303,7 @@ public class ForeachRuleAdvancedTests
         var ruleSet = new RuleSet();
 
         ruleSet.AddRule<Order, OrderItem>("grp", o => o.Items)
-            .If(item => item.Quantity > 0)
+            .When(item => item.Quantity > 0)
             .Then("processing", "Item {0}", item => item.Product);
 
         var order = new Order
@@ -323,7 +323,7 @@ public class ForeachRuleAdvancedTests
         var ruleSet = new RuleSet();
 
         ruleSet.AddRule<Order, OrderItem>("cat", o => o.Items)
-            .If(item => item.Quantity > 0)
+            .When(item => item.Quantity > 0)
             .Then(RuleEvent.EventCategory.Warning, "trace", "Item {0}", item => item.Product);
 
         var order = new Order
@@ -570,7 +570,7 @@ public class ForeachRuleAdvancedTests
 
         // Test that And works by excluding items that fail the first condition
         ruleSet.AddRule<Order, OrderItem>("multi-cond", o => o.Items)
-            .If(item => item.Quantity > 3)
+            .When(item => item.Quantity > 3)
             .And(item => item.Price > 0)
             .Then(item => processed.Add(item.Product));
 

@@ -31,7 +31,7 @@ public class RuleEvaluationTests
         var fired = false;
 
         ruleSet.AddRule<Person>("age-check")
-            .If(p => p.Age >= 18)
+            .When(p => p.Age >= 18)
             .Then(p => { fired = true; });
 
         var person = new Person { Name = "Alice", Age = 25 };
@@ -49,7 +49,7 @@ public class RuleEvaluationTests
         var fired = false;
 
         ruleSet.AddRule<Person>("age-check")
-            .If(p => p.Age >= 18)
+            .When(p => p.Age >= 18)
             .Then(p => { fired = true; });
 
         var person = new Person { Name = "Child", Age = 10 };
@@ -66,7 +66,7 @@ public class RuleEvaluationTests
         var fired = false;
 
         ruleSet.AddRule<Person>("multi-cond")
-            .If(p => p.Age >= 18)
+            .When(p => p.Age >= 18)
             .And(p => p.IsActive)
             .Then(p => { fired = true; });
 
@@ -84,7 +84,7 @@ public class RuleEvaluationTests
         var fired = false;
 
         ruleSet.AddRule<Person>("multi-cond")
-            .If(p => p.Age >= 18)
+            .When(p => p.Age >= 18)
             .And(p => p.IsActive)
             .Then(p => { fired = true; });
 
@@ -121,7 +121,7 @@ public class RuleEvaluationTests
         var firedOtherwise = false;
 
         ruleSet.AddRule<Person>("negate-check")
-            .If(p => p.Age >= 18)
+            .When(p => p.Age >= 18)
             .Otherwise(p => { firedOtherwise = true; });
 
         var child = new Person { Name = "Child", Age = 10 };
@@ -137,7 +137,7 @@ public class RuleEvaluationTests
         var firedOtherwise = false;
 
         ruleSet.AddRule<Person>("negate-check")
-            .If(p => p.Age >= 18)
+            .When(p => p.Age >= 18)
             .Otherwise(p => { firedOtherwise = true; });
 
         var adult = new Person { Name = "Adult", Age = 25 };
@@ -256,7 +256,7 @@ public class RuleEvaluationTests
         var ruleSet = new RuleSet();
 
         ruleSet.AddRule<Person>("affirm")
-            .If(p => p.Age >= 18)
+            .When(p => p.Age >= 18)
             .ThenAffirm(10);
 
         var result = EvaluateSafe(ruleSet, new Person { Name = "Adult", Age = 25 });
@@ -271,7 +271,7 @@ public class RuleEvaluationTests
         var ruleSet = new RuleSet();
 
         ruleSet.AddRule<Person>("veto")
-            .If(p => p.Age < 18)
+            .When(p => p.Age < 18)
             .ThenVeto(5);
 
         var result = EvaluateSafe(ruleSet, new Person { Name = "Child", Age = 10 });
@@ -361,7 +361,7 @@ public class RuleEvaluationTests
         var matches = new List<string>();
 
         ruleSet.AddRule<Person, Order>("cross")
-            .If((p, o) => p.Name == o.CustomerName)
+            .When((p, o) => p.Name == o.CustomerName)
             .Then((p, o) => matches.Add($"{p.Name}-{o.OrderId}"));
 
         EvaluateSafe(ruleSet,
@@ -414,13 +414,13 @@ public class RuleEvaluationTests
 
         ruleSet.AddRule<Person>("modifier")
             .WithSalience(100)
-            .If(p => p.Status == "new")
+            .When(p => p.Status == "new")
             .Then(p => { p.Status = "processed"; fireCount++; })
             .Modifies(p => p);
 
         ruleSet.AddRule<Person>("after-modify")
             .WithSalience(200)
-            .If(p => p.Status == "processed")
+            .When(p => p.Status == "processed")
             .Then(p => { fireCount++; });
 
         var person = new Person { Name = "Test", Status = "new" };
@@ -439,7 +439,7 @@ public class RuleEvaluationTests
         var ruleSet = new RuleSet();
 
         ruleSet.AddRule<Person>("no-op")
-            .If(p => p.Age > 0)
+            .When(p => p.Age > 0)
             .NoConsequence();
 
         var result = EvaluateSafe(ruleSet, new Person { Name = "Test", Age = 25 });

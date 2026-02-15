@@ -15,7 +15,7 @@ public class RuleTreeTests
     {
         var tree = new RuleTree();
         var rule = new Rule<Person>("test", "rule1")
-            .If(p => p.Age > 18)
+            .When(p => p.Age > 18)
             .Then(p => { });
 
         tree.Add([typeof(Person)], [rule]);
@@ -31,7 +31,7 @@ public class RuleTreeTests
     {
         var tree = new RuleTree();
         var rule = new Rule<Person>("test", "rule1")
-            .If(p => p.Age > 18)
+            .When(p => p.Age > 18)
             .Then(p => { });
 
         tree.Add([typeof(Person)], [rule]);
@@ -46,10 +46,10 @@ public class RuleTreeTests
     {
         var tree = new RuleTree();
         var rule1 = new Rule<Person>("test", "rule1")
-            .If(p => p.Age > 18)
+            .When(p => p.Age > 18)
             .Then(p => { });
         var rule2 = new Rule<Person>("test", "rule2")
-            .If(p => p.Age < 65)
+            .When(p => p.Age < 65)
             .Then(p => { });
 
         tree.Add([typeof(Person)], [rule1, rule2]);
@@ -66,7 +66,7 @@ public class RuleTreeTests
     {
         var tree = new RuleTree();
         var rule = new Rule<Person, Order>("test", "cross-rule")
-            .If((p, o) => p.Name == o.CustomerName)
+            .When((p, o) => p.Name == o.CustomerName)
             .Then((p, o) => { });
 
         tree.Add([typeof(Person), typeof(Order)], [rule]);
@@ -84,10 +84,10 @@ public class RuleTreeTests
     {
         var tree = new RuleTree();
         var rule1 = new Rule<Person>("namespace1", "rule1")
-            .If(p => true)
+            .When(p => true)
             .Then(p => { });
         var rule2 = new Rule<Person>("namespace2", "rule2")
-            .If(p => true)
+            .When(p => true)
             .Then(p => { });
 
         tree.Add([typeof(Person)], [rule1, rule2]);
@@ -103,10 +103,10 @@ public class RuleTreeTests
     {
         var tree = new RuleTree();
         var rule1 = new Rule<Person>("ns1", "rule1")
-            .If(p => true)
+            .When(p => true)
             .Then(p => { });
         var rule2 = new Rule<Person>("ns2", "rule2")
-            .If(p => true)
+            .When(p => true)
             .Then(p => { });
 
         tree.Add([typeof(Person)], [rule1, rule2]);
@@ -124,7 +124,7 @@ public class RuleTreeTests
     {
         var tree = new RuleTree();
         var rule = new Rule<Person>("test", "rule1")
-            .If(p => true)
+            .When(p => true)
             .Then(p => { });
 
         tree.Add([typeof(Person)], [rule]);
@@ -164,7 +164,7 @@ public class RuleTreeTests
     {
         var tree = new RuleTree();
         var rule1 = new Rule<Person>("test", "rule1")
-            .If(p => true)
+            .When(p => true)
             .Then(p => { });
 
         tree.Add([typeof(Person)], [rule1]);
@@ -185,7 +185,7 @@ public class RuleTreeTests
     {
         var tree = new RuleTree();
         var rule1 = new Rule<Person>("test", "rule1")
-            .If(p => true)
+            .When(p => true)
             .Then(p => { });
         var rule2 = new Rule<object>("test", "object-rule")
             .Fire(o => { });
@@ -206,7 +206,7 @@ public class RuleTreeTests
     {
         var tree = new RuleTree();
         var rule = new Rule<Person>("test", "rule1")
-            .If(p => true)
+            .When(p => true)
             .Then(p => { });
 
         tree.Add([typeof(Person)], [rule]);
@@ -219,7 +219,7 @@ public class RuleTreeTests
 
         // Re-add after clear should work
         var rule2 = new Rule<Person>("test", "rule2")
-            .If(p => true)
+            .When(p => true)
             .Then(p => { });
         tree.Add([typeof(Person)], [rule2]);
 
@@ -234,10 +234,10 @@ public class RuleTreeTests
     {
         var tree = new RuleTree();
         var rule1 = new Rule<Person, Order>("test", "rule1")
-            .If((p, o) => true)
+            .When((p, o) => true)
             .Then((p, o) => { });
         var rule2 = new Rule<Person, object>("test", "rule2")
-            .If((p, o) => true)
+            .When((p, o) => true)
             .Then((p, o) => { });
 
         // Add both rules before any query
@@ -259,7 +259,7 @@ public class RuleTreeTests
     {
         var tree = new RuleTree();
         var rule = new Rule<Person>("test", "rule1")
-            .If(p => true)
+            .When(p => true)
             .Then(p => { });
 
         tree.Add([typeof(Person)], [rule]);
@@ -272,7 +272,7 @@ public class RuleTreeTests
     {
         var tree = new RuleTree();
         var rule = new Rule<Person>("test", "rule1")
-            .If(p => true)
+            .When(p => true)
             .Then(p => { });
 
         tree.Add([typeof(Person)], [rule]);

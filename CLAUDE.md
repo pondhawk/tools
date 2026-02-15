@@ -54,7 +54,7 @@ A Serilog `ILogEventSink` with Channel-based batching, plus the full Watch loggi
 
 A forward-chaining rule engine with type-based fact matching. Fully standalone — no dependency on Pondhawk.Core. Uses `Microsoft.Extensions.Logging` for listener infrastructure (Serilog picks up MS Logging events transparently). Key subsystems:
 
-- **Builder** (`Pondhawk.Rules.Builder`): Fluent API for defining rules. `RuleBuilder<TFact1..TFact4>` creates `Rule<T>` instances via `If().And().Then()` chains. Supports up to 4 fact types per rule. Rules have salience (priority), mutex (mutual exclusion), fire-once, inception/expiration.
+- **Builder** (`Pondhawk.Rules.Builder`): Fluent API for defining rules. `RuleBuilder<TFact1..TFact4>` creates `Rule<T>` instances via `When().And().Then()` chains. Supports up to 4 fact types per rule. Rules have salience (priority), mutex (mutual exclusion), fire-once, inception/expiration.
 - **Evaluation** (`Pondhawk.Rules.Evaluation`): `EvaluationPlan` generates all fact-type combinations using variations-with-repetition. `TupleEvaluator` executes rules in salience order against fact tuples. `FactSpace` stores facts with int selectors for memory efficiency.
 - **Tree** (`Pondhawk.Rules.Tree`): `RuleTree` indexes rules by fact types for fast lookup with polymorphic type matching.
 - **Validation** (`Pondhawk.Rules.Validators`): `ValidationBuilder<TFact>` with `Assert<T>(expr).Is().IsNot().Otherwise()` chains. Runs at very high salience.

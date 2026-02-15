@@ -12,11 +12,11 @@ public class PersonAgeRules : RuleBuilder<Person>
     public PersonAgeRules()
     {
         Rule()
-            .If(p => p.Age >= 18)
+            .When(p => p.Age >= 18)
             .Then(p => { });
 
         Rule("minor")
-            .If(p => p.Age < 18)
+            .When(p => p.Age < 18)
             .Then("minors", "Person {0} is a minor", p => p.Name);
     }
 }

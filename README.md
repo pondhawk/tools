@@ -27,7 +27,6 @@ Pondhawk Tools is a collection of class libraries built by [Pond Hawk Technologi
 | **Pondhawk.Rql** | Resource Query Language — filtering DSL with fluent builder, parser, and SQL/LINQ serialization |
 | **Pondhawk.Core** | Shared foundation — pipeline infrastructure, utilities, exception types |
 | **Pondhawk.Watch** | Serilog logging API + sink with Channel-based batching and circuit-breaker resilience |
-| **Pondhawk.Watch.Framework** | Shared Watch types, sinks, and switch infrastructure (targets `netstandard2.0`) |
 | **Pondhawk.Hosting** | `AddSingletonWithStart<T>()` pattern for co-locating service registration with startup logic |
 
 ## Getting Started
@@ -424,10 +423,6 @@ services.AddSingletonWithStart<CacheService>(
     (svc, ct) => svc.FlushAsync(ct));
 ```
 
-### Pondhawk.Watch.Framework
-
-Shared types for the Watch pipeline targeting `netstandard2.0`: `LogEvent`, `LogEventBatch`, `ISwitch`/`ISwitchSource`, sink providers, and `Microsoft.Extensions.Logging` integration via `WatchLoggerProvider`.
-
 ---
 
 ## Dependency Graph
@@ -435,7 +430,6 @@ Shared types for the Watch pipeline targeting `netstandard2.0`: `LogEvent`, `Log
 ```
 Pondhawk.Core              (foundation — pipeline, utilities, exceptions)
 Pondhawk.Watch             (standalone — logging API, Serilog sink)
-Pondhawk.Watch.Framework   (standalone — M.E.Logging provider, netstandard2.0)
 
 Pondhawk.Rules             (standalone)
     ^

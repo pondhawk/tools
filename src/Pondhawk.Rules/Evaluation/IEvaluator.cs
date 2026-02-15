@@ -24,6 +24,9 @@ SOFTWARE.
 
 namespace Pondhawk.Rules.Evaluation;
 
+/// <summary>
+/// Evaluates rules against the facts in an <see cref="EvaluationContext"/> and returns aggregated results.
+/// </summary>
 public interface IEvaluator
 {
     EvaluationResults Evaluate( EvaluationContext context );

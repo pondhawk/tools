@@ -1,6 +1,9 @@
 ﻿
 namespace Pondhawk.Rql;
 
+/// <summary>
+/// Exception thrown for RQL parsing, serialization, or validation errors.
+/// </summary>
 public class RqlException: Exception
 {
 

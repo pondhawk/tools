@@ -28,6 +28,26 @@ using Pondhawk.Rules.Listeners;
 using Pondhawk.Rules.Tree;
 namespace Pondhawk.Rules.Factory;
 
+/// <summary>
+/// Factory that discovers and loads rule builders from registered sources, producing configured <see cref="IRuleSet"/> instances.
+/// </summary>
+/// <remarks>
+/// Uses <see cref="System.Lazy{T}"/> for thread-safe exactly-once initialization.
+/// Register builder sources via <see cref="AddSources"/> or <see cref="AddAllSources"/>,
+/// then call <see cref="Start"/> to discover and load all rule builders.
+/// Use <see cref="GetRuleSet()"/> to obtain an <see cref="IRuleSet"/> for evaluation.
+/// Integrates with <c>Pondhawk.Hosting</c> via <c>AddSingletonWithStart</c>.
+/// </remarks>
+/// <example>
+/// <code>
+/// var factory = new RuleSetFactory();
+/// factory.AddSources(new RuleBuilderSource(typeof(OrderRules).Assembly));
+/// factory.Start();
+///
+/// IRuleSet ruleSet = factory.GetRuleSet();
+/// var result = ruleSet.Evaluate(order);
+/// </code>
+/// </example>
 public sealed class RuleSetFactory
 {
 

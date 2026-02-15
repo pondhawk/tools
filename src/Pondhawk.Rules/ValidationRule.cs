@@ -31,12 +31,19 @@ using Pondhawk.Rules.Util;
 
 namespace Pondhawk.Rules;
 
+/// <summary>
+/// Marker interface for validation rules targeting fact type <typeparamref name="TFact"/>.
+/// </summary>
 public interface IValidationRule<out TFact>: IRule
 {
         
 }
 
 
+/// <summary>
+/// A validation rule for fact type <typeparamref name="TFact"/> built using the <c>Assert().Is().Otherwise()</c> fluent API.
+/// Runs at very high salience by default.
+/// </summary>
 public class ValidationRule<TFact> : AbstractRule, IValidationRule<TFact>
 {
 

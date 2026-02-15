@@ -1,61 +1,35 @@
-# Fabrica.Watch
+# Pondhawk.Watch
 
-A pure Microsoft.Extensions.Logging provider for structured logging with rich UI visualization support.
-
-## Installation
-
-```bash
-dotnet add package Fabrica.Watch
-```
+A Serilog `ILogEventSink` with Channel-based batching for the Watch structured logging pipeline. Provides rich structured logging with method tracing, object serialization, and multiple sink targets.
 
 ## Quick Start
 
-### Basic Console Logging
+### Configure the Serilog Sink
 
 ```csharp
-using Fabrica.Watch;
+using Serilog;
 
-var builder = WebApplication.CreateBuilder(args);
-
-builder.Logging.AddWatch(w => w
-    .UseConsole()
-    .WhenNotMatched(Level.Debug, System.Drawing.Color.LightGray));
-
-var app = builder.Build();
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Debug()
+    .WriteTo.WatchSink()
+    .CreateLogger();
 ```
 
-### Production (Watch Server)
+### Use the Logging API
 
 ```csharp
-builder.Logging.AddWatch(w => w
-    .UseHttpSink("http://watch-server:11000", "MyApp")
-    .UseHttpSwitchSource("http://watch-server:11000", "MyApp"));
-```
+using Pondhawk.Logging;
 
-### High Performance (Quiet Mode)
-
-```csharp
-builder.Logging.AddWatch(w => w.UseQuiet());
-```
-
-## Usage
-
-### Standard Logging
-
-```csharp
-public class MyService
+public class OrderService
 {
-    private readonly ILogger<MyService> _logger;
-
-    public MyService(ILogger<MyService> logger)
+    public void ProcessOrder(int orderId)
     {
-        _logger = logger;
-    }
+        using var _ = this.EnterMethod();
+        var logger = this.GetLogger();
 
-    public void DoWork()
-    {
-        _logger.LogInformation("Processing started");
-        _logger.LogWarning("Resource usage high: {Usage}%", 85);
+        logger.Debug("Loading order {OrderId}", orderId);
+        var order = LoadOrder(orderId);
+        logger.LogObject(order);
     }
 }
 ```
@@ -63,64 +37,57 @@ public class MyService
 ### Method Tracing
 
 ```csharp
-public async Task ProcessOrder(int orderId)
+public async Task ProcessAsync(int orderId)
 {
-    using var scope = _logger.EnterMethod();
-
-    _logger.LogInformation("Processing order {OrderId}", orderId);
-    // ... method body ...
+    using var _ = this.EnterMethod();
+    // Logs "Entering ClassName.ProcessAsync" at Verbose level
+    // On dispose: "Exiting ClassName.ProcessAsync (elapsed ms)"
 }
-// Automatically logs entry/exit with timing
 ```
 
 ### Object Serialization
 
 ```csharp
-_logger.LogObject(myDto);                      // Serialize to JSON
-_logger.LogObject("Order Details", order);     // With custom title
+logger.LogObject(order);                       // Serialize to JSON payload
+logger.LogObject("Fetched Order", order);      // With custom title
+
+// Typed payloads with syntax highlighting hints
+logger.LogJson("API Response", jsonString);
+logger.LogSql("Query", sqlString);
+logger.LogXml("Configuration", xmlString);
+logger.LogYaml("Settings", yamlString);
+logger.LogText("Output", textString);
 ```
 
-### Typed Payloads (Syntax Highlighting)
+### Sensitive Data Masking
 
 ```csharp
-_logger.LogJson("API Response", jsonString);
-_logger.LogSql("Query", sqlString);
-_logger.LogXml("Configuration", xmlString);
-_logger.LogYaml("Settings", yamlString);
-_logger.LogText("Output", textString);
+public class Credentials
+{
+    public string Username { get; set; }
+
+    [Sensitive]
+    public string Password { get; set; }  // Logged as "Sensitive - HasValue: true"
+}
 ```
 
-## Configuration Options
+## Key Components
 
-### Builder Methods
+- **WatchSink** -- `ILogEventSink` with unbounded `Channel` batching. Converts Serilog events to Watch `LogEvent` instances.
+- **Switching** -- Dynamic log level control via `ISwitch`/`ISwitchSource` with pattern matching (longest prefix wins).
+- **Console Sink** -- Colored console output.
+- **Monitor Sink** -- Accumulates events for testing.
+- **HTTP Sink** -- Posts event batches to Watch Server with circuit breaker and critical event buffering.
+- **LogEvent / LogEventBatch** -- MemoryPack-serializable event model with Brotli compression.
 
-| Method | Description |
-|--------|-------------|
-| `UseQuiet()` | Zero overhead, no logging |
-| `UseConsole()` | Console output |
-| `UseHttpSink(url, domain)` | Send to Watch Server |
-| `UseHttpSwitchSource(url, domain)` | Fetch switches from server |
-| `UseLocalSwitchSource(config)` | Local switch configuration |
-| `WithDomain(name)` | Set batch domain name |
-| `WithBatchSize(size)` | Events per batch |
-| `WithFlushInterval(span)` | Max time before flush |
-| `WhenNotMatched(level, color)` | Default switch |
-| `WhenMatched(pattern, level, color)` | Pattern-specific switch |
+## Architecture
 
-## Features
+Events flow: Serilog `ILogger` -> WatchSink (Channel queue) -> Background batch task -> Event sink (Console / HTTP / Monitor).
 
-- **Version-based switch invalidation**: Cached loggers automatically update when switches change
-- **Channel-based batching**: Efficient async batching with configurable size/timing
-- **Circuit breaker**: HTTP sink gracefully handles server outages
-- **Critical event buffering**: Warning/Error events preserved during outages
-- **Zero-allocation quiet mode**: For high-performance production scenarios
-- **Rich payload types**: JSON, SQL, XML, YAML syntax highlighting in UI
-- **Method tracing**: Automatic entry/exit logging with timing
+Switch-based filtering checks the source context pattern against configured switches. Longest prefix match wins. Version-based invalidation ensures cached loggers see switch updates without recreation.
+
+Depends on `Pondhawk.Core` for the logging API types (`SerilogExtensions`, `MethodLogger`, `PayloadType`, `SensitiveAttribute`).
 
 ## Documentation
 
-See [CLAUDE.md](CLAUDE.md) for detailed documentation and AI development guidance.
-
-## License
-
-MIT License - See LICENSE file for details.
+See [CLAUDE.md](CLAUDE.md) for detailed AI development guidance and logging conventions.

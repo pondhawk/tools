@@ -24,6 +24,9 @@ SOFTWARE.
 
 namespace Pondhawk.Rules.Builder;
 
+/// <summary>
+/// Represents a single rule with conditions and a consequence. Rules are matched against facts during evaluation.
+/// </summary>
 public interface IRule
 {
     string Namespace { get; }

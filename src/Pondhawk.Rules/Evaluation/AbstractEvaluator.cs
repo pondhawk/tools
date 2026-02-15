@@ -30,6 +30,9 @@ using Pondhawk.Rules.Util;
 
 namespace Pondhawk.Rules.Evaluation;
 
+/// <summary>
+/// Base evaluator that executes the forward-chaining evaluation loop against a rule base and fact space.
+/// </summary>
 public abstract class AbstractEvaluator : IEvaluator
 {
 

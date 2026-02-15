@@ -27,6 +27,9 @@ using CommunityToolkit.Diagnostics;
 namespace Pondhawk.Rql.Builder
 {
 
+    /// <summary>
+    /// Represents the name of a field targeted by an RQL predicate. Supports case-insensitive equality.
+    /// </summary>
     public class Target(string name)
     {
 

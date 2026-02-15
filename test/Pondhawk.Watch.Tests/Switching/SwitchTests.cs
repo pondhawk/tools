@@ -21,66 +21,52 @@ public class SwitchTests
     }
 
     [Fact]
-    public void WhenMatched_SetsPattern()
+    public void Initializer_SetsPattern()
     {
-        var sw = Switch.Create().WhenMatched("MyApp.Services");
+        var sw = new Switch { Pattern = "MyApp.Services" };
 
         sw.Pattern.ShouldBe("MyApp.Services");
     }
 
     [Fact]
-    public void UseLevel_SetsLevel()
+    public void Initializer_SetsLevel()
     {
-        var sw = Switch.Create().UseLevel(LogEventLevel.Debug);
+        var sw = new Switch { Level = LogEventLevel.Debug };
 
         sw.Level.ShouldBe(LogEventLevel.Debug);
     }
 
     [Fact]
-    public void UseColor_SetsColor()
+    public void Initializer_SetsColor()
     {
-        var sw = Switch.Create().UseColor(Color.Red);
+        var sw = new Switch { Color = Color.Red };
 
         sw.Color.ShouldBe(Color.Red);
     }
 
     [Fact]
-    public void UseTag_SetsTag()
+    public void Initializer_SetsTag()
     {
-        var sw = Switch.Create().UseTag("Infrastructure");
+        var sw = new Switch { Tag = "Infrastructure" };
 
         sw.Tag.ShouldBe("Infrastructure");
     }
 
     [Fact]
-    public void FluentChain_SetsAllProperties()
+    public void Initializer_SetsAllProperties()
     {
-        var sw = Switch.Create()
-            .WhenMatched("MyApp")
-            .UseLevel(LogEventLevel.Warning)
-            .UseColor(Color.Blue)
-            .UseTag("Test");
+        var sw = new Switch
+        {
+            Pattern = "MyApp",
+            Level = LogEventLevel.Warning,
+            Color = Color.Blue,
+            Tag = "Test"
+        };
 
         sw.Pattern.ShouldBe("MyApp");
         sw.Level.ShouldBe(LogEventLevel.Warning);
         sw.Color.ShouldBe(Color.Blue);
         sw.Tag.ShouldBe("Test");
-    }
-
-    [Fact]
-    public void FluentMethods_ReturnSameInstance()
-    {
-        var sw = Switch.Create();
-
-        var r1 = sw.WhenMatched("p");
-        var r2 = r1.UseLevel(LogEventLevel.Debug);
-        var r3 = r2.UseColor(Color.Green);
-        var r4 = r3.UseTag("t");
-
-        r1.ShouldBeSameAs(sw);
-        r2.ShouldBeSameAs(sw);
-        r3.ShouldBeSameAs(sw);
-        r4.ShouldBeSameAs(sw);
     }
 
 }

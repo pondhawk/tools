@@ -5,6 +5,9 @@ using Serilog.Core;
 
 namespace Pondhawk.Logging;
 
+/// <summary>
+/// Default <see cref="ILoggerSource"/> that creates Serilog loggers using the type's concise full name as the source context.
+/// </summary>
 public class LoggerSource : ILoggerSource
 {
     public ILogger GetLogger(object source)

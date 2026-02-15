@@ -61,7 +61,10 @@ internal sealed partial class ServiceStarterHostedService : IHostedService
             var service = _provider.GetService(descriptor.ServiceType);
 
             if (service is null)
+            {
+                LogServiceNotResolved(serviceName);
                 continue;
+            }
 
             LogServiceStopping(serviceName);
             try

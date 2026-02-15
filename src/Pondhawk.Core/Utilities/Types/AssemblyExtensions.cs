@@ -27,6 +27,9 @@ using CommunityToolkit.Diagnostics;
 
 namespace Pondhawk.Utilities.Types;
 
+/// <summary>
+/// Extension methods for <see cref="System.Reflection.Assembly"/> to query embedded resources and filter types.
+/// </summary>
 public static class AssemblyExtensions
 {
 

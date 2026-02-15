@@ -5,6 +5,34 @@ using Pondhawk.Rules.Util;
 
 namespace Pondhawk.Rules;
 
+/// <summary>
+/// Base class for defining validation rules using a fluent <c>Assert</c>/<c>AssertOver</c> API with support for mutex and conditional groups.
+/// </summary>
+/// <remarks>
+/// Validations run at very high salience (100000+) so they always fire before business rules.
+/// Use <c>Assert&lt;T&gt;(expr)</c> for scalar properties and <c>AssertOver&lt;T&gt;(expr)</c> for collection properties.
+/// Use <c>When(predicate, () =&gt; { ... })</c> to group validations under a condition.
+/// Use <c>Mutex(() =&gt; { ... })</c> so only the first failing validation in a group fires.
+/// Violations are collected as <see cref="RuleEvent"/> with <c>EventCategory.Violation</c>.
+/// </remarks>
+/// <example>
+/// <code>
+/// public class PersonValidation : ValidationBuilder&lt;Person&gt;
+/// {
+///     public PersonValidation()
+///     {
+///         Assert&lt;string&gt;(p =&gt; p.Name).Required();
+///         Assert&lt;string&gt;(p =&gt; p.Email).Required().IsEmail();
+///         Assert&lt;int&gt;(p =&gt; p.Age).IsGreaterThanOrEqual(0).IsLessThanOrEqual(150);
+///
+///         When(p =&gt; p.IsEmployee, () =&gt;
+///         {
+///             Assert&lt;string&gt;(p =&gt; p.EmployeeId).Required();
+///         });
+///     }
+/// }
+/// </code>
+/// </example>
 public abstract class ValidationBuilder<TFact>: AbstractRuleBuilder, IBuilder
 {
 

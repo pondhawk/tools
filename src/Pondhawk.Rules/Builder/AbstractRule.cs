@@ -26,6 +26,15 @@ using Pondhawk.Rules.Evaluation;
 
 namespace Pondhawk.Rules.Builder;
 
+/// <summary>
+/// Base class for all rule implementations, providing salience, mutex, fire-once, inception/expiration, and scoring support.
+/// </summary>
+/// <remarks>
+/// <para><b>Salience</b> (default 500): Higher-salience rules evaluate and fire first. Validation rules use 100,000+ to always run before business rules.</para>
+/// <para><b>Mutex:</b> When multiple rules share a mutex name, only the first rule that matches within that group fires; the rest are skipped.</para>
+/// <para><b>Fire-once:</b> When enabled, a rule will not fire again for the same fact tuple within an evaluation session, even across forward-chaining cycles.</para>
+/// <para><b>Inception/Expiration:</b> Time-windowing — the rule only fires when <c>DateTime.Now</c> falls between inception and expiration.</para>
+/// </remarks>
 public abstract class AbstractRule : IRule
 {
 

@@ -2,6 +2,9 @@
 {
 
     
+    /// <summary>
+    /// Represents a named date/time range with begin and end boundaries and Unix timestamps.
+    /// </summary>
     public interface IDateTimeRange
     {
 

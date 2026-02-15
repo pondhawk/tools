@@ -27,6 +27,9 @@ using Microsoft.Extensions.Logging.Abstractions;
 
 namespace Pondhawk.Rules.Listeners;
 
+/// <summary>
+/// Creates <see cref="WatchEvaluationListener"/> instances using a configured <see cref="Microsoft.Extensions.Logging.ILoggerFactory"/>.
+/// </summary>
 public sealed class WatchEvaluationListenerFactory: IEvaluationListenerFactory
 {
 

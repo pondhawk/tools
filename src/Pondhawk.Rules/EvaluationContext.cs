@@ -28,6 +28,21 @@ using Pondhawk.Rules.Listeners;
 
 namespace Pondhawk.Rules;
 
+/// <summary>
+/// Holds the state for a single rule evaluation session, including facts, results, configuration, and lookup tables.
+/// </summary>
+/// <remarks>
+/// <para>By default, evaluation throws <see cref="Exceptions.ViolationsExistException"/> if violations are found
+/// and <see cref="Exceptions.NoRulesEvaluatedException"/> if no rules match. Use <c>SuppressExceptions()</c>,
+/// <c>SuppressValidationException()</c>, or <c>SuppressNoRulesException()</c> to disable.</para>
+/// <para><b>Safety limits:</b> <c>MaxEvaluations</c> (default 500,000) and <c>MaxDuration</c> (default 10s)
+/// prevent runaway forward-chaining loops. When exceeded, <see cref="Exceptions.EvaluationExhaustedException"/> is thrown.</para>
+/// <para><b>Lookup tables:</b> <c>AddLookup</c> registers keyed data that rules can access via <c>Lookup&lt;T&gt;(key)</c>
+/// during consequence execution, enabling join-like lookups without inserting reference data as facts.</para>
+/// <para><b>Forward chaining:</b> <c>InsertFact</c>/<c>ModifyFact</c>/<c>RetractFact</c> are called from rule consequences
+/// to trigger re-evaluation of affected rules in the current session.</para>
+/// <para><b>Shared state:</b> The <c>Shared</c> dictionary allows rules to pass data between consequences.</para>
+/// </remarks>
 public sealed class EvaluationContext
 {
     public EvaluationContext()

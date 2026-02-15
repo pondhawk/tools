@@ -27,7 +27,17 @@ using Pondhawk.Rules.Evaluation;
 
 namespace Pondhawk.Rules;
 
-public class ForeachRule<TParent,TFact>: AbstractRule
+/// <summary>
+/// A rule that iterates over child facts extracted from a parent fact, evaluating conditions and firing consequences per child.
+/// </summary>
+/// <remarks>
+/// <para>Child facts are <b>not</b> inserted into the fact space and do not participate in forward chaining.
+/// Only the parent fact is tracked. Use <c>Modifies()</c> to signal that the parent was modified,
+/// which triggers re-evaluation. If children must participate in forward chaining, use <c>Cascade</c> instead.</para>
+/// <para>The extractor function (e.g. <c>p =&gt; p.Children</c>) is called during evaluation to get the collection.
+/// Each child that passes all conditions has its consequence fired.</para>
+/// </remarks>
+public sealed class ForeachRule<TParent,TFact>: AbstractRule
 {
 
     public ForeachRule( Func<TParent,IEnumerable<TFact>> extractor,  string setName, string ruleName ): base( setName, ruleName )
@@ -44,9 +54,9 @@ public class ForeachRule<TParent,TFact>: AbstractRule
 
     public bool Negated { get; private set; }
 
-    protected List<Func<TFact, bool>> Conditions { get; set; }
-    protected Action<TFact> Consequence { get; set; }
-    protected Func<TParent, object> ModifyFunc { get; set; }
+    private List<Func<TFact, bool>> Conditions { get; set; }
+    private Action<TFact> Consequence { get; set; }
+    private Func<TParent, object> ModifyFunc { get; set; }
 
     
     public ForeachRule<TParent,TFact> WithSalience( int value )
@@ -264,16 +274,14 @@ public class ForeachRule<TParent,TFact>: AbstractRule
 
     private void _BuildMessage( TFact fact, RuleEvent.EventCategory category, string group, string template,  Func<TFact, object>[] parameters )
     {
-        int len = parameters.Length;
-
-        if (len == 0)
+        if (parameters.Length == 0)
         {
             RuleThreadLocalStorage.CurrentContext.Event( category, group, template, fact );
             return;
         }
 
-        var markers = new object[len];
-        for (int i = 0; i < len; i++)
+        var markers = new object[parameters.Length];
+        for (int i = 0; i < parameters.Length; i++)
         {
             object o = parameters[i]( fact ) ?? "null";
             markers[i] = o;

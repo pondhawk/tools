@@ -1,5 +1,8 @@
 ﻿namespace Pondhawk.Utilities.Types;
 
+/// <summary>
+/// Provides pre-built date/time range models and methods for calculating date ranges and Unix timestamps.
+/// </summary>
 public static class DateTimeHelpers
 {
 
@@ -57,10 +60,11 @@ public static class DateTimeHelpers
 
 
         AllModels = PastModels.Concat(FutureModels).ToList();
+        RecentModels = PastModels.Take(13).ToList();
 
     }
-    
-    public static IReadOnlyCollection<IDateTimeRange> RecentModels => PastModels.Take(13).ToList();
+
+    public static IReadOnlyCollection<IDateTimeRange> RecentModels { get; }
     public static IReadOnlyCollection<IDateTimeRange> PastModels { get; }
     public static IReadOnlyCollection<IDateTimeRange> FutureModels { get; }
     public static IReadOnlyCollection<IDateTimeRange> AllModels { get; }

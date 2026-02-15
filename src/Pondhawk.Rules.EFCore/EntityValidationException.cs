@@ -2,8 +2,15 @@ using Pondhawk.Rules;
 
 namespace Pondhawk.Rules.EFCore;
 
+/// <summary>
+/// Thrown when EF Core entity validation fails. Carries the <see cref="Pondhawk.Rules.ValidationResult"/>
+/// containing all violations.
+/// </summary>
 public sealed class EntityValidationException : Exception
 {
+    /// <summary>
+    /// The structured validation result containing violations grouped by category.
+    /// </summary>
     public ValidationResult ValidationResult { get; }
 
     public EntityValidationException(ValidationResult validationResult)

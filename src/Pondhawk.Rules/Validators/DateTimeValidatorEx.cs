@@ -27,6 +27,9 @@ using Humanizer;
 
 namespace Pondhawk.Rules.Validators;
 
+/// <summary>
+/// DateTime validation extensions (e.g. Required, IsInThePast, IsInTheFuture).
+/// </summary>
 public static class DateTimeValidatorEx
 {
 

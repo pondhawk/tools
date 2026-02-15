@@ -30,6 +30,24 @@ namespace Pondhawk.Rql.Serialization
 {
 
 
+    /// <summary>
+    /// Extension methods for serializing RQL filters to RQL text format, e.g. <c>(eq(Name,'John'),gt(Age,30))</c>.
+    /// </summary>
+    /// <remarks>
+    /// <para>Supported data types: string, bool, DateTime, decimal, short, int, long.</para>
+    /// <para>Strings are single-quoted with <c>'</c> escaping (<c>''</c>). DateTime values are prefixed with <c>@</c>.
+    /// Decimal values are prefixed with <c>#</c>. Boolean values are lower-cased.</para>
+    /// </remarks>
+    /// <example>
+    /// <code>
+    /// var filter = RqlFilterBuilder&lt;Person&gt;
+    ///     .Where(p =&gt; p.Name).Equals("O'Brien")
+    ///     .And(p =&gt; p.Age).GreaterThan(21);
+    ///
+    /// string rql = filter.ToRql();
+    /// // Result: (eq(Name,'O''Brien'),gt(Age,21))
+    /// </code>
+    /// </example>
     public static class RqlSerializerExtensions
     {
 

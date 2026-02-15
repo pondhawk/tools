@@ -28,7 +28,9 @@ using Pondhawk.Rules.Evaluation;
 
 namespace Pondhawk.Rules.Listeners;
 
-
+/// <summary>
+/// An <see cref="IEvaluationListener"/> that logs rule evaluation events via <see cref="Microsoft.Extensions.Logging.ILogger"/>.
+/// </summary>
 public sealed class WatchEvaluationListener: IEvaluationListener
 {
 

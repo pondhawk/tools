@@ -1,0 +1,126 @@
+# Pondhawk Tools
+
+> A .NET toolkit by Pond Hawk Technologies providing a forward-chaining rule engine, a resource query language (RQL), structured logging, and service lifecycle management.
+
+## Packages
+
+### Pondhawk.Rules — Forward-Chaining Rule Engine
+
+A standalone rule engine with type-based fact matching, fluent rule definition, validation, and weighted scoring/decisions.
+
+**Key Types:**
+- `RuleBuilder<TFact>` — Define rules in constructor: `Rule().If(predicate).Then(action)`
+- `ValidationBuilder<TFact>` — Define validations: `Assert<T>(expr).Required().IsEmail()`
+- `RuleSet` (Factory) — Runtime rule creation without static builder classes
+- `RuleSetFactory` — Discovers builders from assemblies, produces `IRuleSet` instances
+- `IRuleSet` — Evaluate facts, validate entities, make weighted decisions
+- `EvaluationContext` — Session state: facts, results, config, lookup tables
+- `EvaluationResults` — Events, scores, violations, timing, fired rules
+
+**Rule Fluent API:**
+```csharp
+Rule<Order>()
+    .If(o => o.Total > 1000)
+    .And(o => o.Status == "Pending")
+    .Then(o => o.RequiresApproval = true);
+```
+
+**Validation Fluent API:**
+```csharp
+Assert<string>(p => p.Name).Required();
+Assert<string>(p => p.Email).Required().IsEmail();
+Assert<int>(p => p.Age).IsGreaterThanOrEqual(0);
+```
+
+**Forward Chaining:** `Modifies(func)` triggers re-evaluation. `Cascade<T>(func)` inserts new facts.
+**Mutex:** `InMutex(name)` — only the first matching rule in a group fires.
+**Fire-once:** `FireOnce()` — rule fires at most once per session.
+**Scoring:** `ThenAffirm(weight)` / `ThenVeto(weight)` accumulate into `Score`. `Decide(threshold)` returns true if Score >= threshold.
+
+### Pondhawk.Rql — Resource Query Language
+
+A standalone filtering DSL with AST, fluent builder, parser, and serialization to LINQ, SQL, and RQL text.
+
+**Key Types:**
+- `RqlFilterBuilder<TTarget>` — Fluent builder: `.Where(expr).Equals(value).And(expr).GreaterThan(value)`
+- `RqlLanguageParser` — Parses RQL text into AST: `ToCriteria("(eq(Name,'John'),gt(Age,30))")`
+- `LambdaSerializerExtensions` — `.ToLambda<T>()` / `.ToExpression<T>()` for LINQ
+- `RqlSerializerExtensions` — `.ToRql()` for RQL text output
+- `SqlSerializerExtensions` — `.ToSqlWhere()` / `.ToSqlQuery()` for parameterized SQL
+
+**Builder → Multiple Targets:**
+```csharp
+var filter = RqlFilterBuilder<Order>
+    .Where(o => o.Status).Equals("Active")
+    .And(o => o.Total).GreaterThan(100m);
+
+Func<Order, bool> predicate = filter.ToLambda();       // In-memory
+Expression<Func<Order, bool>> expr = filter.ToExpression(); // EF Core IQueryable
+string rql = filter.ToRql();                            // (eq(Status,'Active'),gt(Total,#100))
+var (sql, parms) = filter.ToSqlWhere();                 // Status = {0} and Total > {1}
+```
+
+**RQL Operators:** eq, ne, lt, gt, le, ge, sw (starts-with), ew (ends-with), cn (contains), bt (between), in, ni (not-in), nu (is-null), nn (is-not-null).
+**Value Prefixes:** `@` for DateTime, `#` for decimal, `'...'` for strings, bare for int/long/bool.
+
+### Pondhawk.Rules.EFCore — EF Core SaveChanges Validation
+
+Pre-save entity validation interceptor that hooks into EF Core's `SaveChangesInterceptor`.
+
+```csharp
+optionsBuilder.AddRuleValidation(ruleSet);
+```
+
+Validates all `Added` and `Modified` entities through `IRuleSet.Validate()` before reaching the database. Throws `EntityValidationException` with structured violations on failure.
+
+### Pondhawk.Hosting — Service Lifecycle Management
+
+Lightweight startup/shutdown management for `Microsoft.Extensions.Hosting`.
+
+```csharp
+services.AddSingletonWithStart<RuleSetFactory>(f => f.Start(), f => f.Stop());
+services.AddSingletonWithStart<MyService>((svc, ct) => svc.InitAsync(ct));
+```
+
+A single `ServiceStarterHostedService` resolves all registered descriptors and calls start lambdas on host startup, stop lambdas in reverse order on shutdown.
+
+### Pondhawk.Core — Shared Foundation (Logging, Utilities)
+
+Core utilities, Serilog logging extensions, and pipeline infrastructure. Used by Pondhawk.Watch.
+
+**Logging API (Pondhawk.Logging namespace):**
+- `this.GetLogger()` — Returns `Serilog.ILogger` with SourceContext set to caller's type
+- `this.EnterMethod()` — Disposable scope logging entry/exit with elapsed time
+- `logger.LogObject(value)` — Serialize object as JSON payload
+- `logger.LogJson/LogSql/LogXml/LogYaml/LogText(title, content)` — Typed payloads
+- `logger.Inspect(name, value)` — Log name/value pair
+
+### Pondhawk.Watch — Serilog Sink
+
+A Serilog `ILogEventSink` with Channel-based batching for the Watch structured logging pipeline.
+
+```csharp
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.Watch()
+    .CreateLogger();
+```
+
+## Dependency Graph
+
+```
+Pondhawk.Core (foundation)
+  ↑
+Pondhawk.Watch ──→ Pondhawk.Core
+
+Pondhawk.Rules        (standalone)
+Pondhawk.Rules.EFCore ──→ Pondhawk.Rules
+Pondhawk.Rql          (standalone)
+Pondhawk.Hosting      (standalone)
+```
+
+## Technical Details
+
+- .NET 10 targeting `net10.0` (Watch.Framework targets `netstandard2.0`)
+- Central package management via `Directory.Packages.props`
+- XML documentation ships in all NuGet packages
+- Each package includes a README.md visible on nuget.org

@@ -5,9 +5,12 @@ using System.Text.Json.Serialization;
 
 namespace Pondhawk.Rql.Criteria;
 
+/// <summary>
+/// Base class for criteria DTOs. Detects overposted properties via <see cref="System.Text.Json.Serialization.JsonExtensionDataAttribute"/>.
+/// </summary>
 public class BaseCriteria : ICriteria
 {
-
+    /// <inheritdoc />
     public string[]? Rql { get; set; }
 
     [JsonExtensionData]

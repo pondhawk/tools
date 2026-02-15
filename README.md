@@ -42,7 +42,7 @@ Packages are published to GitHub Packages. Add the feed to your NuGet configurat
 
 ```xml
 <PackageSource>
-  <add key="pondhawk" value="https://nuget.pkg.github.com/kampilan/index.json" />
+  <add key="pondhawk" value="https://nuget.pkg.github.com/pondhawk/index.json" />
 </PackageSource>
 ```
 

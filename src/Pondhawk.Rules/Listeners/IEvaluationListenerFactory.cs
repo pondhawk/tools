@@ -24,6 +24,9 @@ SOFTWARE.
 
 namespace Pondhawk.Rules.Listeners;
 
+/// <summary>
+/// Factory for creating <see cref="IEvaluationListener"/> instances for evaluation tracing.
+/// </summary>
 public interface IEvaluationListenerFactory
 {
     IEvaluationListener CreateListener();

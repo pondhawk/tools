@@ -4,6 +4,10 @@ namespace Pondhawk.Rql.Builder
 {
 
 
+    /// <summary>
+    /// An untyped RQL predicate with an explicit <see cref="IRqlPredicate.DataType"/>.
+    /// Used by the parser when the value type is determined at parse time.
+    /// </summary>
     public class RqlPredicate: RqlPredicate<object>
     {
 
@@ -23,6 +27,9 @@ namespace Pondhawk.Rql.Builder
     }
 
 
+    /// <summary>
+    /// A strongly-typed RQL predicate holding values of type <typeparamref name="TType"/>.
+    /// </summary>
     public class RqlPredicate<TType>: IRqlPredicate
     {
 

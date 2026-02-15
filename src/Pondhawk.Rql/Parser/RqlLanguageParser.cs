@@ -4,6 +4,28 @@ using Sprache;
 
 namespace Pondhawk.Rql.Parser;
 
+/// <summary>
+/// Parses RQL criteria text into an <see cref="RqlTree"/> AST using the Sprache parser combinator library.
+/// Value type prefixes: <c>@</c> for DateTime, <c>#</c> for decimal, <c>'...'</c> for strings.
+/// </summary>
+/// <remarks>
+/// <para>Operator codes: <c>eq</c>, <c>ne</c>, <c>lt</c>, <c>gt</c>, <c>le</c>, <c>ge</c>,
+/// <c>sw</c> (starts-with), <c>ew</c> (ends-with), <c>cn</c> (contains),
+/// <c>bt</c> (between), <c>in</c>, <c>ni</c> (not-in), <c>nu</c> (is-null), <c>nn</c> (is-not-null).</para>
+/// <para>Value type prefixes: <c>@</c> for DateTime (<c>@2024-01-15T00:00:00Z</c>),
+/// <c>#</c> for decimal (<c>#99.95</c>), single quotes for strings (<c>'hello'</c>),
+/// bare values for int/long/bool.</para>
+/// </remarks>
+/// <example>
+/// <code>
+/// // Parse RQL text into an AST
+/// var tree = RqlLanguageParser.ToCriteria("(eq(Status,'Active'),gt(Total,#100))");
+///
+/// // Use the parsed tree with a typed filter builder for serialization
+/// var filter = new RqlFilterBuilder&lt;Order&gt;(tree);
+/// Func&lt;Order, bool&gt; predicate = filter.ToLambda();
+/// </code>
+/// </example>
 public class RqlLanguageParser
 {
 
@@ -162,6 +184,9 @@ public class RqlLanguageParser
         if( !OperatorMap.TryGetValue(op, out var opr) )
             throw new RqlException($"Invalid RQL operator: ({op})");
 
+        if (opr is RqlOperator.Between && typed.Count != 2)
+            throw new RqlException($"Between operator on '{name}' requires exactly 2 values but found {typed.Count}");
+
         if (opr is RqlOperator.IsNull or RqlOperator.IsNotNull)
             dataType = typeof(object);
         else
@@ -176,6 +201,11 @@ public class RqlLanguageParser
 
 
 
+    /// <summary>
+    /// Parses the given RQL criteria string into an <see cref="RqlTree"/>.
+    /// </summary>
+    /// <param name="input">The RQL criteria text, e.g. <c>(eq(Name,'John'),gt(Age,30))</c>.</param>
+    /// <exception cref="RqlException">Thrown when the input cannot be parsed.</exception>
     public static RqlTree ToCriteria( string input )
     {
 

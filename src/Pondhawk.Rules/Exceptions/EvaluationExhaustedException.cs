@@ -24,6 +24,9 @@ SOFTWARE.
 
 namespace Pondhawk.Rules.Exceptions;
 
+/// <summary>
+/// Thrown when an evaluation exceeds the maximum allowed duration or evaluation count.
+/// </summary>
 public sealed class EvaluationExhaustedException : Exception
 {
 

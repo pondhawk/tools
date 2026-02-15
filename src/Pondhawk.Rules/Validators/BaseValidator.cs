@@ -26,6 +26,9 @@ using Pondhawk.Rules.Evaluation;
 
 namespace Pondhawk.Rules.Validators;
 
+/// <summary>
+/// Base class for validators, providing condition collection and <c>Otherwise</c> violation message builders.
+/// </summary>
 public abstract class BaseValidator<TFact>
 {
 

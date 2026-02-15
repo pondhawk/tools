@@ -26,6 +26,9 @@ using Pondhawk.Rules.Builder;
 
 namespace Pondhawk.Rules.Listeners;
 
+/// <summary>
+/// Observer interface for tracing rule evaluation. Receives callbacks for evaluation lifecycle events.
+/// </summary>
 public interface IEvaluationListener
 {
     void BeginEvaluation();

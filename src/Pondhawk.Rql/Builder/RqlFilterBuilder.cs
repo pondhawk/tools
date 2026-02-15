@@ -29,6 +29,34 @@ namespace Pondhawk.Rql.Builder
 {
 
 
+    /// <summary>
+    /// Strongly-typed RQL filter builder for entity type <typeparamref name="TTarget"/>.
+    /// Use <c>Where(expr)</c> to begin, then chain operators and <c>And(expr)</c> for additional predicates.
+    /// </summary>
+    /// <typeparam name="TTarget">The entity type to filter.</typeparam>
+    /// <remarks>
+    /// The builder produces an <see cref="RqlTree"/> AST that can be serialized to multiple targets:
+    /// <list type="bullet">
+    /// <item><c>ToLambda&lt;T&gt;()</c> — compiled LINQ predicate for in-memory filtering</item>
+    /// <item><c>ToExpression&lt;T&gt;()</c> — expression tree for IQueryable (EF Core)</item>
+    /// <item><c>ToRql()</c> — RQL text format</item>
+    /// <item><c>ToSqlWhere()</c> — parameterized SQL WHERE clause</item>
+    /// </list>
+    /// </remarks>
+    /// <example>
+    /// <code>
+    /// // Build a filter with multiple predicates
+    /// var filter = RqlFilterBuilder&lt;Order&gt;
+    ///     .Where(o =&gt; o.Status).Equals("Active")
+    ///     .And(o =&gt; o.Total).GreaterThan(100m)
+    ///     .And(o =&gt; o.Category).In("Electronics", "Books");
+    ///
+    /// // Serialize to different targets
+    /// Func&lt;Order, bool&gt; predicate = filter.ToLambda();
+    /// string rql = filter.ToRql();                         // (eq(Status,'Active'),gt(Total,#100),in(Category,'Electronics','Books'))
+    /// var (sql, parms) = filter.ToSqlWhere();              // Status = {0} and Total &gt; {1} and Category in ({2},{3})
+    /// </code>
+    /// </example>
     public class RqlFilterBuilder<TTarget>: AbstractFilterBuilder<RqlFilterBuilder<TTarget>>, IRqlFilter<TTarget> where TTarget: class
     {
 
@@ -86,6 +114,10 @@ namespace Pondhawk.Rql.Builder
     }
 
 
+    /// <summary>
+    /// Untyped RQL filter builder for dynamic scenarios where the target entity type is not known at compile time.
+    /// Use <c>Where(propertyName)</c> to begin building predicates.
+    /// </summary>
     public class RqlFilterBuilder : AbstractFilterBuilder<RqlFilterBuilder>
     {
 

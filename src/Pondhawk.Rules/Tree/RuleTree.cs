@@ -27,6 +27,9 @@ using Pondhawk.Rules.Builder;
 
 namespace Pondhawk.Rules.Tree;
 
+/// <summary>
+/// Indexes rules by their fact types for fast lookup with polymorphic type matching.
+/// </summary>
 public sealed class RuleTree : IRuleBase, IRuleSink
 {
 

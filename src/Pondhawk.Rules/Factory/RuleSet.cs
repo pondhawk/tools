@@ -28,7 +28,29 @@ using Pondhawk.Rules.Tree;
 
 namespace Pondhawk.Rules.Factory;
 
-public class RuleSet : AbstractRuleSet
+/// <summary>
+/// A runtime-configurable rule set that allows programmatic addition of rules, validations, and foreach rules.
+/// </summary>
+/// <remarks>
+/// Use this when you need to define rules programmatically at runtime rather than in static builder classes.
+/// Call <see cref="AddRule{TFact}"/> to add rules, <see cref="AddValidation{TFact}"/> for validations,
+/// and <c>Evaluate(facts)</c> to run. Also supports <c>TryValidate</c> and <c>Decide</c> via <see cref="IRuleSet"/>.
+/// </remarks>
+/// <example>
+/// <code>
+/// var ruleSet = new RuleSet();
+///
+/// ruleSet.AddValidation&lt;Person&gt;("name-required")
+///     .Assert&lt;string&gt;(p =&gt; p.Name).Required();
+///
+/// ruleSet.AddRule&lt;Person&gt;("age-check")
+///     .If(p =&gt; p.Age &gt;= 18)
+///     .Then(p =&gt; p.Status = "Adult");
+///
+/// var result = ruleSet.Evaluate(new Person { Name = "Alice", Age = 25 });
+/// </code>
+/// </example>
+public sealed class RuleSet : AbstractRuleSet
 {
     private readonly HashSet<string> _namespaces = [];
     private readonly RuleTree _tree = new();
@@ -107,7 +129,7 @@ public class RuleSet : AbstractRuleSet
     ///     Then( c=&gt;c.Status = "Not A baby anymore" )
     /// </example>
     
-    public virtual ForeachRule<TFact, TChild> AddRule<TFact, TChild>( string ruleName, Func<TFact, IEnumerable<TChild>> extractor ) where TFact : class where TChild : class
+    public ForeachRule<TFact, TChild> AddRule<TFact, TChild>( string ruleName, Func<TFact, IEnumerable<TChild>> extractor ) where TFact : class where TChild : class
     {
 
         Guard.IsNotNullOrWhiteSpace(ruleName);

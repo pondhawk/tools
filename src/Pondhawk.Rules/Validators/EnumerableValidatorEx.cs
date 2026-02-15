@@ -27,6 +27,9 @@ using Humanizer;
 
 namespace Pondhawk.Rules.Validators;
 
+/// <summary>
+/// Enumerable validation extensions (e.g. Required, IsNotEmpty, HasMinCount).
+/// </summary>
 public static class EnumerableValidatorEx
 {
 

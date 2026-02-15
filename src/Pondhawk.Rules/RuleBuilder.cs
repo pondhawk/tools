@@ -29,6 +29,31 @@ using TypeExtensions = Pondhawk.Rules.Util.TypeExtensions;
 
 namespace Pondhawk.Rules;
 
+/// <summary>
+/// Base class for defining rules without a fixed fact type, using factory methods to create typed rules.
+/// </summary>
+/// <remarks>
+/// Subclass this to define reusable rule sets. Rules are created in the constructor using <c>Rule&lt;T&gt;()</c>
+/// factory methods and automatically loaded into the rule tree. Register builder assemblies via
+/// <c>services.UseRules(assembly)</c> or add to <see cref="Factory.RuleSetFactory"/>.
+/// </remarks>
+/// <example>
+/// <code>
+/// public class OrderRules : RuleBuilder
+/// {
+///     public OrderRules()
+///     {
+///         Rule&lt;Order&gt;()
+///             .If(o =&gt; o.Total &gt; 1000)
+///             .Then(o =&gt; o.RequiresApproval = true);
+///
+///         Rule&lt;Order&gt;()
+///             .If(o =&gt; o.Items.Count == 0)
+///             .Then(o =&gt; o.Status = "Empty");
+///     }
+/// }
+/// </code>
+/// </example>
 public abstract class RuleBuilder : AbstractRuleBuilder, IBuilder
 {
 
@@ -94,7 +119,9 @@ public abstract class RuleBuilder : AbstractRuleBuilder, IBuilder
 
 }
 
-
+/// <summary>
+/// Base class for defining rules that operate on a single fact type.
+/// </summary>
 public abstract class RuleBuilder<TFact> : AbstractRuleBuilder, IBuilder
 {
 

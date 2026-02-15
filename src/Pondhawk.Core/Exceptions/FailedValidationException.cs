@@ -1,5 +1,8 @@
 ﻿namespace Pondhawk.Exceptions;
 
+/// <summary>
+/// Exception thrown when validation produces violation events, carrying the violation details.
+/// </summary>
 public class FailedValidationException: FluentException<FailedValidationException>
 {
  

@@ -26,6 +26,9 @@ using Pondhawk.Rules.Builder;
 
 namespace Pondhawk.Rules.Tree;
 
+/// <summary>
+/// Accepts rules during rule set construction, indexing them by their fact types.
+/// </summary>
 public interface IRuleSink
 {
 

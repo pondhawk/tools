@@ -24,6 +24,9 @@ SOFTWARE.
 
 namespace Pondhawk.Exceptions;
 
+/// <summary>
+/// Exception representing a functional/business-logic error.
+/// </summary>
 public class FunctionalException : FluentException<FunctionalException>
 {
 

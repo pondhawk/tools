@@ -24,6 +24,9 @@ SOFTWARE.
 
 namespace Pondhawk.Exceptions;
 
+/// <summary>
+/// Base exception for internal/system errors with an explanation and optional event details.
+/// </summary>
 public class InternalException: Exception
 {
 

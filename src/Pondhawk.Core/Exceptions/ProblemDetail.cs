@@ -1,6 +1,9 @@
 ﻿
 namespace Pondhawk.Exceptions;
 
+/// <summary>
+/// RFC 7807-style problem detail for HTTP API error responses, with correlation ID and event segments.
+/// </summary>
 public class ProblemDetail
 {
 

@@ -5,9 +5,15 @@ using Pondhawk.Rules.Factory;
 
 namespace Pondhawk.Rules;
 
+/// <summary>
+/// Extension methods for registering the Pondhawk Rules engine with Microsoft DI.
+/// </summary>
 public static class ServiceCollectionExtensions
 {
-
+    /// <summary>
+    /// Registers a <see cref="Factory.RuleSetFactory"/> singleton and a transient <see cref="IRuleSet"/>.
+    /// Call <see cref="AddRules(IServiceCollection, IRuleBuilderSource)"/> first to register rule builder sources.
+    /// </summary>
     public static IServiceCollection UseRules(this IServiceCollection services)
     {
 

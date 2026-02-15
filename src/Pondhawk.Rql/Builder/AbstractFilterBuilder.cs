@@ -31,6 +31,11 @@ using Pondhawk.Rql.Criteria;
 
 namespace Pondhawk.Rql.Builder;
 
+/// <summary>
+/// Base class for RQL filter builders providing fluent predicate construction with operators
+/// such as <c>Equals</c>, <c>Between</c>, <c>In</c>, <c>StartsWith</c>, and more.
+/// </summary>
+/// <typeparam name="TBuilder">The concrete builder type for fluent method chaining.</typeparam>
 public abstract class AbstractFilterBuilder<TBuilder>: IRqlFilter where TBuilder: AbstractFilterBuilder<TBuilder>
 {
 

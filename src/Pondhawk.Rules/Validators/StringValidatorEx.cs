@@ -27,6 +27,9 @@ using Humanizer;
 
 namespace Pondhawk.Rules.Validators;
 
+/// <summary>
+/// String-specific validation extensions (e.g. Required, MaxLength, MatchesPattern).
+/// </summary>
 public static class StringValidatorEx
 {
 

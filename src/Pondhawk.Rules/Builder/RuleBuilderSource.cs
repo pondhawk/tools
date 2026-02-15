@@ -27,6 +27,9 @@ using CommunityToolkit.Diagnostics;
 
 namespace Pondhawk.Rules.Builder;
 
+/// <summary>
+/// Discovers and collects <see cref="IBuilder"/> types from assemblies or explicit type lists.
+/// </summary>
 public class RuleBuilderSource: IRuleBuilderSource
 {
 

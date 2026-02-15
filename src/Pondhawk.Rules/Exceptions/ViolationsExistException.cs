@@ -24,6 +24,9 @@ SOFTWARE.
 
 namespace Pondhawk.Rules.Exceptions;
 
+/// <summary>
+/// Thrown when rule evaluation produces one or more violation events.
+/// </summary>
 public sealed class ViolationsExistException : Exception
 {
 

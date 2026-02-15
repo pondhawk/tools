@@ -27,6 +27,9 @@ using Pondhawk.Rules.Tree;
 
 namespace Pondhawk.Rules.Builder;
 
+/// <summary>
+/// Base class for rule builders, providing fact-space operations (Insert, Modify, Retract), lookup tables, scoring, and event helpers.
+/// </summary>
 public abstract class AbstractRuleBuilder
 {
 

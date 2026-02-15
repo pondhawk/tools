@@ -25,6 +25,9 @@ SOFTWARE.
 
 namespace Pondhawk.Exceptions;
 
+/// <summary>
+/// Classifies errors by kind (e.g. NotFound, Predicate, System, Functional).
+/// </summary>
 public enum ErrorKind
 {
     Unknown,

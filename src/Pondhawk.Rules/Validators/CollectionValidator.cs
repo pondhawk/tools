@@ -2,6 +2,9 @@
 using Pondhawk.Rules;
 
 namespace Pondhawk.Rules.Validators;
+/// <summary>
+/// Validation interface for collection properties, providing per-element and aggregate condition checking.
+/// </summary>
 public interface ICollectionValidator<out TFact, out TType>
 {
 
@@ -22,6 +25,9 @@ public interface ICollectionValidator<out TFact, out TType>
 
 
 
+/// <summary>
+/// Default implementation of <see cref="ICollectionValidator{TFact, TType}"/> for per-element collection validation.
+/// </summary>
 public class CollectionValidator<TFact, TType>( ValidationRule<TFact> rule, string group, string propertyName, Func<TFact, IEnumerable<TType>> extractor )
     : BaseValidator<TFact>( rule, group ), ICollectionValidator<TFact, TType>
 {
@@ -49,6 +55,9 @@ public class CollectionValidator<TFact, TType>( ValidationRule<TFact> rule, stri
 }
 
 
+/// <summary>
+/// Collection validation extensions (e.g. Required, IsEmpty, Has, HasCount, HasCountBetween).
+/// </summary>
 public static class CollectionValidatorEx
 {
 

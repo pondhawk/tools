@@ -32,6 +32,29 @@ using Pondhawk.Rql.Builder;
 
 namespace Pondhawk.Rql.Serialization;
 
+/// <summary>
+/// Extension methods for serializing RQL filters to parameterized SQL queries.
+/// </summary>
+/// <remarks>
+/// All values are parameterized (never inlined) to prevent SQL injection.
+/// Use <c>ToSqlWhere()</c> for just the WHERE clause, or <c>ToSqlQuery()</c> for a complete SELECT statement.
+/// </remarks>
+/// <example>
+/// <code>
+/// var filter = RqlFilterBuilder&lt;Order&gt;
+///     .Where(o =&gt; o.Status).Equals("Active")
+///     .And(o =&gt; o.Total).Between(100m, 500m);
+///
+/// // WHERE clause only
+/// var (where, parms) = filter.ToSqlWhere();
+/// // where: "Status = {0} and Total between {1} and {2}"
+/// // parms: ["Active", 100m, 500m]
+///
+/// // Full SELECT query (table name inferred from type)
+/// var (sql, sqlParms) = filter.ToSqlQuery();
+/// // sql: "select * from Order where Status = {0} and Total between {1} and {2}"
+/// </code>
+/// </example>
 public static class SqlSerializerExtensions
 {
 
@@ -217,7 +240,7 @@ public static class SqlSerializerExtensions
 
                 var actValue = value;
                 if (value is IConvertible convertible)
-                    actValue = convertible.ToType(op.DataType, CultureInfo.CurrentCulture);
+                    actValue = ConvertValue(convertible, op.DataType, op.Target.Name);
 
                 parameters.Add(actValue);
 
@@ -233,14 +256,14 @@ public static class SqlSerializerExtensions
                 var value1 = kindSpec.Formatter(op.Values[0]);
                 var actValue1 = value1;
                 if (value1 is IConvertible convertible1)
-                    actValue1 = convertible1.ToType(op.DataType, CultureInfo.CurrentCulture);
+                    actValue1 = ConvertValue(convertible1, op.DataType, op.Target.Name);
 
                 parameters.Add(actValue1);
 
                 var value2 = kindSpec.Formatter(op.Values[1]);
                 var actValue2 = value2;
                 if (value2 is IConvertible convertible2)
-                    actValue2 = convertible2.ToType(op.DataType, CultureInfo.CurrentCulture);
+                    actValue2 = ConvertValue(convertible2, op.DataType, op.Target.Name);
 
                 parameters.Add(actValue2);
 
@@ -257,7 +280,7 @@ public static class SqlSerializerExtensions
                     var value = kindSpec.Formatter(v);
                     var actValue = value;
                     if (value is IConvertible convertible)
-                        actValue = convertible.ToType(op.DataType, CultureInfo.CurrentCulture);
+                        actValue = ConvertValue(convertible, op.DataType, op.Target.Name);
 
                     parameters.Add(actValue);
                     placeholders.Add(Build(parameters.Count - 1));
@@ -282,5 +305,16 @@ public static class SqlSerializerExtensions
 
     }
 
+    private static object ConvertValue(IConvertible convertible, Type targetType, string fieldName)
+    {
+        try
+        {
+            return convertible.ToType(targetType, CultureInfo.CurrentCulture);
+        }
+        catch (Exception ex) when (ex is InvalidCastException or FormatException or OverflowException)
+        {
+            throw new RqlException($"Cannot convert value '{convertible}' to {targetType.Name} for field '{fieldName}'", ex);
+        }
+    }
 
 }

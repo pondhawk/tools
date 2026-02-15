@@ -26,6 +26,9 @@ using Pondhawk.Rules.Builder;
 
 namespace Pondhawk.Rules.Tree;
 
+/// <summary>
+/// An indexed collection of rules organized by fact types for efficient lookup during evaluation.
+/// </summary>
 public interface IRuleBase
 {
     int MaxAxisCount { get; }

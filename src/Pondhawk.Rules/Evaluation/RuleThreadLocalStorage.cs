@@ -23,6 +23,10 @@ SOFTWARE.
 */
 
 namespace Pondhawk.Rules.Evaluation;
+/// <summary>
+/// Thread-local storage for the current <see cref="EvaluationContext"/>, enabling rules to insert, modify,
+/// and retract facts and emit events during evaluation.
+/// </summary>
 public static class RuleThreadLocalStorage
 {
     [ThreadStatic] private static EvaluationContext _currentContext;

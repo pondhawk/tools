@@ -26,6 +26,9 @@ using CommunityToolkit.Diagnostics;
 
 namespace Pondhawk.Exceptions;
 
+/// <summary>
+/// Base exception with a fluent builder API for setting kind, error code, explanation, and details.
+/// </summary>
 public abstract class FluentException<TDescendant>: ExternalException where TDescendant: FluentException<TDescendant>
 {
 

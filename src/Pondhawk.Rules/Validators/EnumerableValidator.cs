@@ -26,6 +26,9 @@ using Pondhawk.Rules;
 
 namespace Pondhawk.Rules.Validators;
 
+/// <summary>
+/// Validation interface for enumerable properties, providing collection-level condition checking.
+/// </summary>
 public interface IEnumerableValidator<out TFact, out TType>
 {
 
@@ -48,6 +51,9 @@ public interface IEnumerableValidator<out TFact, out TType>
 
 
 
+/// <summary>
+/// Default implementation of <see cref="IEnumerableValidator{TFact, TType}"/> for enumerable property validation.
+/// </summary>
 public class EnumerableValidator<TFact, TType>( ValidationRule<TFact> rule, string group, string propertyName, Func<TFact, IEnumerable<TType>> extractor )
     : BaseValidator<TFact>( rule, group ), IEnumerableValidator<TFact, TType>
 {

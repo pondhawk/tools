@@ -26,6 +26,9 @@ using Humanizer;
 
 namespace Pondhawk.Rules.Validators;
 
+/// <summary>
+/// Boolean validation extensions (e.g. Required, IsTrue, IsFalse).
+/// </summary>
 public static class BoolValidatorEx
 {
 

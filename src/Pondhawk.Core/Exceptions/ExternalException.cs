@@ -25,6 +25,9 @@ SOFTWARE.
 namespace Pondhawk.Exceptions
 {
 
+    /// <summary>
+    /// Base exception for external/application-facing errors with error kind, code, explanation, and event details.
+    /// </summary>
     public abstract class ExternalException: Exception
     {
 

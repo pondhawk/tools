@@ -5,11 +5,47 @@ using Serilog.Events;
 
 namespace Pondhawk.Logging;
 
+/// <summary>
+/// Extension methods on <see cref="Serilog.ILogger"/> and <see cref="object"/> for method tracing, object serialization, typed payloads, and logger creation.
+/// </summary>
+/// <remarks>
+/// <para><c>GetLogger()</c> creates a Serilog <c>ILogger</c> with <c>SourceContext</c> set to the caller's type name.</para>
+/// <para><c>EnterMethod()</c> creates a disposable scope that logs entry/exit with elapsed time at Verbose level.</para>
+/// <para><c>LogObject()</c> serializes any object to JSON and attaches it as a structured payload.</para>
+/// <para>Typed payload methods (<c>LogJson</c>, <c>LogSql</c>, <c>LogXml</c>, <c>LogYaml</c>, <c>LogText</c>)
+/// attach content with syntax-type hints for Watch viewers.</para>
+/// </remarks>
+/// <example>
+/// <code>
+/// public class OrderService
+/// {
+///     public void ProcessOrder(Order order)
+///     {
+///         // Get a logger with SourceContext = "OrderService"
+///         var logger = this.GetLogger();
+///
+///         // Method tracing with automatic entry/exit and elapsed time
+///         using (this.EnterMethod())
+///         {
+///             logger.Information("Processing order {OrderId}", order.Id);
+///             logger.LogObject(order);                    // Serialize order as JSON payload
+///             logger.Inspect("Total", order.Total);       // Log "Total = 500.00"
+///             logger.LogSql("Generated query", sqlText);  // Attach SQL payload
+///         }
+///     }
+/// }
+/// </code>
+/// </example>
 public static class SerilogExtensions
 {
     private static readonly LoggerSource FallbackInstance = new();
 
-    public static ILoggerSource? Default { get; set; }
+    private static ILoggerSource? _default;
+    public static ILoggerSource? Default
+    {
+        get => Volatile.Read(ref _default);
+        set => Volatile.Write(ref _default, value);
+    }
 
     #region Method Tracing
 

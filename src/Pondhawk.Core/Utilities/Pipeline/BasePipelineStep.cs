@@ -2,6 +2,9 @@
 
 namespace Pondhawk.Utilities.Pipeline;
 
+/// <summary>
+/// Base pipeline step with before/after hooks and automatic failure short-circuiting.
+/// </summary>
 public abstract class BasePipelineStep<TContext> where TContext : class, IPipelineContext
 {
 

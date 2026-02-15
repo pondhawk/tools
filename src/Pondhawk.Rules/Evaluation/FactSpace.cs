@@ -25,6 +25,9 @@ SOFTWARE.
 
 namespace Pondhawk.Rules.Evaluation;
 
+/// <summary>
+/// Stores facts with integer selectors for memory-efficient type-indexed retrieval during rule evaluation.
+/// </summary>
 public sealed class FactSpace
 {
 

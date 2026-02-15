@@ -7,6 +7,27 @@ namespace Pondhawk.Rql.Serialization
 {
 
 
+    /// <summary>
+    /// Extension methods for serializing RQL filters to compiled LINQ delegates and expression trees.
+    /// </summary>
+    /// <example>
+    /// <code>
+    /// var filter = RqlFilterBuilder&lt;Product&gt;
+    ///     .Where(p =&gt; p.Price).GreaterThan(10m)
+    ///     .And(p =&gt; p.Name).StartsWith("Widget");
+    ///
+    /// // Compile to in-memory predicate
+    /// Func&lt;Product, bool&gt; predicate = filter.ToLambda();
+    /// var matches = products.Where(predicate);
+    ///
+    /// // Or get an expression tree for EF Core / IQueryable
+    /// Expression&lt;Func&lt;Product, bool&gt;&gt; expr = filter.ToExpression();
+    /// var results = dbContext.Products.Where(expr);
+    ///
+    /// // Case-insensitive string comparisons
+    /// Func&lt;Product, bool&gt; ciPredicate = filter.ToLambda(insensitive: true);
+    /// </code>
+    /// </example>
     public static class LambdaSerializerExtensions
     {
 
@@ -19,6 +40,11 @@ namespace Pondhawk.Rql.Serialization
         private static readonly MethodInfo ListContainsMethod = typeof(List<object>).GetMethod("Contains", [typeof(object)])!;
 
 
+        /// <summary>
+        /// Compiles this filter into a <c>Func&lt;TEntity, bool&gt;</c> predicate for in-memory filtering.
+        /// </summary>
+        /// <param name="filter">The filter to compile.</param>
+        /// <param name="insensitive">When <c>true</c>, string comparisons are case-insensitive.</param>
         public static Func<TEntity, bool> ToLambda<TEntity>(  this IRqlFilter<TEntity> filter, bool insensitive = false) where TEntity : class
         {
 
@@ -31,6 +57,11 @@ namespace Pondhawk.Rql.Serialization
 
         }
 
+        /// <summary>
+        /// Converts this filter into an <c>Expression&lt;Func&lt;TEntity, bool&gt;&gt;</c> for use with IQueryable (e.g. EF Core).
+        /// </summary>
+        /// <param name="filter">The filter to convert.</param>
+        /// <param name="insensitive">When <c>true</c>, string comparisons are case-insensitive.</param>
         public static Expression<Func<TEntity, bool>> ToExpression<TEntity>(  this IRqlFilter<TEntity> filter, bool insensitive=false ) where TEntity : class
         {
 

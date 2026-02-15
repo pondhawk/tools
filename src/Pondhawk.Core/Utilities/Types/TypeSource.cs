@@ -27,6 +27,9 @@ using CommunityToolkit.Diagnostics;
 
 namespace Pondhawk.Utilities.Types;
 
+/// <summary>
+/// Collects and filters types from assemblies for discovery-based registration patterns.
+/// </summary>
 public class TypeSource
 {
 

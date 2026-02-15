@@ -47,71 +47,28 @@ public class Switch
     }
 
     /// <summary>
-    /// Gets or sets the pattern to match against logger categories.
+    /// Gets the pattern to match against logger categories.
     /// </summary>
-    public string Pattern { get; set; } = "";
+    public string Pattern { get; init; } = "";
 
     /// <summary>
-    /// Gets or sets an optional tag for categorization.
+    /// Gets an optional tag for categorization.
     /// </summary>
-    public string Tag { get; set; } = "";
+    public string Tag { get; init; } = "";
 
     /// <summary>
-    /// Gets or sets the minimum log level.
+    /// Gets the minimum log level.
     /// </summary>
-    public LogEventLevel Level { get; set; } = LogEventLevel.Error;
+    public LogEventLevel Level { get; init; } = LogEventLevel.Error;
 
     /// <summary>
-    /// Gets or sets whether this switch suppresses all logging.
+    /// Gets whether this switch suppresses all logging.
     /// </summary>
-    public bool IsQuiet { get; set; }
+    public bool IsQuiet { get; init; }
 
     /// <summary>
-    /// Gets or sets the color for log events.
+    /// Gets the color for log events.
     /// </summary>
-    public Color Color { get; set; } = Color.White;
+    public Color Color { get; init; } = Color.White;
 
-    /// <summary>
-    /// Sets the pattern for this switch.
-    /// </summary>
-    /// <param name="pattern">The pattern to match.</param>
-    /// <returns>This switch for fluent chaining.</returns>
-    public Switch WhenMatched(string pattern)
-    {
-        Pattern = pattern;
-        return this;
-    }
-
-    /// <summary>
-    /// Sets the log level for this switch.
-    /// </summary>
-    /// <param name="level">The minimum log level.</param>
-    /// <returns>This switch for fluent chaining.</returns>
-    public Switch UseLevel(LogEventLevel level)
-    {
-        Level = level;
-        return this;
-    }
-
-    /// <summary>
-    /// Sets the color for this switch.
-    /// </summary>
-    /// <param name="color">The color for log events.</param>
-    /// <returns>This switch for fluent chaining.</returns>
-    public Switch UseColor(Color color)
-    {
-        Color = color;
-        return this;
-    }
-
-    /// <summary>
-    /// Sets the tag for this switch.
-    /// </summary>
-    /// <param name="tag">The tag value.</param>
-    /// <returns>This switch for fluent chaining.</returns>
-    public Switch UseTag(string tag)
-    {
-        Tag = tag;
-        return this;
-    }
 }

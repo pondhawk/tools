@@ -26,6 +26,11 @@ using Pondhawk.Rules;
 
 namespace Pondhawk.Rules.Validators;
 
+/// <summary>
+/// Fluent validation interface for asserting conditions on a property of type <typeparamref name="TType"/>
+/// extracted from fact type <typeparamref name="TFact"/>. Use <c>Is()</c>/<c>IsNot()</c> to define conditions
+/// and <c>Otherwise()</c> to specify the violation message.
+/// </summary>
 public interface IValidator<out TFact, out TType>
 {
 
@@ -47,6 +52,9 @@ public interface IValidator<out TFact, out TType>
 }
 
 
+/// <summary>
+/// Default implementation of <see cref="IValidator{TFact, TType}"/> for single-value property validation.
+/// </summary>
 public class Validator<TFact, TType>( ValidationRule<TFact> rule, string group, string propertyName, Func<TFact, TType> extractor )
     : BaseValidator<TFact>( rule, group ), IValidator<TFact,TType>
 {

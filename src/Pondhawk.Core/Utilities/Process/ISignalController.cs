@@ -2,6 +2,9 @@
 {
 
 
+    /// <summary>
+    /// Defines inter-process signaling for started, stop-requested, and stopped lifecycle states.
+    /// </summary>
     public interface ISignalController
     {
 

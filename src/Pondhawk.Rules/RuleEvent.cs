@@ -1,5 +1,8 @@
 namespace Pondhawk.Rules;
 
+/// <summary>
+/// An event emitted by a rule consequence — informational message, warning, or validation violation.
+/// </summary>
 public sealed class RuleEvent : IEquatable<RuleEvent>
 {
 

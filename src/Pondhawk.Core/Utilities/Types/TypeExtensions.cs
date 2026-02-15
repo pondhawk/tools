@@ -26,6 +26,9 @@ using CommunityToolkit.Diagnostics;
 
 namespace Pondhawk.Utilities.Types;
 
+/// <summary>
+/// Extension methods for byte arrays, DateTime formatting, and human-readable type name generation.
+/// </summary>
 public static class TypeExtensions
 {
 

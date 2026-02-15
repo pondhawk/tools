@@ -24,6 +24,9 @@ SOFTWARE.
 
 namespace Pondhawk.Rules.Builder;
 
+/// <summary>
+/// Provides <see cref="IBuilder"/> types for rule set construction.
+/// </summary>
 public interface IRuleBuilderSource
 {
     IEnumerable<Type> GetTypes();

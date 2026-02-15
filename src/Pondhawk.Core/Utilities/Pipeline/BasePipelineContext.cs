@@ -2,6 +2,9 @@
 
 namespace Pondhawk.Utilities.Pipeline;
 
+/// <summary>
+/// Base implementation of <see cref="IPipelineContext"/> with JSON-serializable success state and failure details.
+/// </summary>
 public abstract class BasePipelineContext
 {
     

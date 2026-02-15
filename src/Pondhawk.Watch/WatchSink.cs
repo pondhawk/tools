@@ -279,10 +279,14 @@ public sealed class WatchSink : ILogEventSink, IDisposable, IAsyncDisposable
 
     private void FlushCriticalBuffer(LogEventBatch batch)
     {
+        var buffered = new List<LogEvent>();
         while (_criticalBuffer.TryDequeue(out var e))
         {
-            batch.Events.Insert(0, e);
+            buffered.Add(e);
         }
+
+        if (buffered.Count > 0)
+            batch.Events.InsertRange(0, buffered);
     }
 
     private LogEvent? ConvertEvent(SerilogEvent serilogEvent)

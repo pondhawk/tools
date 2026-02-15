@@ -4,6 +4,9 @@
 namespace Pondhawk.Rules;
 
 
+/// <summary>
+/// The result of validating one or more entities through a rule set, containing violations grouped by category.
+/// </summary>
 public sealed class ValidationResult
 {
     public bool IsValid { get; init; }
@@ -13,6 +16,15 @@ public sealed class ValidationResult
 }
 
 
+/// <summary>
+/// Convenience extension methods for <see cref="IRuleSet"/> providing simplified evaluation, validation, and decision APIs.
+/// </summary>
+/// <remarks>
+/// <para>All extension methods suppress exceptions by default (unlike direct <c>IRuleSet.Evaluate(EvaluationContext)</c>).</para>
+/// <para><c>Evaluate(facts)</c> — runs all matching rules and returns <see cref="EvaluationResults"/>.</para>
+/// <para><c>TryValidate(subject, out violations)</c> — returns <c>true</c> if no violations; populates <c>violations</c> list otherwise.</para>
+/// <para><c>Validate(facts)</c> — returns a <see cref="ValidationResult"/> with <c>IsValid</c>, <c>Violations</c>, and <c>ViolationsByGroup</c>.</para>
+/// </remarks>
 public static class RuleSetExtensions
 {
 

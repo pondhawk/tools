@@ -30,6 +30,9 @@ using CommunityToolkit.Diagnostics;
 
 namespace Pondhawk.Exceptions;
 
+/// <summary>
+/// A structured event detail with category, group, rule name, source, and explanation, used for validation and error reporting.
+/// </summary>
 public class EventDetail
 {
 

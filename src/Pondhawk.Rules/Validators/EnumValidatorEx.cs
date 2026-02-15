@@ -2,6 +2,9 @@ using Humanizer;
 
 namespace Pondhawk.Rules.Validators;
 
+/// <summary>
+/// Enum validation extensions (e.g. IsInEnum, IsNotDefault).
+/// </summary>
 public static class EnumValidatorEx
 {
 

@@ -26,6 +26,9 @@ using Pondhawk.Rules.Evaluation;
 
 namespace Pondhawk.Rules.Builder;
 
+/// <summary>
+/// Base class for rule set implementations, providing evaluation and threshold-based decision support.
+/// </summary>
 public abstract class AbstractRuleSet : AbstractEvaluator, IRuleSet
 {
     internal AbstractRuleSet()

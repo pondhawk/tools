@@ -3,6 +3,9 @@ using Pondhawk.Utilities.Types;
 
 namespace Pondhawk.Utilities.Pipeline;
 
+/// <summary>
+/// Executes a chain of pipeline steps around an action, with automatic failure tracking and short-circuiting.
+/// </summary>
 public class Pipeline<TContext> where TContext : class, IPipelineContext
 {
 

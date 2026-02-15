@@ -26,6 +26,9 @@ using Pondhawk.Rules.Builder;
 
 namespace Pondhawk.Rules.Listeners;
 
+/// <summary>
+/// A no-op implementation of <see cref="IEvaluationListener"/> that discards all events.
+/// </summary>
 public sealed class NoopEvaluationListener : IEvaluationListener
 {
     public void BeginEvaluation()

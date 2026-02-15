@@ -3,6 +3,9 @@ using System.Text;
 
 namespace Pondhawk.Utilities.Process;
 
+/// <summary>
+/// Extension methods for launching external processes from <c>ILaunchRequest</c> instances.
+/// </summary>
 public static class LaunchRequstExtensions
 {
 

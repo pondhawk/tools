@@ -1,5 +1,8 @@
 namespace Pondhawk.Utilities.Process;
 
+/// <summary>
+/// File-based inter-process signaling controller that uses flag files to coordinate started/stop/stopped state.
+/// </summary>
 public class FileSignalController: ISignalController, IDisposable
 {
 

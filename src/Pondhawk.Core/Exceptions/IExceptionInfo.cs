@@ -1,5 +1,8 @@
 ﻿namespace Pondhawk.Exceptions;
 
+/// <summary>
+/// Provides structured error information (kind, code, explanation, details) for exception types.
+/// </summary>
 public interface IExceptionInfo
 {
 

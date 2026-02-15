@@ -24,6 +24,9 @@ SOFTWARE.
 
 namespace Pondhawk.Rules.Exceptions;
 
+/// <summary>
+/// Thrown when an evaluation completes without evaluating any rules.
+/// </summary>
 public sealed class NoRulesEvaluatedException : Exception
 {
 

@@ -28,7 +28,21 @@ using Pondhawk.Rules.Evaluation;
 
 namespace Pondhawk.Rules;
 
-public class Rule<TFact> : AbstractRule
+/// <summary>
+/// A concrete rule that evaluates conditions and fires consequences against a single fact type.
+/// </summary>
+/// <remarks>
+/// <para>Fluent API: <c>If(predicate).And(predicate).Then(action)</c> — conditions are AND-joined; all must be true to fire.</para>
+/// <para><c>Otherwise(action)</c> inverts condition evaluation — fires when conditions are false (negated rule).</para>
+/// <para><c>Fire(action)</c> always fires (no conditions). <c>NoConsequence()</c> tracks evaluation but does nothing.</para>
+/// <para><b>Scoring:</b> <c>ThenAffirm(weight)</c>/<c>ThenVeto(weight)</c> add to <see cref="EvaluationResults.Score"/> for use with <c>Decide()</c>.</para>
+/// <para><b>Forward chaining:</b> <c>Modifies(func)</c> signals that the consequence modifies a fact, triggering re-evaluation.
+/// <c>Cascade&lt;T&gt;(func)</c> inserts a new fact into the fact space. <c>CascadeAll&lt;T&gt;(func)</c> inserts a collection.</para>
+/// <para><b>Mutex:</b> <c>InMutex(name)</c> groups rules; only the first matching rule in a mutex group fires.</para>
+/// <para><b>Fire-once:</b> <c>FireOnce()</c> prevents a rule from firing more than once per evaluation session.</para>
+/// <para><b>Time-windowing:</b> <c>WithInception(dt)</c>/<c>WithExpiration(dt)</c> restrict when a rule is active.</para>
+/// </remarks>
+public sealed class Rule<TFact> : AbstractRule
 {
     public Rule( string setName, string ruleName ) : base( setName, ruleName )
     {
@@ -42,9 +56,9 @@ public class Rule<TFact> : AbstractRule
 
     private Action<TFact> CascadeAction { get; set; }
 
-    protected List<Func<TFact, bool>> Conditions { get; set; }
-    protected Action<TFact> Consequence { get; set; }
-    protected Func<TFact, object> ModifyFunc { get; set; }
+    private List<Func<TFact, bool>> Conditions { get; set; }
+    private Action<TFact> Consequence { get; set; }
+    private Func<TFact, object> ModifyFunc { get; set; }
 
         
     public Rule<TFact> WithSalience( int value )
@@ -260,16 +274,14 @@ public class Rule<TFact> : AbstractRule
 
     private void _BuildMessage( TFact fact, RuleEvent.EventCategory category, string group, string template,  Func<TFact, object>[] parameters )
     {
-        var len = parameters.Length;
-
-        if (len == 0)
+        if (parameters.Length == 0)
         {
             RuleThreadLocalStorage.CurrentContext.Event( category, group, template, fact );
             return;
         }
 
-        var markers = new object[len];
-        for( int i = 0; i < len; i++ )
+        var markers = new object[parameters.Length];
+        for( int i = 0; i < parameters.Length; i++ )
         {
             var o = parameters[i]( fact ) ?? "null";
             markers[i] = o;
@@ -358,7 +370,10 @@ public class Rule<TFact> : AbstractRule
 }
 
 
-public class Rule<TFact1, TFact2> : AbstractRule
+/// <summary>
+/// A concrete rule that evaluates conditions and fires consequences against two fact types.
+/// </summary>
+public sealed class Rule<TFact1, TFact2> : AbstractRule
 {
 
     public Rule( string setName, string ruleName ): base( setName, ruleName )
@@ -373,9 +388,9 @@ public class Rule<TFact1, TFact2> : AbstractRule
 
     private Action<TFact1, TFact2> CascadeAction { get; set; }
 
-    protected List<Func<TFact1, TFact2, bool>> Conditions { get; set; }
-    protected Action<TFact1, TFact2> Consequence { get; set; }
-    protected Func<TFact1, TFact2, object> ModifyFunc { get; set; }
+    private List<Func<TFact1, TFact2, bool>> Conditions { get; set; }
+    private Action<TFact1, TFact2> Consequence { get; set; }
+    private Func<TFact1, TFact2, object> ModifyFunc { get; set; }
 
         
     public Rule<TFact1, TFact2> WithSalience( int value )
@@ -615,16 +630,14 @@ public class Rule<TFact1, TFact2> : AbstractRule
 
     private void _BuildMessage( TFact1 fact1, TFact2 fact2, RuleEvent.EventCategory category, string group, string template,  Func<TFact1, TFact2, object>[] parameters )
     {
-        int len = parameters.Length;
-
-        if (len == 0)
+        if (parameters.Length == 0)
         {
             RuleThreadLocalStorage.CurrentContext.Event( category, group, template );
             return;
         }
 
-        var markers = new object[len];
-        for( int i = 0; i < len; i++ )
+        var markers = new object[parameters.Length];
+        for( int i = 0; i < parameters.Length; i++ )
         {
             object o = parameters[i]( fact1, fact2 ) ?? "null";
             markers[i] = o;
@@ -679,7 +692,10 @@ public class Rule<TFact1, TFact2> : AbstractRule
 }
 
 
-public class Rule<TFact1, TFact2, TFact3> : AbstractRule
+/// <summary>
+/// A concrete rule that evaluates conditions and fires consequences against three fact types.
+/// </summary>
+public sealed class Rule<TFact1, TFact2, TFact3> : AbstractRule
 {
     public Rule( string setName, string ruleName )
         : base( setName, ruleName )
@@ -694,9 +710,9 @@ public class Rule<TFact1, TFact2, TFact3> : AbstractRule
 
     private Action<TFact1, TFact2, TFact3> CascadeAction { get; set; }
 
-    protected List<Func<TFact1, TFact2, TFact3, bool>> Conditions { get; set; }
-    protected Action<TFact1, TFact2, TFact3> Consequence { get; set; }
-    protected Func<TFact1, TFact2, TFact3, object> ModifyFunc { get; set; }
+    private List<Func<TFact1, TFact2, TFact3, bool>> Conditions { get; set; }
+    private Action<TFact1, TFact2, TFact3> Consequence { get; set; }
+    private Func<TFact1, TFact2, TFact3, object> ModifyFunc { get; set; }
 
         
     public Rule<TFact1, TFact2, TFact3> WithSalience( int value )
@@ -939,16 +955,14 @@ public class Rule<TFact1, TFact2, TFact3> : AbstractRule
 
     private void _BuildMessage( TFact1 fact1, TFact2 fact2, TFact3 fact3, RuleEvent.EventCategory category, string group, string template,  Func<TFact1, TFact2, TFact3, object>[] parameters )
     {
-        int len = parameters.Length;
-
-        if (len == 0)
+        if (parameters.Length == 0)
         {
             RuleThreadLocalStorage.CurrentContext.Event( category, group, template );
             return;
         }
 
-        var markers = new object[len];
-        for( int i = 0; i < len; i++ )
+        var markers = new object[parameters.Length];
+        for( int i = 0; i < parameters.Length; i++ )
         {
             object o = parameters[i]( fact1, fact2, fact3 ) ?? "null";
             markers[i] = o;
@@ -1005,7 +1019,10 @@ public class Rule<TFact1, TFact2, TFact3> : AbstractRule
 }
 
 
-public class Rule<TFact1, TFact2, TFact3, TFact4> : AbstractRule
+/// <summary>
+/// A concrete rule that evaluates conditions and fires consequences against four fact types.
+/// </summary>
+public sealed class Rule<TFact1, TFact2, TFact3, TFact4> : AbstractRule
 {
     public Rule( string setName, string ruleName ) : base( setName, ruleName )
     {
@@ -1019,9 +1036,9 @@ public class Rule<TFact1, TFact2, TFact3, TFact4> : AbstractRule
 
     private Action<TFact1, TFact2, TFact3, TFact4> CascadeAction { get; set; }
 
-    protected List<Func<TFact1, TFact2, TFact3, TFact4, bool>> Conditions { get; set; }
-    protected Action<TFact1, TFact2, TFact3, TFact4> Consequence { get; set; }
-    protected Func<TFact1, TFact2, TFact3, TFact4, object> ModifyFunc { get; set; }
+    private List<Func<TFact1, TFact2, TFact3, TFact4, bool>> Conditions { get; set; }
+    private Action<TFact1, TFact2, TFact3, TFact4> Consequence { get; set; }
+    private Func<TFact1, TFact2, TFact3, TFact4, object> ModifyFunc { get; set; }
 
         
     public Rule<TFact1, TFact2, TFact3, TFact4> WithSalience( int value )
@@ -1263,16 +1280,14 @@ public class Rule<TFact1, TFact2, TFact3, TFact4> : AbstractRule
 
     private void _BuildMessage( TFact1 fact1, TFact2 fact2, TFact3 fact3, TFact4 fact4, RuleEvent.EventCategory category, string group, string template,  Func<TFact1, TFact2, TFact3, TFact4, object>[] parameters )
     {
-        int len = parameters.Length;
-
-        if (len == 0)
+        if (parameters.Length == 0)
         {
             RuleThreadLocalStorage.CurrentContext.Event( category, group, template );
             return;
         }
 
-        var markers = new object[len];
-        for( int i = 0; i < len; i++ )
+        var markers = new object[parameters.Length];
+        for( int i = 0; i < parameters.Length; i++ )
         {
             object o = parameters[i]( fact1, fact2, fact3, fact4 ) ?? "null";
             markers[i] = o;

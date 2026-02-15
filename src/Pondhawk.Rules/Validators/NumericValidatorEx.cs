@@ -26,6 +26,9 @@ using Humanizer;
 
 namespace Pondhawk.Rules.Validators;
 
+/// <summary>
+/// Numeric validation extensions for comparable value types (e.g. Required, IsPositive, IsInRange).
+/// </summary>
 public static class NumericValidatorEx
 {
 

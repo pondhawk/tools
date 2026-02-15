@@ -24,6 +24,9 @@ SOFTWARE.
 
 namespace Pondhawk.Rules.Evaluation;
 
+/// <summary>
+/// Factory for creating <see cref="EvaluationContext"/> instances pre-configured for a specific rule set.
+/// </summary>
 public interface IEvaluationContextFactory
 {
     EvaluationContext CreateContext();

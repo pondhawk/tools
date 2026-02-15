@@ -24,6 +24,18 @@ SOFTWARE.
 
 namespace Pondhawk.Rules;
 
+/// <summary>
+/// Aggregates the outcomes of a rule evaluation, including events, scores, timing, and fired rule statistics.
+/// </summary>
+/// <remarks>
+/// <para><b>Scoring model:</b> <c>TotalAffirmations</c> and <c>TotalVetos</c> accumulate from <c>ThenAffirm(weight)</c>
+/// and <c>ThenVeto(weight)</c> rule consequences. <c>Score</c> = Affirmations - Vetos.
+/// Use <c>IRuleSet.Decide()</c> to compare <c>Score</c> against a threshold.</para>
+/// <para><b>Events:</b> Stored as <see cref="RuleEvent"/> instances with categories: <c>Info</c>, <c>Warning</c>, <c>Violation</c>.
+/// Use <c>GetViolations()</c>, <c>GetEventsByGroup()</c>, or <c>GetEventsByRule()</c> to filter.</para>
+/// <para><b>Mutex winners:</b> <c>MutexWinners</c> records which rule won in each mutex group.</para>
+/// <para><b>Timing:</b> <c>Started</c>/<c>Completed</c> timestamps with <c>Duration</c> in milliseconds.</para>
+/// </remarks>
 public sealed class EvaluationResults
 {
 

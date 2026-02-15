@@ -17,12 +17,12 @@ public static class WatchSinkExtensions
     /// <param name="serverUrl">The Watch Server URL.</param>
     /// <param name="domain">The domain name for log event batches.</param>
     /// <returns>The logger configuration for chaining.</returns>
-    public static LoggerConfiguration AddWatch(
+    public static LoggerConfiguration Watch(
         this LoggerSinkConfiguration config,
         string serverUrl,
         string domain)
     {
-        return AddWatch(config, serverUrl, domain, _ => { });
+        return Watch(config, serverUrl, domain, _ => { });
     }
 
     /// <summary>
@@ -34,7 +34,7 @@ public static class WatchSinkExtensions
     /// <param name="domain">The domain name for log event batches.</param>
     /// <param name="configure">An action to customize the sink options.</param>
     /// <returns>The logger configuration for chaining.</returns>
-    public static LoggerConfiguration AddWatch(
+    public static LoggerConfiguration Watch(
         this LoggerSinkConfiguration config,
         string serverUrl,
         string domain,
@@ -48,7 +48,8 @@ public static class WatchSinkExtensions
         var options = new WatchSinkOptions { ServerUrl = serverUrl, Domain = domain };
         configure(options);
 
-        var httpClient = new HttpClient { BaseAddress = new Uri(options.ServerUrl) };
+        var normalizedUrl = options.ServerUrl.TrimEnd('/') + "/";
+        var httpClient = new HttpClient { BaseAddress = new Uri(normalizedUrl) };
         var switchSource = new WatchSwitchSource(httpClient, options.Domain, options.PollInterval);
         switchSource.WhenNotMatched(options.DefaultLevel, options.DefaultColor);
 

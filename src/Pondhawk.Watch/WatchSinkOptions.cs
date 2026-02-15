@@ -4,7 +4,7 @@ using Serilog.Events;
 namespace Pondhawk.Watch;
 
 /// <summary>
-/// Configuration options for the <see cref="WatchSinkExtensions"/> AddWatch convenience methods.
+/// Configuration options for the <see cref="WatchSinkExtensions.Watch(Serilog.Configuration.LoggerSinkConfiguration, string, string)"/> convenience methods.
 /// </summary>
 public class WatchSinkOptions
 {

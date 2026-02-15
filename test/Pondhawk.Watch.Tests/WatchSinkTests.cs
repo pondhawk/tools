@@ -304,20 +304,21 @@ public class WatchSinkTests
     // --- GetCorrelationId: Activity without existing correlation ---
 
     [Fact]
-    public async Task GetCorrelationId_WithActivityWithoutBaggage_CreatesNewCorrelation()
+    public void GetCorrelationId_WithActivityWithoutBaggage_CreatesNewCorrelation()
     {
         var handler = new MockHttpHandler();
         handler.RespondWith(HttpStatusCode.OK);
-        var sink = new WatchSink(CreateClient(handler), CreateSwitchSource(), "test");
+        var sink = new WatchSink(CreateClient(handler), CreateSwitchSource(), "test",
+            flushInterval: TimeSpan.FromMilliseconds(10));
 
         using var activity = new Activity("TestActivity");
         activity.Start();
 
-        await sink.FlushBatchAsync(MakeEventList(sourceContext: "MyApp"));
-
-        handler.Requests.Count.ShouldBe(1);
+        sink.Emit(MakeSerilogEvent(sourceContext: "MyApp"));
 
         var correlation = activity.GetBaggageItem("watch.correlation");
         correlation.ShouldNotBeNullOrEmpty();
+
+        sink.Dispose();
     }
 }

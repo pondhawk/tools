@@ -140,6 +140,11 @@ public sealed class WatchSink : ILogEventSink, IDisposable
         if (Volatile.Read(ref _disposed) != 0)
             return;
 
+        // Capture correlation ID on the caller's thread where Activity.Current is available.
+        // The flush loop runs on a background thread that has no access to the caller's Activity.
+        var correlationId = GetCorrelationId();
+        logEvent.AddPropertyIfAbsent(new LogEventProperty(WatchPropertyNames.CorrelationId, new ScalarValue(correlationId)));
+
         _channel.Writer.TryWrite(logEvent);
     }
 
@@ -320,7 +325,7 @@ public sealed class WatchSink : ILogEventSink, IDisposable
             Color = sw.Color.ToArgb(),
             Tag = sw.Tag,
             Title = serilogEvent.RenderMessage(System.Globalization.CultureInfo.InvariantCulture),
-            CorrelationId = GetCorrelationId(),
+            CorrelationId = GetCorrelationIdFromEvent(serilogEvent),
             Occurred = serilogEvent.Timestamp.UtcDateTime
         };
 
@@ -366,6 +371,17 @@ public sealed class WatchSink : ILogEventSink, IDisposable
         }
 
         return "Serilog";
+    }
+
+    private static string GetCorrelationIdFromEvent(SerilogEvent logEvent)
+    {
+        if (logEvent.Properties.TryGetValue(WatchPropertyNames.CorrelationId, out var value) &&
+            value is ScalarValue { Value: string correlationId })
+        {
+            return correlationId;
+        }
+
+        return Ulid.NewUlid().ToString();
     }
 
     private static string GetCorrelationId()

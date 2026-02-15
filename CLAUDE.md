@@ -65,6 +65,8 @@ A forward-chaining rule engine with type-based fact matching. Fully standalone �
 
 Evaluation flow: `RuleBuilder` → `RuleTree` (indexed by type) → `EvaluationPlan` (generates steps) → `TupleEvaluator` (executes) → `EvaluationResults` (aggregates scores/events/violations). Forward chaining via `InsertFact`/`ModifyFact`/`RetractFact` triggers re-evaluation.
 
+**Authoring guidelines**: Avoid `||` in conditions — each OR branch should be a separate rule for atomicity and traceability. Prefer `.And()` chains over `&&` inside a single predicate.
+
 ### Pondhawk.Rules.EFCore — EF Core SaveChanges Validation
 
 Pre-save entity validation interceptor that hooks into EF Core's `SaveChangesInterceptor`. Validates all `Added` and `Modified` entities through `Pondhawk.Rules` before they reach the database.

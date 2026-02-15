@@ -108,6 +108,38 @@ public class PersonValidation : ValidationBuilder<Person>
 services.UseRules(typeof(OrderRules).Assembly);
 ```
 
+## Authoring Guidelines
+
+**Avoid `||` (OR) in conditions.** Each OR branch should be a separate rule. The engine evaluates all matching rules independently, so OR logic is expressed by writing two rules with the same consequence:
+
+```csharp
+// Bad -- OR inside a condition
+ruleSet.AddRule<Person>("discount")
+    .When(p => p.Tier == "Gold" || p.Tier == "Platinum")
+    .Then(p => p.DiscountPct = 0.10m);
+
+// Good -- two rules, one per branch
+ruleSet.AddRule<Person>("gold-discount")
+    .When(p => p.Tier == "Gold")
+    .Then(p => p.DiscountPct = 0.10m);
+
+ruleSet.AddRule<Person>("platinum-discount")
+    .When(p => p.Tier == "Platinum")
+    .Then(p => p.DiscountPct = 0.10m);
+```
+
+This keeps rules atomic, independently traceable in `EvaluationResults`, and composable with salience, mutex, and fire-once controls.
+
+**Use `And()` for multiple conditions, not `&&`.** Chaining `.And()` gives each condition its own predicate, improving readability and traceability:
+
+```csharp
+// Prefer
+ruleSet.AddRule<Person>("eligible")
+    .When(p => p.Age >= 18)
+    .And(p => p.IsActive)
+    .Then(p => p.CanVote = true);
+```
+
 ## Key Concepts
 
 - **Facts**: Objects inserted into the evaluation context. Rules match against fact types.

@@ -84,7 +84,8 @@ public class WatchSwitchSource : SwitchSource
     /// </summary>
     /// <remarks>
     /// This method is idempotent - calling it multiple times has no additional effect.
-    /// The initial fetch is performed asynchronously in the poll loop.
+    /// The initial fetch is performed synchronously to ensure switches are available
+    /// before the first log event. Subsequent updates run on a background poll loop.
     /// </remarks>
     public override void Start()
     {
@@ -93,6 +94,17 @@ public class WatchSwitchSource : SwitchSource
             if (_started)
                 return;
             _started = true;
+        }
+
+        // Perform initial fetch synchronously so switches are available immediately.
+        // Without this, callers race against the background poll loop.
+        try
+        {
+            UpdateAsync(CancellationToken.None).GetAwaiter().GetResult();
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"[WatchSwitchSource] Initial switch fetch failed: {ex.Message}");
         }
 
         _pollTask = Task.Run(() => PollLoopAsync(_cts.Token));
@@ -129,18 +141,16 @@ public class WatchSwitchSource : SwitchSource
                 Update(defs);
             }
         }
-        catch
+        catch (Exception ex)
         {
-            // Silently ignore failures - we'll try again next poll
-            // In production, you might want to log this to a fallback logger
+            // Temporary diagnostic — will be removed once switch fetching is verified
+            Console.Error.WriteLine($"[WatchSwitchSource] Switch fetch failed: {ex}");
         }
     }
 
     private async Task PollLoopAsync(CancellationToken ct)
     {
-        // Initial fetch (primer)
-        await UpdateAsync(ct).ConfigureAwait(false);
-
+        // Initial fetch already done synchronously in Start()
         if (!PollingEnabled)
             return;
 

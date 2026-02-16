@@ -34,7 +34,7 @@ Pondhawk Tools is a collection of class libraries built by [Pond Hawk Technologi
 | [**Pondhawk.Rules**](src/Pondhawk.Rules/README.md) | Forward-chaining rule engine with type-based fact matching, scoring, and validation |
 | [**Pondhawk.Rules.EFCore**](src/Pondhawk.Rules.EFCore/README.md) | EF Core `SaveChangesInterceptor` that validates entities through Rules before save |
 | [**Pondhawk.Rql**](src/Pondhawk.Rql/README.md) | Resource Query Language — filtering DSL with fluent builder, parser, and SQL/LINQ serialization |
-| [**Pondhawk.Core**](src/Pondhawk.Core/README.md) | Shared foundation — pipeline infrastructure, utilities, exception types |
+| [**Pondhawk.Core**](src/Pondhawk.Core/README.md) | Shared foundation — mediator, configuration modules, pipeline infrastructure, utilities, exceptions |
 | [**Pondhawk.Watch**](src/Pondhawk.Watch/README.md) | Serilog logging API + sink with Channel-based batching and circuit-breaker resilience |
 | [**Pondhawk.Hosting**](src/Pondhawk.Hosting/README.md) | `AddSingletonWithStart<T>()` pattern for co-locating service registration with startup logic |
 
@@ -389,10 +389,19 @@ var (sql, args) = filter.ToSqlWhere();
 
 ### Pondhawk.Core
 
-Pipeline infrastructure, type utilities, and common exception types. Uses `IServiceCollection`-based DI registration.
+Shared foundation with mediator, configuration-driven DI modules, pipeline infrastructure, type utilities, and common exception types.
 
 ```csharp
-// Register pipeline with DI
+// Mediator — CQRS-style request dispatch with pipeline behaviors
+services.AddMediator(typeof(MyHandler).Assembly);
+services.AddPipelineBehavior(typeof(LoggingBehavior<,>));
+
+await mediator.SendAsync(new CreateOrderCommand { ... });
+
+// Configuration — bind modules from IConfiguration and register services
+services.AddServiceModule<DatabaseModule>(configuration);
+
+// Pipeline — composable step-based execution
 services.AddPipelineFactory();
 services.AddPipeline<OrderContext>(steps => steps
     .Add<ValidateStep>()
@@ -439,7 +448,7 @@ services.AddSingletonWithStart<CacheService>(
 ## Dependency Graph
 
 ```
-Pondhawk.Core              (foundation — pipeline, utilities, exceptions)
+Pondhawk.Core              (foundation — mediator, configuration, pipeline, utilities, exceptions)
 Pondhawk.Watch             (standalone — logging API, Serilog sink)
 
 Pondhawk.Rules             (standalone)

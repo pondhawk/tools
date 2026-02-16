@@ -28,9 +28,20 @@ This repository contains class libraries under `src/` that form the **Pondhawk**
 
 ### Pondhawk.Core — Shared Foundation
 
-Core utilities, pipeline infrastructure, and common exception types. Key subsystems:
+Core utilities, pipeline infrastructure, mediator, and common exception types. Key subsystems:
 
-- **Utilities**: Pipeline infrastructure (`IServiceCollection`-based DI registration), process utilities, type extensions.
+- **Mediator** (`Pondhawk.Mediator`): Lightweight mediator pattern implementation for CQRS-style request/response dispatch with pipeline behaviors.
+  - `IMediator` / `Mediator` — routes requests through pipeline behaviors to handlers. Uses cached handler wrappers to avoid reflection on every request.
+  - `IRequest<TResponse>` — unified marker interface. `ICommand<TResponse>` and `IQuery<TResponse>` are convenience aliases preserving semantic intent.
+  - `IRequestHandler<TRequest, TResponse>` — handler interface. `ICommandHandler` and `IQueryHandler` are convenience aliases.
+  - `IPipelineBehavior<TRequest, TResponse>` — cross-cutting concerns (logging, validation) via delegate chain wrapping.
+  - `ServiceCollectionExtensions.AddMediator(assemblies)` — registers mediator + auto-discovers handlers from assemblies. `AddPipelineBehavior(type)` registers open-generic behaviors.
+  - `BatchExecutionContext` — `AsyncLocal`-based batch state tracking (nesting depth, batch ID). `BeginBatch(id)` returns disposable scope.
+  - `BatchCommandResult` — type-erased result wrapper for heterogeneous batch command responses.
+- **Configuration** (`Pondhawk.Configuration`): Configuration-driven DI module pattern.
+  - `IServiceModule` — interface for modules that bundle related service registrations. Properties are populated via `IConfiguration` model binding, then `Build()` registers services.
+  - `ServiceModuleExtensions.AddServiceModule<TModule>(configuration)` — binds a module from config and calls `Build()`. Overload accepts `Action<TModule>` for post-binding overrides.
+- **Utilities**: Pipeline infrastructure (`IServiceCollection`-based DI registration), type extensions, date/time helpers.
 - **Exceptions**: Common exception types.
 
 ### Pondhawk.Watch — Serilog Sink + Logging API (standalone, multi-targeted)
@@ -105,7 +116,7 @@ Lightweight service lifecycle management for `Microsoft.Extensions.Hosting`. Sta
 ### Dependency Graph
 
 ```
-Pondhawk.Core     (foundation — pipeline infrastructure, utilities, exceptions)
+Pondhawk.Core     (foundation — mediator, pipeline infrastructure, utilities, exceptions)
 Pondhawk.Watch    (standalone — logging API, Serilog sink, multi-targeted net10.0+netstandard2.0)
 Pondhawk.Rules    (standalone)
 Pondhawk.Rules.EFCore ──→ Pondhawk.Rules
@@ -119,6 +130,6 @@ Pondhawk.Hosting  (standalone)
 
 ## Conventions
 
-- Namespaces match project/folder structure: `Pondhawk.Rules`, `Pondhawk.Rules.Builder`, `Pondhawk.Rules.Evaluation`, `Pondhawk.Rql`, `Pondhawk.Rql.Builder`, `Pondhawk.Rql.Parser`, `Pondhawk.Rql.Serialization`, `Pondhawk.Hosting`
+- Namespaces match project/folder structure: `Pondhawk.Mediator`, `Pondhawk.Configuration`, `Pondhawk.Rules`, `Pondhawk.Rules.Builder`, `Pondhawk.Rules.Evaluation`, `Pondhawk.Rql`, `Pondhawk.Rql.Builder`, `Pondhawk.Rql.Parser`, `Pondhawk.Rql.Serialization`, `Pondhawk.Hosting`
 - Exception: `Pondhawk.Core` project uses `RootNamespace=Pondhawk`
 - `LangVersion` varies: `default` in Rules and Hosting, `latestmajor` in Rql, `latest` in Watch

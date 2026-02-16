@@ -84,16 +84,24 @@ services.AddSingletonWithStart<MyService>((svc, ct) => svc.InitAsync(ct));
 
 A single `ServiceStarterHostedService` resolves all registered descriptors and calls start lambdas on host startup, stop lambdas in reverse order on shutdown.
 
-### Pondhawk.Core — Shared Foundation (Logging, Utilities)
+### Pondhawk.Core — Shared Foundation (Mediator, Configuration, Utilities)
 
-Core utilities, Serilog logging extensions, and pipeline infrastructure. Used by Pondhawk.Watch.
+Core utilities, mediator, configuration-driven DI modules, and pipeline infrastructure.
 
-**Logging API (Pondhawk.Logging namespace):**
-- `this.GetLogger()` — Returns `Serilog.ILogger` with SourceContext set to caller's type
-- `this.EnterMethod()` — Disposable scope logging entry/exit with elapsed time
-- `logger.LogObject(value)` — Serialize object as JSON payload
-- `logger.LogJson/LogSql/LogXml/LogYaml/LogText(title, content)` — Typed payloads
-- `logger.Inspect(name, value)` — Log name/value pair
+**Mediator (Pondhawk.Mediator namespace):**
+- `IMediator` / `Mediator` — Routes requests through pipeline behaviors to handlers with cached wrappers
+- `IRequest<TResponse>` — Marker interface. `ICommand<T>` / `IQuery<T>` are semantic aliases
+- `IRequestHandler<TRequest, TResponse>` — Handler interface. `ICommandHandler<T>` / `IQueryHandler<T>` aliases
+- `IPipelineBehavior<TRequest, TResponse>` — Cross-cutting concerns via delegate chain
+- `services.AddMediator(assemblies)` — Registers mediator + auto-discovers handlers
+- `services.AddPipelineBehavior(type)` — Registers open-generic pipeline behavior
+- `BatchExecutionContext` — AsyncLocal batch state tracking with nestable `BeginBatch(id)` scope
+- `BatchCommandResult` — Type-erased result wrapper for batch command responses
+
+**Configuration (Pondhawk.Configuration namespace):**
+- `IServiceModule` — Module interface: properties bound from `IConfiguration`, then `Build()` registers services
+- `services.AddServiceModule<TModule>(configuration)` — Bind module from config and register services
+- `services.AddServiceModule<TModule>(configuration, configure)` — With post-binding overrides
 
 ### Pondhawk.Watch — Serilog Sink
 
@@ -109,14 +117,12 @@ Log.Logger = new LoggerConfiguration()
 ## Dependency Graph
 
 ```
-Pondhawk.Core (foundation)
-  ↑
-Pondhawk.Watch ──→ Pondhawk.Core
-
-Pondhawk.Rules        (standalone)
-Pondhawk.Rules.EFCore ──→ Pondhawk.Rules
-Pondhawk.Rql          (standalone)
-Pondhawk.Hosting      (standalone)
+Pondhawk.Core              (foundation — mediator, configuration, pipeline, utilities, exceptions)
+Pondhawk.Watch             (standalone — logging API, Serilog sink)
+Pondhawk.Rules             (standalone)
+Pondhawk.Rules.EFCore ──→  Pondhawk.Rules
+Pondhawk.Rql               (standalone)
+Pondhawk.Hosting           (standalone)
 ```
 
 ## Technical Details

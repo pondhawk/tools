@@ -1,10 +1,92 @@
 # Pondhawk.Core
 
-Shared foundation library providing pipeline infrastructure, type utilities, and common exception types.
+Shared foundation library providing a lightweight mediator, configuration-driven DI modules, pipeline infrastructure, type utilities, and common exception types.
+
+## Mediator
+
+CQRS-style request/response dispatch with pipeline behaviors for cross-cutting concerns.
+
+```csharp
+using Pondhawk.Mediator;
+
+// Register mediator and auto-discover handlers from assemblies
+services.AddMediator(typeof(CreateOrderHandler).Assembly);
+
+// Register open-generic pipeline behaviors (logging, validation, etc.)
+services.AddPipelineBehavior(typeof(LoggingBehavior<,>));
+
+// Define a command
+public record CreateOrderCommand(string Customer, decimal Total) : ICommand<int>;
+
+// Define a handler
+public class CreateOrderHandler : ICommandHandler<CreateOrderCommand, int>
+{
+    public async Task<int> Handle(CreateOrderCommand request, CancellationToken ct)
+    {
+        // ... create order, return ID
+    }
+}
+
+// Send through the mediator
+var orderId = await mediator.SendAsync(new CreateOrderCommand("Acme", 500m));
+```
+
+### Pipeline Behaviors
+
+Wrap handler execution for cross-cutting concerns:
+
+```csharp
+public class LoggingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
+    where TRequest : IRequest<TResponse>
+{
+    public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next)
+    {
+        Log.Information("Handling {Request}", typeof(TRequest).Name);
+        var response = await next();
+        Log.Information("Handled {Request}", typeof(TRequest).Name);
+        return response;
+    }
+}
+```
+
+### Batch Support
+
+Track batch operations with `AsyncLocal`-based context:
+
+```csharp
+using var scope = BatchExecutionContext.BeginBatch("import-2024");
+// All mediator calls within this scope share the batch context
+```
+
+## Configuration Modules
+
+Bind DI modules from `IConfiguration` and register services in one step:
+
+```csharp
+using Pondhawk.Configuration;
+
+public class DatabaseModule : IServiceModule
+{
+    public string ConnectionString { get; set; } = "";
+    public int PoolSize { get; set; } = 10;
+
+    public void Build(IServiceCollection services)
+    {
+        services.AddDbContext<AppDb>(o => o.UseSqlServer(ConnectionString));
+    }
+}
+
+// In Startup — properties bound from config, then Build() called
+services.AddServiceModule<DatabaseModule>(configuration.GetSection("Database"));
+
+// With post-binding overrides
+services.AddServiceModule<DatabaseModule>(configuration.GetSection("Database"),
+    module => module.PoolSize = 20);
+```
 
 ## Pipeline Infrastructure
 
-### Define a Pipeline
+Composable step-based execution with Before/After hooks:
 
 ```csharp
 using Pondhawk.Utilities.Pipeline;
@@ -43,4 +125,3 @@ await pipeline.ExecuteAsync(context, async ctx =>
 - **`TypeExtensions`** -- `GetConciseName()` for human-readable generic type names.
 - **`AssemblyExtensions`** -- Query embedded resources and filter types.
 - **`DateTimeHelpers`** -- Pre-built date range models and Unix timestamp conversion.
-- **`FileSignalController`** -- File-based inter-process lifecycle signaling.

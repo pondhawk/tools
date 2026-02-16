@@ -24,6 +24,7 @@ SOFTWARE.
 
 using System.Drawing;
 using System.Net.Http.Json;
+using System.Threading;
 using CommunityToolkit.Diagnostics;
 using Serilog.Events;
 
@@ -55,6 +56,7 @@ public class WatchSwitchSource : SwitchSource
 #else
     private readonly object _startLock = new();
 #endif
+    private readonly ManualResetEventSlim _ready = new(false);
     private Task? _pollTask;
     private bool _started;
 
@@ -84,8 +86,9 @@ public class WatchSwitchSource : SwitchSource
     /// </summary>
     /// <remarks>
     /// This method is idempotent - calling it multiple times has no additional effect.
-    /// The initial fetch is performed synchronously to ensure switches are available
-    /// before the first log event. Subsequent updates run on a background poll loop.
+    /// Blocks until the initial switch fetch completes (or times out after 5 seconds)
+    /// to ensure switches are available before the first log event.
+    /// Subsequent updates run on a background poll loop.
     /// </remarks>
     public override void Start()
     {
@@ -96,18 +99,11 @@ public class WatchSwitchSource : SwitchSource
             _started = true;
         }
 
-        // Perform initial fetch synchronously so switches are available immediately.
-        // Without this, callers race against the background poll loop.
-        try
-        {
-            UpdateAsync(CancellationToken.None).GetAwaiter().GetResult();
-        }
-        catch
-        {
-            // Initial fetch failed — will retry in poll loop
-        }
-
         _pollTask = Task.Run(() => PollLoopAsync(_cts.Token));
+
+        // Wait for the initial fetch to complete on the background thread.
+        // Uses a WaitHandle to avoid sync-over-async bridging.
+        _ready.Wait(TimeSpan.FromSeconds(5));
     }
 
     /// <summary>
@@ -149,7 +145,20 @@ public class WatchSwitchSource : SwitchSource
 
     private async Task PollLoopAsync(CancellationToken ct)
     {
-        // Initial fetch already done synchronously in Start()
+        // Initial fetch — Start() blocks on _ready until this completes.
+        try
+        {
+            await UpdateAsync(ct).ConfigureAwait(false);
+        }
+        catch
+        {
+            // Initial fetch failed — will retry in poll loop
+        }
+        finally
+        {
+            _ready.Set();
+        }
+
         if (!PollingEnabled)
             return;
 
@@ -192,6 +201,7 @@ public class WatchSwitchSource : SwitchSource
         }
 
         _cts.Dispose();
+        _ready.Dispose();
         Dispose(true);
         GC.SuppressFinalize(this);
     }

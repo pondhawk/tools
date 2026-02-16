@@ -11,7 +11,7 @@
     <Copyright>Pond Hawk Technologies Inc. (c) 2026</Copyright>
     <PackageIcon>pht-small-logo.png</PackageIcon>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <RepositoryUrl>https://github.com/pondhawk/pondhawk-tools</RepositoryUrl>
+    <RepositoryUrl>https://github.com/pondhawk/tools</RepositoryUrl>
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <LangVersion>default</LangVersion>

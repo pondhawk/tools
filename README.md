@@ -14,6 +14,15 @@
   <img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT License" />
 </p>
 
+<p align="center">
+  <a href="https://www.nuget.org/packages/Pondhawk.Core"><img src="https://img.shields.io/nuget/v/Pondhawk.Core?label=Core" alt="Pondhawk.Core" /></a>
+  <a href="https://www.nuget.org/packages/Pondhawk.Watch"><img src="https://img.shields.io/nuget/v/Pondhawk.Watch?label=Watch" alt="Pondhawk.Watch" /></a>
+  <a href="https://www.nuget.org/packages/Pondhawk.Rules"><img src="https://img.shields.io/nuget/v/Pondhawk.Rules?label=Rules" alt="Pondhawk.Rules" /></a>
+  <a href="https://www.nuget.org/packages/Pondhawk.Rules.EFCore"><img src="https://img.shields.io/nuget/v/Pondhawk.Rules.EFCore?label=Rules.EFCore" alt="Pondhawk.Rules.EFCore" /></a>
+  <a href="https://www.nuget.org/packages/Pondhawk.Rql"><img src="https://img.shields.io/nuget/v/Pondhawk.Rql?label=Rql" alt="Pondhawk.Rql" /></a>
+  <a href="https://www.nuget.org/packages/Pondhawk.Hosting"><img src="https://img.shields.io/nuget/v/Pondhawk.Hosting?label=Hosting" alt="Pondhawk.Hosting" /></a>
+</p>
+
 ---
 
 ## Overview
@@ -22,12 +31,12 @@ Pondhawk Tools is a collection of class libraries built by [Pond Hawk Technologi
 
 | Package | Description |
 |---------|-------------|
-| **Pondhawk.Rules** | Forward-chaining rule engine with type-based fact matching, scoring, and validation |
-| **Pondhawk.Rules.EFCore** | EF Core `SaveChangesInterceptor` that validates entities through Rules before save |
-| **Pondhawk.Rql** | Resource Query Language — filtering DSL with fluent builder, parser, and SQL/LINQ serialization |
-| **Pondhawk.Core** | Shared foundation — pipeline infrastructure, utilities, exception types |
-| **Pondhawk.Watch** | Serilog logging API + sink with Channel-based batching and circuit-breaker resilience |
-| **Pondhawk.Hosting** | `AddSingletonWithStart<T>()` pattern for co-locating service registration with startup logic |
+| [**Pondhawk.Rules**](src/Pondhawk.Rules/README.md) | Forward-chaining rule engine with type-based fact matching, scoring, and validation |
+| [**Pondhawk.Rules.EFCore**](src/Pondhawk.Rules.EFCore/README.md) | EF Core `SaveChangesInterceptor` that validates entities through Rules before save |
+| [**Pondhawk.Rql**](src/Pondhawk.Rql/README.md) | Resource Query Language — filtering DSL with fluent builder, parser, and SQL/LINQ serialization |
+| [**Pondhawk.Core**](src/Pondhawk.Core/README.md) | Shared foundation — pipeline infrastructure, utilities, exception types |
+| [**Pondhawk.Watch**](src/Pondhawk.Watch/README.md) | Serilog logging API + sink with Channel-based batching and circuit-breaker resilience |
+| [**Pondhawk.Hosting**](src/Pondhawk.Hosting/README.md) | `AddSingletonWithStart<T>()` pattern for co-locating service registration with startup logic |
 
 ## Getting Started
 
@@ -37,19 +46,20 @@ Pondhawk Tools is a collection of class libraries built by [Pond Hawk Technologi
 
 ### Installation
 
-Packages are published to GitHub Packages. Add the feed to your NuGet configuration:
+Stable releases are published to [nuget.org](https://www.nuget.org/profiles/pondhawk). Install the packages you need:
+
+```bash
+dotnet add package Pondhawk.Rules
+dotnet add package Pondhawk.Rql
+dotnet add package Pondhawk.Watch
+```
+
+Pre-release builds are available on [GitHub Packages](https://github.com/orgs/pondhawk/packages). Add the feed to your NuGet configuration:
 
 ```xml
 <PackageSource>
   <add key="pondhawk" value="https://nuget.pkg.github.com/pondhawk/index.json" />
 </PackageSource>
-```
-
-Then reference the packages you need:
-
-```xml
-<PackageReference Include="Pondhawk.Rules" />
-<PackageReference Include="Pondhawk.Rql" />
 ```
 
 ### Building from Source

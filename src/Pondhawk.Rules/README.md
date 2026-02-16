@@ -28,11 +28,11 @@ var result = ruleSet.Evaluate(new Person { Name = "Alice", Age = 25 });
 
 ```csharp
 ruleSet.AddValidation<Person>("name-required")
-    .Assert<string>(p => p.Name)
+    .Assert(p => p.Name)
     .Required();
 
 ruleSet.AddValidation<Person>("age-range")
-    .Assert<int>(p => p.Age)
+    .Assert(p => p.Age)
     .IsGreaterThanOrEqual(0)
     .IsLessThanOrEqual(150);
 
@@ -75,11 +75,11 @@ public class OrderRules : RuleBuilder<Order>
 {
     public OrderRules()
     {
-        Rule<Order>()
+        Rule()
             .When(o => o.Total > 1000)
             .Then(o => o.RequiresApproval = true);
 
-        Rule<Order>()
+        Rule()
             .When(o => o.Items.Count == 0)
             .Then(o => o.Status = "Empty");
     }
@@ -95,9 +95,9 @@ public class PersonValidation : ValidationBuilder<Person>
 {
     public PersonValidation()
     {
-        Assert<string>(p => p.Name).Required();
-        Assert<string>(p => p.Email).Required().IsEmail();
-        Assert<int>(p => p.Age).IsGreaterThanOrEqual(0);
+        Assert(p => p.Name).Required();
+        Assert(p => p.Email).Required().IsEmail();
+        Assert(p => p.Age).IsGreaterThanOrEqual(0);
     }
 }
 ```

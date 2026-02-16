@@ -1,7 +1,8 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Pondhawk.Watch.Utilities;
 
-namespace Pondhawk.Watch;
+namespace Pondhawk.Watch.Serializers;
 
 /// <summary>
 /// JSON converter for Type objects.

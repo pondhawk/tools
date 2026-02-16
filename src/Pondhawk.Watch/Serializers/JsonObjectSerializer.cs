@@ -24,6 +24,7 @@ SOFTWARE.
 
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Pondhawk.Watch.Serializers;
 
 namespace Pondhawk.Watch;
 

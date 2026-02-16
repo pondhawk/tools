@@ -5,6 +5,7 @@ using Serilog;
 using Serilog.Core;
 using Serilog.Events;
 using SerilogLogEvent = Serilog.Events.LogEvent;
+#pragma warning disable CA2254
 
 namespace Pondhawk.Watch;
 
@@ -19,16 +20,14 @@ namespace Pondhawk.Watch;
 public sealed class MethodLogger : ILogger, IDisposable
 {
     private readonly ILogger _logger;
-    private readonly string _className;
     private readonly string _method;
     private readonly long _startTimestamp;
     private readonly bool _tracing;
     private bool _disposed;
 
-    internal MethodLogger(ILogger logger, string className, string method, bool tracing)
+    internal MethodLogger(ILogger logger, string method, bool tracing)
     {
         _logger = logger;
-        _className = className;
         _method = method;
         _startTimestamp = Stopwatch.GetTimestamp();
         _tracing = tracing;
@@ -44,12 +43,12 @@ public sealed class MethodLogger : ILogger, IDisposable
 
         _disposed = true;
 
-        if (_tracing && WatchSwitchConfig.IsEnabled("Serilog", LogEventLevel.Verbose))
+        if (_tracing && _logger.IsEnabled(LogEventLevel.Verbose))
         {
             var elapsed = Stopwatch.GetElapsedTime(_startTimestamp);
             _logger
                 .ForContext(WatchPropertyNames.Nesting, -1)
-                .Verbose("Exiting {ClassName}.{Method} ({Elapsed:F2}ms)", _className, _method, elapsed.TotalMilliseconds);
+                .Verbose("Exiting {Method} ({Elapsed:F2}ms)", _method, elapsed.TotalMilliseconds);
         }
     }
 

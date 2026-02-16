@@ -26,7 +26,7 @@ using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
 
-namespace Pondhawk.Watch;
+namespace Pondhawk.Watch.Serializers;
 
 /// <summary>
 /// Custom JSON type info resolver that provides safe property access and sensitive data handling.

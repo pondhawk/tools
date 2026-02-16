@@ -19,9 +19,9 @@ public class WatchSinkOptions
     public string Domain { get; set; } = "Default";
 
     /// <summary>
-    /// Gets or sets the default log level when no switch pattern matches. Default is Debug.
+    /// Gets or sets the default log level when no switch pattern matches. Default is Warning.
     /// </summary>
-    public LogEventLevel DefaultLevel { get; set; } = LogEventLevel.Debug;
+    public LogEventLevel DefaultLevel { get; set; } = LogEventLevel.Warning;
 
     /// <summary>
     /// Gets or sets the default color when no switch pattern matches. Default is LightGray.

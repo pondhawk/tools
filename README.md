@@ -406,10 +406,11 @@ Serilog logging API + `ILogEventSink` with unbounded `Channel<T>` batching and c
 
 ```csharp
 using Pondhawk.Watch;
+using Serilog;
 
-// Configure the Serilog sink
+// Configure Serilog — Watch Server controls log levels via switches
 Log.Logger = new LoggerConfiguration()
-    .WriteTo.WatchSink(httpClient, switchSource, domain: "MyApp")
+    .UseWatch("http://localhost:11000", "MyApp")
     .CreateLogger();
 
 // Logging API

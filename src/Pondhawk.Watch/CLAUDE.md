@@ -200,11 +200,27 @@ logger.Inspect("name", value);      // Logs "name = value" at Debug
 ## Sink Configuration
 
 ```csharp
+using Pondhawk.Watch;
 using Serilog;
 
+// Recommended — Watch Server controls log levels via switches
 Log.Logger = new LoggerConfiguration()
-    .MinimumLevel.Debug()
-    .WriteTo.WatchSink(httpClient, switchSource, domain: "MyApp")
+    .UseWatch("http://localhost:11000", "MyApp")
+    .CreateLogger();
+
+// With options
+Log.Logger = new LoggerConfiguration()
+    .UseWatch("http://localhost:11000", "MyApp", opts =>
+    {
+        opts.BatchSize = 50;
+        opts.PollInterval = TimeSpan.FromSeconds(15);
+    })
+    .CreateLogger();
+
+// Advanced — manual control over MinimumLevel
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Verbose()
+    .WriteTo.Watch("http://localhost:11000", "MyApp")
     .CreateLogger();
 ```
 

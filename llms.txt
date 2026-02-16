@@ -100,8 +100,9 @@ Core utilities, Serilog logging extensions, and pipeline infrastructure. Used by
 A Serilog `ILogEventSink` with Channel-based batching for the Watch structured logging pipeline.
 
 ```csharp
+// Watch Server controls log levels via switches
 Log.Logger = new LoggerConfiguration()
-    .WriteTo.Watch()
+    .UseWatch("http://localhost:11000", "MyApp")
     .CreateLogger();
 ```
 

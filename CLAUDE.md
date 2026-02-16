@@ -45,7 +45,7 @@ A Serilog `ILogEventSink` with Channel-based batching, plus the full Watch loggi
   - **`ILogger.LogJson/LogSql/LogXml/LogYaml/LogText(title, content)`** — typed payload logging with syntax highlighting hints
   - Also: `WatchSwitchConfig`, `WatchPropertyNames`, serializers (`JsonObjectSerializer`), `PayloadType` enum, `[Sensitive]` attribute, `CorrelationManager`.
 - **WatchSink**: `ILogEventSink` implementation with unbounded Channel batching. Converts Serilog events to Watch `LogEvent` instances with switch-based filtering. Circuit breaker for HTTP resilience.
-- **WatchSinkExtensions**: Serilog `LoggerConfiguration` extension method for configuring the Watch sink.
+- **WatchSinkExtensions**: Serilog configuration extensions. **`UseWatch(serverUrl, domain)`** is the primary API — sets `MinimumLevel.Verbose()` and adds the Watch sink so the Watch Server controls filtering via switches. `WriteTo.Watch()` is the lower-level alternative for manual minimum-level control.
 - **Switching**: Dynamic log level control via `SwitchSource`/`SwitchDef` with pattern matching. `WatchSwitchSource` polls a Watch Server for switch configuration.
 - **LogEvent/LogEventBatch**: Event model with dual serialization: MemoryPack+Brotli on .NET 7+ (`#if NET7_0_OR_GREATER`), System.Text.Json on netstandard2.0.
 - **netstandard2.0 note**: `MethodLogger` and `EnterMethod()` require .NET 7+ (Serilog ILogger default interface methods). All other logging APIs (GetLogger, LogObject, LogJson, etc.) work on all targets.

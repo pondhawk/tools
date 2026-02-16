@@ -4,14 +4,21 @@ A Serilog `ILogEventSink` with Channel-based batching for the Watch structured l
 
 ## Quick Start
 
-### Configure the Serilog Sink
+### Configure Serilog for Watch
 
 ```csharp
+using Pondhawk.Watch;
 using Serilog;
 
+// Recommended — Watch Server controls log levels via switches
 Log.Logger = new LoggerConfiguration()
-    .MinimumLevel.Debug()
-    .WriteTo.WatchSink()
+    .UseWatch("http://localhost:11000", "MyApp")
+    .CreateLogger();
+
+// Advanced — manual MinimumLevel and sink configuration
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Verbose()
+    .WriteTo.Watch("http://localhost:11000", "MyApp")
     .CreateLogger();
 ```
 

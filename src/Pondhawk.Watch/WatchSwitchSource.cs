@@ -102,9 +102,9 @@ public class WatchSwitchSource : SwitchSource
         {
             UpdateAsync(CancellationToken.None).GetAwaiter().GetResult();
         }
-        catch (Exception ex)
+        catch
         {
-            Console.Error.WriteLine($"[WatchSwitchSource] Initial switch fetch failed: {ex.Message}");
+            // Initial fetch failed — will retry in poll loop
         }
 
         _pollTask = Task.Run(() => PollLoopAsync(_cts.Token));
@@ -141,10 +141,9 @@ public class WatchSwitchSource : SwitchSource
                 Update(defs);
             }
         }
-        catch (Exception ex)
+        catch
         {
-            // Temporary diagnostic — will be removed once switch fetching is verified
-            Console.Error.WriteLine($"[WatchSwitchSource] Switch fetch failed: {ex}");
+            // Silently ignore failures — will retry on next poll
         }
     }
 

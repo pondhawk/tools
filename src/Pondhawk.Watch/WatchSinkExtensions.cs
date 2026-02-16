@@ -1,6 +1,7 @@
 using CommunityToolkit.Diagnostics;
 using Serilog;
 using Serilog.Configuration;
+using Serilog.Events;
 
 namespace Pondhawk.Watch;
 
@@ -9,6 +10,53 @@ namespace Pondhawk.Watch;
 /// </summary>
 public static class WatchSinkExtensions
 {
+    /// <summary>
+    /// Configures Serilog to use Watch for level control and log delivery.
+    /// Sets <c>MinimumLevel.Verbose()</c> so that the Watch Server's switch configuration
+    /// controls filtering, then adds the Watch sink.
+    /// </summary>
+    /// <param name="config">The Serilog logger configuration.</param>
+    /// <param name="serverUrl">The Watch Server URL.</param>
+    /// <param name="domain">The domain name for log event batches.</param>
+    /// <returns>The logger configuration for chaining.</returns>
+    /// <example>
+    /// <code>
+    /// Log.Logger = new LoggerConfiguration()
+    ///     .UseWatch("http://localhost:11000", "MyApp")
+    ///     .CreateLogger();
+    /// </code>
+    /// </example>
+    public static LoggerConfiguration UseWatch(
+        this LoggerConfiguration config,
+        string serverUrl,
+        string domain)
+    {
+        return UseWatch(config, serverUrl, domain, _ => { });
+    }
+
+    /// <summary>
+    /// Configures Serilog to use Watch for level control and log delivery.
+    /// Sets <c>MinimumLevel.Verbose()</c> so that the Watch Server's switch configuration
+    /// controls filtering, then adds the Watch sink with custom options.
+    /// </summary>
+    /// <param name="config">The Serilog logger configuration.</param>
+    /// <param name="serverUrl">The Watch Server URL.</param>
+    /// <param name="domain">The domain name for log event batches.</param>
+    /// <param name="configure">An action to customize the sink options.</param>
+    /// <returns>The logger configuration for chaining.</returns>
+    public static LoggerConfiguration UseWatch(
+        this LoggerConfiguration config,
+        string serverUrl,
+        string domain,
+        Action<WatchSinkOptions> configure)
+    {
+        Guard.IsNotNull(config);
+
+        return config
+            .MinimumLevel.Verbose()
+            .WriteTo.Watch(serverUrl, domain, configure);
+    }
+
     /// <summary>
     /// Adds a Watch sink using just a server URL and domain.
     /// Creates the HttpClient and WatchSwitchSource internally.

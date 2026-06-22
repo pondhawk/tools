@@ -2,7 +2,7 @@
 
 internal sealed class ServiceStartDescriptor
 {
-    public Type ServiceType { get; init; }
-    public Func<object, CancellationToken, Task> StartAction { get; init; }
-    public Func<object, CancellationToken, Task> StopAction { get; init; }
+    public required Type ServiceType { get; init; }
+    public required Func<object, CancellationToken, Task> StartAction { get; init; }
+    public required Func<object, CancellationToken, Task> StopAction { get; init; }
 }

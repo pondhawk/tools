@@ -88,7 +88,7 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddSingletonWithStart<TService>(
         this IServiceCollection services,
         Func<TService, CancellationToken, Task> startAction,
-        Func<TService, CancellationToken, Task> stopAction)
+        Func<TService, CancellationToken, Task>? stopAction)
         where TService : class
     {
         services.AddSingleton<TService>();

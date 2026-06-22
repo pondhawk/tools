@@ -21,7 +21,7 @@ dotnet build src/Pondhawk.Rules.EFCore/Pondhawk.Rules.EFCore.csproj
 
 - **.NET 10** targeting `net10.0` (SDK 10.0.103)
 - **Central package management** via `Directory.Packages.props`
-- **Nullable reference types** enabled in Core and Watch projects
+- **Nullable reference types** enabled in Core, Watch, and Hosting projects
 ## Architecture
 
 This repository contains class libraries under `src/` that form the **Pondhawk** toolkit by Pond Hawk Technologies:
@@ -111,6 +111,7 @@ Lightweight service lifecycle management for `Microsoft.Extensions.Hosting`. Sta
   services.AddSingletonWithStart<MyService>((svc, ct) => svc.InitAsync(ct), (svc, ct) => svc.StopAsync(ct));
   ```
 - **ServiceStarterHostedService**: `IHostedService` that resolves all registered descriptors and calls start lambdas on host startup, stop lambdas in reverse order on shutdown. Auto-registered via `TryAddEnumerable` — only one instance regardless of how many services are registered. Logs each service start/stop via `[LoggerMessage]` source-generated methods.
+- **AppLifecycleService**: `IHostedService` providing file-based lifecycle signaling against a flag directory (defaults to `AppContext.BaseDirectory`). On start it clears stale flags, then writes `started.flag` / `stopped.flag` from the `IHostApplicationLifetime` callbacks, and uses a `FileSystemWatcher` to watch for an externally-created `muststop.flag` — which triggers a graceful `StopApplication()`. Useful for out-of-band shutdown signaling (e.g. orchestrators dropping a flag file). Logs via a source-generated `[LoggerMessage]`.
 - Falls back to `NullLoggerFactory` when `AddLogging()` hasn't been called (e.g. in test scenarios).
 
 ### Dependency Graph

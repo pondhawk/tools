@@ -27,9 +27,34 @@ public class CreateOrderHandler : ICommandHandler<CreateOrderCommand, int>
     }
 }
 
-// Send through the mediator
-var orderId = await mediator.SendAsync(new CreateOrderCommand("Acme", 500m));
+// Send through the mediator — returns a Response<T> envelope, never throws on app errors
+Response<int> result = await mediator.SendAsync(new CreateOrderCommand("Acme", 500m));
+
+if (result.Ok)
+    Console.WriteLine($"Created order {result.Value}");
+else
+    Console.WriteLine($"Failed ({result.Error!.Kind}): {result.Error.Explanation}");
 ```
+
+### The `Response<T>` envelope
+
+Handlers still **throw** on error — nothing about authoring changes. The mediator is the single
+seam that converts a throw into a `Response<T>`: a thrown `ExternalException` becomes a
+`Response.Failure` carrying a structured `ErrorInfo` (with the error `Kind`), while an unexpected
+exception is logged at `Error` and enveloped as `ErrorKind.System`. `OperationCanceledException`
+and configuration errors (no handler registered) still propagate. This lets non-HTTP callers —
+queue consumers and batch — branch on the outcome without catching:
+
+```csharp
+var response = await mediator.SendAsync(command);
+response.Match(
+    onSuccess: value => Ack(value),
+    onFailure: error => error.Kind.IsTransient() ? Requeue() : DeadLetter(error));
+```
+
+`ErrorKindPolicy.IsTransient(this ErrorKind)` is the canonical retry-vs-dead-letter default
+(`System`, `Remote`, `Concurrency` are transient). The HTTP status mapping deliberately lives in
+the ASP.NET layer, not here — `Pondhawk.Core` stays transport-agnostic.
 
 ### Pipeline Behaviors
 
@@ -114,8 +139,13 @@ await pipeline.ExecuteAsync(context, async ctx =>
 | `ExternalException` | Base for application-facing errors with kind, code, explanation, details |
 | `FluentException<T>` | Fluent builder API: `.WithKind().WithErrorCode().WithExplanation()` |
 | `FunctionalException` | Business logic errors |
-| `FailedValidationException` | Validation failures with violation details |
+| `FailedValidationException` | Validation failures with violation details (`Kind = Predicate`) |
+| `NotFoundException` | Resource not found (`Kind = NotFound`) |
+| `ConflictException` | State conflict (`Kind = Conflict`) |
+| `NotAuthorizedException` | Caller not authorized (`Kind = NotAuthorized`) |
 | `InternalException` | Internal/system errors |
+| `ErrorInfo` | Transport-agnostic error shape shared by exceptions and the `Response<T>` envelope |
+| `ErrorKindPolicy` | `IsTransient(ErrorKind)` — canonical retry/dead-letter default |
 | `Error` / `NotFoundError` / `NotValidError` / `UnhandledError` | Structured error results |
 | `ProblemDetail` | RFC 7807 problem detail for HTTP APIs |
 

@@ -31,13 +31,15 @@ This repository contains class libraries under `src/` that form the **Pondhawk**
 Core utilities, pipeline infrastructure, mediator, and common exception types. Key subsystems:
 
 - **Mediator** (`Pondhawk.Mediator`): Lightweight mediator pattern implementation for CQRS-style request/response dispatch with pipeline behaviors.
-  - `IMediator` / `Mediator` — routes requests through pipeline behaviors to handlers. Uses cached handler wrappers to avoid reflection on every request.
+  - `IMediator` / `Mediator` — routes requests through pipeline behaviors to handlers. Uses cached handler wrappers to avoid reflection on every request. `SendAsync` returns a `Response<TResponse>` envelope (it is the single seam that converts a thrown error into a structured failure).
+  - `Response<T>` — success/failure envelope (`Ok`/`Value`/`Error`). The mediator maps a thrown `ExternalException` to `Response.Failure` with an `ErrorInfo` (preserving `ErrorKind`); unexpected exceptions become `ErrorKind.System` and are logged at `Error`; `OperationCanceledException` and missing-handler configuration errors still throw. Handlers/behaviors are unchanged — they keep returning `Task<TResponse>` and throwing.
+  - `ErrorInfo` (`Pondhawk.Exceptions`) — transport-agnostic error shape shared by exceptions and the envelope. `ErrorKindPolicy.IsTransient(ErrorKind)` is the canonical retry/dead-letter default (`System`/`Remote`/`Concurrency`). `NotFoundException`/`ConflictException`/`NotAuthorizedException` are common `FluentException<T>` subclasses fixing their `Kind`. Note: the HTTP `ErrorKind → status` mapping deliberately lives in the ASP.NET layer, not Core.
   - `IRequest<TResponse>` — unified marker interface. `ICommand<TResponse>` and `IQuery<TResponse>` are convenience aliases preserving semantic intent.
   - `IRequestHandler<TRequest, TResponse>` — handler interface. `ICommandHandler` and `IQueryHandler` are convenience aliases.
   - `IPipelineBehavior<TRequest, TResponse>` — cross-cutting concerns (logging, validation) via delegate chain wrapping.
   - `ServiceCollectionExtensions.AddMediator(assemblies)` — registers mediator + auto-discovers handlers from assemblies. `AddPipelineBehavior(type)` registers open-generic behaviors.
   - `BatchExecutionContext` — `AsyncLocal`-based batch state tracking (nesting depth, batch ID). `BeginBatch(id)` returns disposable scope.
-  - `BatchCommandResult` — type-erased result wrapper for heterogeneous batch command responses.
+  - `BatchCommandResult` — type-erased result wrapper for heterogeneous batch command responses. Failures carry an `ErrorInfo` (with `ErrorKind`) via `Failed(commandType, entityUid, ErrorInfo)`; `ErrorMessage` is derived from `ErrorInfo.Explanation`, so the error kind survives a batch.
 - **Configuration** (`Pondhawk.Configuration`): Configuration-driven DI module pattern.
   - `IServiceModule` — interface for modules that bundle related service registrations. Properties are populated via `IConfiguration` model binding, then `Build()` registers services.
   - `ServiceModuleExtensions.AddServiceModule<TModule>(configuration)` — binds a module from config and calls `Build()`. Overload accepts `Action<TModule>` for post-binding overrides.

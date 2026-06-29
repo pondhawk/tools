@@ -1,3 +1,4 @@
+using Pondhawk.Exceptions;
 using Pondhawk.Mediator;
 using Shouldly;
 using Xunit;
@@ -18,6 +19,9 @@ public class BatchCommandResultTests
     {
         public string InvoiceNumber { get; init; }
     }
+
+    private static ErrorInfo Error(string explanation, ErrorKind kind = ErrorKind.Functional)
+        => new() { Kind = kind, ErrorCode = kind.ToString(), Explanation = explanation };
 
     // ── Succeeded ──
 
@@ -84,7 +88,7 @@ public class BatchCommandResultTests
     [Fact]
     public void Failed_SetsSuccessFalse()
     {
-        var result = BatchCommandResult.Failed("CreateOrder", "order-1", "Validation failed");
+        var result = BatchCommandResult.Failed("CreateOrder", "order-1", Error("Validation failed", ErrorKind.Predicate));
 
         result.Success.ShouldBeFalse();
     }
@@ -92,7 +96,7 @@ public class BatchCommandResultTests
     [Fact]
     public void Failed_SetsCommandType()
     {
-        var result = BatchCommandResult.Failed("CreateOrder", "order-1", "Error");
+        var result = BatchCommandResult.Failed("CreateOrder", "order-1", Error("Error"));
 
         result.CommandType.ShouldBe("CreateOrder");
     }
@@ -100,7 +104,7 @@ public class BatchCommandResultTests
     [Fact]
     public void Failed_SetsEntityUid()
     {
-        var result = BatchCommandResult.Failed("CreateOrder", "order-1", "Error");
+        var result = BatchCommandResult.Failed("CreateOrder", "order-1", Error("Error"));
 
         result.EntityUid.ShouldBe("order-1");
     }
@@ -108,23 +112,41 @@ public class BatchCommandResultTests
     [Fact]
     public void Failed_NullEntityUid_Allowed()
     {
-        var result = BatchCommandResult.Failed("CreateOrder", null, "Error");
+        var result = BatchCommandResult.Failed("CreateOrder", null, Error("Error"));
 
         result.EntityUid.ShouldBeNull();
     }
 
     [Fact]
-    public void Failed_SetsErrorMessage()
+    public void Failed_SetsError()
     {
-        var result = BatchCommandResult.Failed("CreateOrder", null, "Something broke");
+        var error = Error("Validation failed", ErrorKind.Predicate);
+
+        var result = BatchCommandResult.Failed("CreateOrder", null, error);
+
+        result.Error.ShouldBeSameAs(error);
+    }
+
+    [Fact]
+    public void Failed_DerivesErrorMessageFromExplanation()
+    {
+        var result = BatchCommandResult.Failed("CreateOrder", null, Error("Something broke"));
 
         result.ErrorMessage.ShouldBe("Something broke");
     }
 
     [Fact]
+    public void Failed_PreservesKind()
+    {
+        var result = BatchCommandResult.Failed("CreateOrder", null, Error("Gone", ErrorKind.NotFound));
+
+        result.Error!.Kind.ShouldBe(ErrorKind.NotFound);
+    }
+
+    [Fact]
     public void Failed_ResponseIsNull()
     {
-        var result = BatchCommandResult.Failed("CreateOrder", null, "Error");
+        var result = BatchCommandResult.Failed("CreateOrder", null, Error("Error"));
 
         result.Response.ShouldBeNull();
     }
@@ -133,28 +155,21 @@ public class BatchCommandResultTests
     public void Failed_NullCommandType_Throws()
     {
         Should.Throw<ArgumentNullException>(
-            () => BatchCommandResult.Failed(null, null, "Error"));
+            () => BatchCommandResult.Failed(null, null, Error("Error")));
     }
 
     [Fact]
     public void Failed_EmptyCommandType_Throws()
     {
         Should.Throw<ArgumentException>(
-            () => BatchCommandResult.Failed("", null, "Error"));
+            () => BatchCommandResult.Failed("", null, Error("Error")));
     }
 
     [Fact]
     public void Failed_NullError_Throws()
     {
         Should.Throw<ArgumentNullException>(
-            () => BatchCommandResult.Failed("CreateOrder", null, null));
-    }
-
-    [Fact]
-    public void Failed_EmptyError_Throws()
-    {
-        Should.Throw<ArgumentException>(
-            () => BatchCommandResult.Failed("CreateOrder", null, ""));
+            () => BatchCommandResult.Failed("CreateOrder", null, null!));
     }
 
     // ── GetResponse ──
@@ -184,11 +199,29 @@ public class BatchCommandResultTests
     [Fact]
     public void GetResponse_NullResponse_ReturnsNull()
     {
-        var result = BatchCommandResult.Failed("Test", null, "Error");
+        var result = BatchCommandResult.Failed("Test", null, Error("Error"));
 
         var typed = result.GetResponse<OrderResponse>();
 
         typed.ShouldBeNull();
+    }
+
+    // ── Batch ──
+
+    [Fact]
+    public void Batch_MixedSuccessFailure_PreservesEachKind()
+    {
+        var results = new[]
+        {
+            BatchCommandResult.Succeeded(new OrderResponse { OrderId = 1 }, "order-1"),
+            BatchCommandResult.Failed("CreateOrder", "order-2", Error("Gone", ErrorKind.NotFound)),
+            BatchCommandResult.Failed("CreateOrder", "order-3", Error("State conflict", ErrorKind.Conflict)),
+        };
+
+        results[0].Success.ShouldBeTrue();
+        results[0].Error.ShouldBeNull();
+        results[1].Error!.Kind.ShouldBe(ErrorKind.NotFound);
+        results[2].Error!.Kind.ShouldBe(ErrorKind.Conflict);
     }
 
     // ── Record equality ──

@@ -89,14 +89,17 @@ A single `ServiceStarterHostedService` resolves all registered descriptors and c
 Core utilities, mediator, configuration-driven DI modules, and pipeline infrastructure.
 
 **Mediator (Pondhawk.Mediator namespace):**
-- `IMediator` / `Mediator` — Routes requests through pipeline behaviors to handlers with cached wrappers
+- `IMediator` / `Mediator` — Routes requests through pipeline behaviors to handlers with cached wrappers. `SendAsync` returns a `Response<TResponse>` envelope
+- `Response<T>` — Success/failure envelope (`Ok`, `Value`, `Error`); the mediator converts a thrown `ExternalException` into a `Response.Failure` carrying `ErrorInfo` (preserving `ErrorKind`). Unexpected exceptions → `ErrorKind.System` (logged at Error); cancellation and missing-handler errors still throw
+- `ErrorInfo` — Transport-agnostic error shape shared by exceptions and the envelope. `ErrorKindPolicy.IsTransient(ErrorKind)` — canonical retry/dead-letter default (System/Remote/Concurrency)
+- `NotFoundException` / `ConflictException` / `NotAuthorizedException` — common `FluentException<T>` subclasses fixing their `Kind`
 - `IRequest<TResponse>` — Marker interface. `ICommand<T>` / `IQuery<T>` are semantic aliases
 - `IRequestHandler<TRequest, TResponse>` — Handler interface. `ICommandHandler<T>` / `IQueryHandler<T>` aliases
 - `IPipelineBehavior<TRequest, TResponse>` — Cross-cutting concerns via delegate chain
 - `services.AddMediator(assemblies)` — Registers mediator + auto-discovers handlers
 - `services.AddPipelineBehavior(type)` — Registers open-generic pipeline behavior
 - `BatchExecutionContext` — AsyncLocal batch state tracking with nestable `BeginBatch(id)` scope
-- `BatchCommandResult` — Type-erased result wrapper for batch command responses
+- `BatchCommandResult` — Type-erased result wrapper for batch command responses; failures carry an `ErrorInfo` (with `ErrorKind`), `ErrorMessage` derived from it
 
 **Configuration (Pondhawk.Configuration namespace):**
 - `IServiceModule` — Module interface: properties bound from `IConfiguration`, then `Build()` registers services

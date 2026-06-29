@@ -1,4 +1,5 @@
 using CommunityToolkit.Diagnostics;
+using Pondhawk.Exceptions;
 
 namespace Pondhawk.Mediator;
 
@@ -29,44 +30,62 @@ public record BatchCommandResult
     public string? EntityUid { get; init; }
 
     /// <summary>
-    /// Error message if the command failed.
+    /// The structured error if the command failed; otherwise <see langword="null"/>. This is the
+    /// authoritative failure field — it preserves the error <see cref="ErrorKind"/> so a batch can
+    /// route retry/dead-letter per command.
     /// </summary>
-    public string? ErrorMessage { get; init; }
+    public ErrorInfo? Error { get; init; }
+
+    /// <summary>
+    /// Human-readable error message if the command failed. Derived from
+    /// <see cref="ErrorInfo.Explanation"/>; the authoritative field is <see cref="Error"/>.
+    /// </summary>
+    public string? ErrorMessage => Error?.Explanation;
 
     /// <summary>
     /// Creates a successful result from a command response.
     /// </summary>
+    /// <typeparam name="T">The response type.</typeparam>
+    /// <param name="response">The command response value.</param>
+    /// <param name="entityUid">The UID of the affected entity, if any.</param>
+    /// <returns>A successful batch result.</returns>
     public static BatchCommandResult Succeeded<T>(T response, string? entityUid = null)
     {
         return new BatchCommandResult
         {
             Success = true,
             Response = response,
-            CommandType = typeof(T).Name.Replace("Response", ""),
+            CommandType = typeof(T).Name.Replace("Response", "", StringComparison.Ordinal),
             EntityUid = entityUid
         };
     }
 
     /// <summary>
-    /// Creates a failed result.
+    /// Creates a failed result carrying the structured error (including its <see cref="ErrorKind"/>).
     /// </summary>
-    public static BatchCommandResult Failed(string commandType, string? entityUid, string error)
+    /// <param name="commandType">The type of command that failed.</param>
+    /// <param name="entityUid">The UID of the affected entity, if any.</param>
+    /// <param name="error">The structured error describing the failure.</param>
+    /// <returns>A failed batch result.</returns>
+    public static BatchCommandResult Failed(string commandType, string? entityUid, ErrorInfo error)
     {
         Guard.IsNotNullOrWhiteSpace(commandType);
-        Guard.IsNotNullOrWhiteSpace(error);
+        Guard.IsNotNull(error);
 
         return new BatchCommandResult
         {
             Success = false,
             CommandType = commandType,
             EntityUid = entityUid,
-            ErrorMessage = error
+            Error = error
         };
     }
 
     /// <summary>
     /// Attempts to get the response as a specific type.
     /// </summary>
+    /// <typeparam name="T">The expected response type.</typeparam>
+    /// <returns>The typed response, or <see langword="null"/> if the cast fails.</returns>
     public T? GetResponse<T>() where T : class
     {
         return Response as T;

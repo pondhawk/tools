@@ -1,4 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Pondhawk.Exceptions;
 using Pondhawk.Mediator;
 using Shouldly;
 using Xunit;
@@ -71,6 +73,46 @@ public class MediatorTests
         }
     }
 
+    // ── Throwing handlers (for the enveloping seam) ──
+
+    public record FindThing(int Id) : IRequest<string>;
+
+    public class FindThingHandler : IRequestHandler<FindThing, string>
+    {
+        public Task<string> HandleAsync(FindThing request, CancellationToken cancellationToken = default)
+            => throw new NotFoundException("Thing", request.Id);
+    }
+
+    public record ValidateThing : IRequest<string>;
+
+    public class ValidateThingHandler : IRequestHandler<ValidateThing, string>
+    {
+        public Task<string> HandleAsync(ValidateThing request, CancellationToken cancellationToken = default)
+            => throw new FailedValidationException(
+            [
+                EventDetail.Build()
+                    .WithRuleName("R1")
+                    .WithCategory(EventDetail.EventCategory.Violation)
+                    .WithExplanation("Name is required"),
+            ]);
+    }
+
+    public record BoomThing : IRequest<string>;
+
+    public class BoomThingHandler : IRequestHandler<BoomThing, string>
+    {
+        public Task<string> HandleAsync(BoomThing request, CancellationToken cancellationToken = default)
+            => throw new InvalidOperationException("kaboom");
+    }
+
+    public record CancelThing : IRequest<string>;
+
+    public class CancelThingHandler : IRequestHandler<CancelThing, string>
+    {
+        public Task<string> HandleAsync(CancelThing request, CancellationToken cancellationToken = default)
+            => throw new OperationCanceledException();
+    }
+
     // ── Helpers ──
 
     private static IMediator BuildMediator(Action<IServiceCollection> configure)
@@ -92,7 +134,8 @@ public class MediatorTests
 
         var result = await mediator.SendAsync(new Ping("hello"));
 
-        result.ShouldBe("Pong: hello");
+        result.Ok.ShouldBeTrue();
+        result.Value.ShouldBe("Pong: hello");
     }
 
     [Fact]
@@ -103,7 +146,8 @@ public class MediatorTests
 
         var result = await mediator.SendAsync(new CreateOrder("Test"));
 
-        result.ShouldBe(42);
+        result.Ok.ShouldBeTrue();
+        result.Value.ShouldBe(42);
     }
 
     [Fact]
@@ -114,7 +158,8 @@ public class MediatorTests
 
         var result = await mediator.SendAsync(new GetOrder(7));
 
-        result.ShouldBe("Order-7");
+        result.Ok.ShouldBeTrue();
+        result.Value.ShouldBe("Order-7");
     }
 
     [Fact]
@@ -144,8 +189,8 @@ public class MediatorTests
         var r1 = await mediator.SendAsync(new Ping("first"));
         var r2 = await mediator.SendAsync(new Ping("second"));
 
-        r1.ShouldBe("Pong: first");
-        r2.ShouldBe("Pong: second");
+        r1.Value.ShouldBe("Pong: first");
+        r2.Value.ShouldBe("Pong: second");
     }
 
     // ── Pipeline behaviors ──
@@ -164,7 +209,7 @@ public class MediatorTests
 
         var result = await mediator.SendAsync(new Ping("test"));
 
-        result.ShouldBe("Pong: test");
+        result.Value.ShouldBe("Pong: test");
         behavior.Log.Count.ShouldBe(2);
         behavior.Log[0].ShouldBe("Before:Ping");
         behavior.Log[1].ShouldBe("After:Ping");
@@ -200,7 +245,8 @@ public class MediatorTests
 
         var result = await mediator.SendAsync(new Ping("test"));
 
-        result.ShouldBeNull();
+        result.Ok.ShouldBeTrue();
+        result.Value.ShouldBeNull();
     }
 
     private class OrderTrackingBehavior<TRequest, TResponse>(string name, List<string> callOrder)
@@ -216,6 +262,100 @@ public class MediatorTests
             var response = await next();
             callOrder.Add($"{name}:After");
             return response;
+        }
+    }
+
+    // ── Enveloping seam ──
+
+    [Fact]
+    public async Task SendAsync_ExternalException_EnvelopesWithKind()
+    {
+        var mediator = BuildMediator(s =>
+            s.AddScoped<IRequestHandler<FindThing, string>, FindThingHandler>());
+
+        var result = await mediator.SendAsync(new FindThing(7));
+
+        result.Ok.ShouldBeFalse();
+        result.Value.ShouldBeNull();
+        result.Error.ShouldNotBeNull();
+        result.Error!.Kind.ShouldBe(ErrorKind.NotFound);
+        result.Error.ErrorCode.ShouldBe("NotFound");
+        result.Error.Explanation.ShouldContain("7");
+    }
+
+    [Fact]
+    public async Task SendAsync_ValidationFailure_CarriesViolationsInDetails()
+    {
+        var mediator = BuildMediator(s =>
+            s.AddScoped<IRequestHandler<ValidateThing, string>, ValidateThingHandler>());
+
+        var result = await mediator.SendAsync(new ValidateThing());
+
+        result.Ok.ShouldBeFalse();
+        result.Error!.Kind.ShouldBe(ErrorKind.Predicate);
+        result.Error.Details.ShouldNotBeEmpty();
+        result.Error.Details[0].Explanation.ShouldBe("Name is required");
+    }
+
+    [Fact]
+    public async Task SendAsync_UnexpectedException_EnvelopesAsSystem_AndLogsError()
+    {
+        var services = new ServiceCollection();
+        services.AddScoped<IRequestHandler<BoomThing, string>, BoomThingHandler>();
+        var provider = services.BuildServiceProvider();
+
+        var logger = new ListLogger<Pondhawk.Mediator.Mediator>();
+        var mediator = new Pondhawk.Mediator.Mediator(provider, logger);
+
+        var result = await mediator.SendAsync(new BoomThing());
+
+        result.Ok.ShouldBeFalse();
+        result.Error!.Kind.ShouldBe(ErrorKind.System);
+        result.Error.Explanation.ShouldBe("kaboom");
+        logger.Entries.ShouldContain(e => e.Level == LogLevel.Error);
+    }
+
+    [Fact]
+    public async Task SendAsync_ExpectedException_NotLoggedAsError()
+    {
+        var services = new ServiceCollection();
+        services.AddScoped<IRequestHandler<FindThing, string>, FindThingHandler>();
+        var provider = services.BuildServiceProvider();
+
+        var logger = new ListLogger<Pondhawk.Mediator.Mediator>();
+        var mediator = new Pondhawk.Mediator.Mediator(provider, logger);
+
+        await mediator.SendAsync(new FindThing(1));
+
+        logger.Entries.ShouldNotContain(e => e.Level == LogLevel.Error);
+    }
+
+    [Fact]
+    public async Task SendAsync_OperationCanceled_Propagates()
+    {
+        var mediator = BuildMediator(s =>
+            s.AddScoped<IRequestHandler<CancelThing, string>, CancelThingHandler>());
+
+        await Should.ThrowAsync<OperationCanceledException>(
+            () => mediator.SendAsync(new CancelThing()));
+    }
+
+    private sealed class ListLogger<T> : ILogger<T>
+    {
+        public List<(LogLevel Level, string Message)> Entries { get; } = [];
+
+        public IDisposable BeginScope<TState>(TState state) where TState : notnull => null;
+
+        public bool IsEnabled(LogLevel logLevel) => true;
+
+        public void Log<TState>(
+            LogLevel logLevel,
+            EventId eventId,
+            TState state,
+            Exception exception,
+            Func<TState, Exception, string> formatter)
+        {
+            Entries.Add((logLevel, formatter(state, exception)));
         }
     }
 

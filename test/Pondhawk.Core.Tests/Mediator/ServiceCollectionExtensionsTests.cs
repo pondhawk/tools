@@ -92,7 +92,7 @@ public class ServiceCollectionExtensionsTests
 
         var result = await mediator.SendAsync(new TestRequest("hello"));
 
-        result.ShouldBe("hello");
+        result.Value.ShouldBe("hello");
     }
 
     [Fact]

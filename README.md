@@ -396,7 +396,9 @@ Shared foundation with mediator, configuration-driven DI modules, pipeline infra
 services.AddMediator(typeof(MyHandler).Assembly);
 services.AddPipelineBehavior(typeof(LoggingBehavior<,>));
 
-await mediator.SendAsync(new CreateOrderCommand { ... });
+// SendAsync returns a Response<T> envelope: handlers throw, the mediator maps the throw to a
+// structured failure (preserving ErrorKind) so queue/batch callers branch without catching.
+Response<int> result = await mediator.SendAsync(new CreateOrderCommand { ... });
 
 // Configuration — bind modules from IConfiguration and register services
 services.AddServiceModule<DatabaseModule>(configuration);
